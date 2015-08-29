@@ -1,0 +1,329 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4C10B4B81B8F991700C497B1 /* libcrypto.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */; };
+		4C10B4B91B8F991700C497B1 /* libssl.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */; };
+		4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CB0C5671B90FC0600B65AE7 /* Client.cpp */; };
+		4CBC84031B8E2270009CFAFF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84021B8E2270009CFAFF /* main.cpp */; };
+		4CBC840B1B8E229B009CFAFF /* LoginServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84091B8E229B009CFAFF /* LoginServer.cpp */; };
+		4CFC3F6B1B9229B800B332CE /* Packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CFC3F691B9229B800B332CE /* Packet.cpp */; };
+		4CFC3F6E1B92317200B332CE /* HandshakePacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CFC3F6C1B92317200B332CE /* HandshakePacket.cpp */; };
+		4CFC3F711B9259B100B332CE /* ServerStatusPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CFC3F6F1B9259B100B332CE /* ServerStatusPacket.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		4C0978DB1B90BBFF008A0005 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.proto";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Google ProtoBuf";
+			outputFiles = (
+				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).pb.cc",
+				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).pb.h",
+			);
+			script = "cd $INPUT_FILE_DIR\nprotoc --proto_path=$INPUT_FILE_DIR --cpp_out=$INPUT_FILE_DIR $INPUT_FILE_DIR/$INPUT_FILE_NAME";
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4CBC83FD1B8E2270009CFAFF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.1.1.dylib; path = OpenSSL/libcrypto.1.1.dylib; sourceTree = "<group>"; };
+		4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.1.1.dylib; path = OpenSSL/libssl.1.1.dylib; sourceTree = "<group>"; };
+		4CB0C5671B90FC0600B65AE7 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
+		4CB0C5681B90FC0600B65AE7 /* Client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Client.hpp; sourceTree = "<group>"; };
+		4CBC83FF1B8E2270009CFAFF /* LoginHandler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LoginHandler; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CBC84021B8E2270009CFAFF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4CBC84091B8E229B009CFAFF /* LoginServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoginServer.cpp; sourceTree = "<group>"; };
+		4CBC840A1B8E229B009CFAFF /* LoginServer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginServer.hpp; sourceTree = "<group>"; };
+		4CFC3F691B9229B800B332CE /* Packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Packet.cpp; sourceTree = "<group>"; };
+		4CFC3F6A1B9229B800B332CE /* Packet.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Packet.hpp; sourceTree = "<group>"; };
+		4CFC3F6C1B92317200B332CE /* HandshakePacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HandshakePacket.cpp; sourceTree = "<group>"; };
+		4CFC3F6D1B92317200B332CE /* HandshakePacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HandshakePacket.hpp; sourceTree = "<group>"; };
+		4CFC3F6F1B9259B100B332CE /* ServerStatusPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerStatusPacket.cpp; sourceTree = "<group>"; };
+		4CFC3F701B9259B100B332CE /* ServerStatusPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ServerStatusPacket.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4CBC83FC1B8E2270009CFAFF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C10B4B81B8F991700C497B1 /* libcrypto.1.1.dylib in Frameworks */,
+				4C10B4B91B8F991700C497B1 /* libssl.1.1.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4C10B49A1B8F8FF800C497B1 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */,
+				4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		4CBC83F61B8E2270009CFAFF = {
+			isa = PBXGroup;
+			children = (
+				4CBC84011B8E2270009CFAFF /* LoginHandler */,
+				4CBC84001B8E2270009CFAFF /* Products */,
+				4C10B49A1B8F8FF800C497B1 /* Libraries */,
+			);
+			sourceTree = "<group>";
+		};
+		4CBC84001B8E2270009CFAFF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4CBC83FF1B8E2270009CFAFF /* LoginHandler */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4CBC84011B8E2270009CFAFF /* LoginHandler */ = {
+			isa = PBXGroup;
+			children = (
+				4CBC84021B8E2270009CFAFF /* main.cpp */,
+				4CBC84091B8E229B009CFAFF /* LoginServer.cpp */,
+				4CBC840A1B8E229B009CFAFF /* LoginServer.hpp */,
+				4CB0C5671B90FC0600B65AE7 /* Client.cpp */,
+				4CB0C5681B90FC0600B65AE7 /* Client.hpp */,
+				4CFC3F691B9229B800B332CE /* Packet.cpp */,
+				4CFC3F6A1B9229B800B332CE /* Packet.hpp */,
+				4CFC3F6C1B92317200B332CE /* HandshakePacket.cpp */,
+				4CFC3F6D1B92317200B332CE /* HandshakePacket.hpp */,
+				4CFC3F6F1B9259B100B332CE /* ServerStatusPacket.cpp */,
+				4CFC3F701B9259B100B332CE /* ServerStatusPacket.hpp */,
+			);
+			path = LoginHandler;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4CBC83FE1B8E2270009CFAFF /* LoginHandler */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4CBC84061B8E2270009CFAFF /* Build configuration list for PBXNativeTarget "LoginHandler" */;
+			buildPhases = (
+				4CBC83FB1B8E2270009CFAFF /* Sources */,
+				4CBC83FC1B8E2270009CFAFF /* Frameworks */,
+				4CBC83FD1B8E2270009CFAFF /* CopyFiles */,
+			);
+			buildRules = (
+				4C0978DB1B90BBFF008A0005 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = LoginHandler;
+			productName = LoginHandler;
+			productReference = 4CBC83FF1B8E2270009CFAFF /* LoginHandler */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4CBC83F71B8E2270009CFAFF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Andrew Querol";
+				TargetAttributes = {
+					4CBC83FE1B8E2270009CFAFF = {
+						CreatedOnToolsVersion = 7.0;
+					};
+				};
+			};
+			buildConfigurationList = 4CBC83FA1B8E2270009CFAFF /* Build configuration list for PBXProject "LoginHandler" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4CBC83F61B8E2270009CFAFF;
+			productRefGroup = 4CBC84001B8E2270009CFAFF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4CBC83FE1B8E2270009CFAFF /* LoginHandler */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4CBC83FB1B8E2270009CFAFF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4CFC3F711B9259B100B332CE /* ServerStatusPacket.cpp in Sources */,
+				4CBC840B1B8E229B009CFAFF /* LoginServer.cpp in Sources */,
+				4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */,
+				4CBC84031B8E2270009CFAFF /* main.cpp in Sources */,
+				4CFC3F6B1B9229B800B332CE /* Packet.cpp in Sources */,
+				4CFC3F6E1B92317200B332CE /* HandshakePacket.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4CBC84041B8E2270009CFAFF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4CBC84051B8E2270009CFAFF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4CBC84071B8E2270009CFAFF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"ASIO_STANDALONE=1",
+					"DEBUG=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/OpenSSL/include",
+					/usr/local/include,
+					"$(PROJECT_DIR)/ASIO/asio/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/OpenSSL",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4CBC84081B8E2270009CFAFF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = "ASIO_STANDALONE=1";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/OpenSSL/include",
+					/usr/local/include,
+					"$(PROJECT_DIR)/ASIO/asio/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/OpenSSL",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4CBC83FA1B8E2270009CFAFF /* Build configuration list for PBXProject "LoginHandler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CBC84041B8E2270009CFAFF /* Debug */,
+				4CBC84051B8E2270009CFAFF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4CBC84061B8E2270009CFAFF /* Build configuration list for PBXNativeTarget "LoginHandler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CBC84071B8E2270009CFAFF /* Debug */,
+				4CBC84081B8E2270009CFAFF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4CBC83F71B8E2270009CFAFF /* Project object */;
+}

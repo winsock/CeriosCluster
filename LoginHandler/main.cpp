@@ -11,8 +11,8 @@
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    Cerios::Server::Login *loginServer = new Cerios::Server::Login(25565, false);
-    loginServer->init("226.1.1.1");
+    Cerios::Server::Login *loginServer = new Cerios::Server::Login(25565, 1337, false);
+    loginServer->init();
     loginServer->listen();
     delete loginServer;
     return EXIT_SUCCESS;

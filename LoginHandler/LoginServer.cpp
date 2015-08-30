@@ -16,6 +16,14 @@
 #include <cstdlib>
 
 #include "Client.hpp"
+#include "ClientServer.hpp"
+#include "RandomSelect.hpp"
+
+Cerios::Server::Login::Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6) :
+clientAcceptor(std::ref(service), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)),
+clientServerAcceptor(std::ref(service), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), nodeCommsPort)) {
+    
+}
 
 void Cerios::Server::Login::listen() {
     try {
@@ -25,30 +33,60 @@ void Cerios::Server::Login::listen() {
     }
 }
 
-void Cerios::Server::Login::asyncAccept() {
-    std::shared_ptr<asio::ip::tcp::socket> tmpSocket = std::shared_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(acceptor.get_executor().context()));
-    acceptor.async_accept(*tmpSocket, std::bind(&Cerios::Server::Login::handle_receive, this, tmpSocket, std::placeholders::_1));
+void Cerios::Server::Login::asyncClientAccept() {
+    std::shared_ptr<asio::ip::tcp::socket> tmpSocket = std::shared_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(clientAcceptor.get_executor().context()));
+    clientAcceptor.async_accept(*tmpSocket, std::bind(&Cerios::Server::Login::handleClient, this, tmpSocket, std::placeholders::_1));
 }
 
-void Cerios::Server::Login::init(std::string multicastGroupAddr) {
-    this->asyncAccept();
+void Cerios::Server::Login::asyncNodeAccept() {
+    std::shared_ptr<asio::ip::tcp::socket> tmpSocket = std::shared_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(clientServerAcceptor.get_executor().context()));
+    clientServerAcceptor.async_accept(*tmpSocket, std::bind(&Cerios::Server::Login::handleNode, this, tmpSocket, std::placeholders::_1));
 }
 
-void Cerios::Server::Login::handle_receive(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error) {
+void Cerios::Server::Login::init() {
+    this->asyncNodeAccept();
+    this->asyncClientAccept();
+}
+
+void Cerios::Server::Login::handleClient(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error) {
     if (!error) {
-        std::cout<<newClient->remote_endpoint()<<std::endl;
         std::shared_ptr<Cerios::Server::Client> client(new Cerios::Server::Client(newClient, this));
-        clients[newClient->native_handle()] = client;
+        pendingClients[newClient->native_handle()] = client;
     }
-    this->asyncAccept();
+    this->asyncClientAccept();
 }
 
-void Cerios::Server::Login::clientDisconnected(Cerios::Server::Client *disconnectedClient) {
+void Cerios::Server::Login::handleNode(std::shared_ptr<asio::ip::tcp::socket> newNode, const asio::error_code &error) {
+    if (!error) {
+        std::cout<<newNode->remote_endpoint()<<std::endl;
+        std::shared_ptr<Cerios::Server::ClientServer> node(new Cerios::Server::ClientServer(newNode));
+        this->connectedNodes[newNode->native_handle()] = node;
+    }
+    this->asyncNodeAccept();
+}
+
+
+void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::Client> disconnectedClient) {
     std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     if (disconnectedClient->getSocket()->is_open()) {
         disconnectedClient->getSocket()->close();
     }
-    clients.erase(disconnectedClient->getSocket()->native_handle());
+    pendingClients.erase(disconnectedClient->getSocket()->native_handle());
+}
+
+void Cerios::Server::Login::handoffClient(std::shared_ptr<Cerios::Server::Client> client) {
+    if (this->connectedNodes.size() <= 0) {
+        return;
+    }
+    RandomSelect<> randomSelection{};
+    uint8_t maxAttemps = 16;
+    while (maxAttemps > 0) {
+        if (randomSelection(this->connectedNodes).second->addClient(client)) {
+            this->pendingClients.erase(client->getSocket()->native_handle());
+            return;
+        }
+        maxAttemps--;
+    }
 }
 
 bool Cerios::Server::Login::checkAuth(std::string authtoken, int clientSocketHandle) {
@@ -165,7 +203,7 @@ bool Cerios::Server::Login::checkAuth(std::string authtoken, int clientSocketHan
     return false;
 }
 
-void Cerios::Server::Login::getFreeServerForClientWithToken(std::string authToken, int clientDescriptor) {
+void Cerios::Server::Login::getFreeServerForClientWithToken(std::string authToken, std::shared_ptr<Cerios::Server::Client> client) {
 //    /* Send a message to the multicast group specified by the*/
 //    /* groupSock sockaddr structure. */
 //    if(sendto(this->broadcastSocketHandle, authToken.data(), sizeof(authToken.data()[0]) * authToken.size(), 0, (struct sockaddr*)this->groupSocketDiscription, sizeof(sockaddr_in)) < 0) {

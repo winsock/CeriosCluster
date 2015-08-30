@@ -2,10 +2,10 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:MCPacket.xcodeproj">
+      location = "group:OpenSSL.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:OpenSSL.xcodeproj">
+      location = "group:MCPacket.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Client Server.xcodeproj">

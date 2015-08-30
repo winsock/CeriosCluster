@@ -21,24 +21,37 @@ struct sockaddr_in;
 typedef uint32_t in_addr_t;
 namespace Cerios { namespace Server {
     class Client;
+    class ClientServer;
     class Login {
     private:
         asio::io_service service;
-        asio::ip::tcp::acceptor acceptor;
-        std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> clients;
+        asio::ip::tcp::acceptor clientAcceptor;
+        asio::ip::tcp::acceptor clientServerAcceptor;
+        std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> pendingClients;\
+        using nodeMap = std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::ClientServer>>;
+        nodeMap connectedNodes;
     public:
-        Login(unsigned short port, bool ipv6) : acceptor(std::ref(service), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), port)) {}
-        void init(std::string multicastGroupAddr);
+        Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6);
+        void init();
         void listen();
-        void handle_receive(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error);
+        
+        void handleClient(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error);
+        void handleNode(std::shared_ptr<asio::ip::tcp::socket> newNode, const asio::error_code &error);
+        
+        /**
+         * Initial login suceeded, connect to actual game logic servers.
+         */
+        void handoffClient(std::shared_ptr<Cerios::Server::Client> client);
+
         bool checkAuth(std::string authtoken, int clientSocketHandle);
-        void getFreeServerForClientWithToken(std::string authtoken, int clientHandle);
-        void clientDisconnected(Cerios::Server::Client *disconnectedClient);
+        void getFreeServerForClientWithToken(std::string authtoken, std::shared_ptr<Cerios::Server::Client> client);
+        void clientDisconnected(std::shared_ptr<Cerios::Server::Client> disconnectedClient);
         in_addr_t getAddrFromHostname(std::string hostname, bool ipv6Prefered = false);
         ~Login();
     private:
         void tryGetClientServer();
-        void asyncAccept();
+        void asyncClientAccept();
+        void asyncNodeAccept();
     };
 }}
 

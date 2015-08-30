@@ -23,7 +23,7 @@ Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSock
 void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) {
     if (error) {
         std::cerr<<"Error during onLengthReceived: "<<error.message()<<std::endl;
-        this->parent->clientDisconnected(this);
+        this->disconnect();
         return;
     }
     
@@ -66,7 +66,7 @@ void Cerios::Server::Client::sendData(std::vector<std::int8_t> &data, std::funct
 void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std::size_t bytes_transferred) {
     if (error) {
         std::cerr<<"Error during on send: "<<error.message()<<std::endl;
-        this->parent->clientDisconnected(this);
+        this->disconnect();
         return;
     }
 }
@@ -74,14 +74,14 @@ void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std:
 void Cerios::Server::Client::onWriteCompleteCallback(const asio::error_code &error, std::size_t bytes_transferred, std::function<void (Cerios::Server::AbstractClient *)> &callback) {
     if (error) {
         std::cerr<<"Error during on send: "<<error.message()<<std::endl;
-        this->parent->clientDisconnected(this);
+        this->disconnect();
         return;
     }
     callback(this);
 }
 
 void Cerios::Server::Client::disconnect() {
-    this->parent->clientDisconnected(this);
+    this->parent->clientDisconnected(this->shared_from_this());
 }
 
 void Cerios::Server::Client::receivedMessage(std::shared_ptr<Cerios::Server::Packet> packet) {

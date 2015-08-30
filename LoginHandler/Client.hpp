@@ -18,7 +18,7 @@
 
 namespace Cerios { namespace Server {
     class Login;
-    class Client : public AbstractClient {
+    class Client : public AbstractClient, public std::enable_shared_from_this<Client> {
     private:
         Cerios::Server::Login *parent;
     public:

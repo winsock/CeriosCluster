@@ -11,16 +11,14 @@
 
 #include "Packet.hpp"
 
-#include <memory>
-#include <string>
-
+#pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
     class ServerStatusPacket : public Packet {
     public:
         std::string jsonEncodedServerStatus;
     public:
-        void onReceivedBy(Cerios::Server::Client *client);
-        void sendTo(Cerios::Server::Client *client);
+        void onReceivedBy(Cerios::Server::AbstractClient *client);
+        void sendTo(Cerios::Server::AbstractClient *client);
         void serializePacket();
         
         static std::shared_ptr<Packet> parsePacket(std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<ServerStatusPacket>(new ServerStatusPacket(packetInProgress))); }
@@ -30,5 +28,6 @@ namespace Cerios { namespace Server {
         ServerStatusPacket();
     };
 }}
+#pragma GCC visibility pop
 
 #endif /* ServerStatusRequestPacket_hpp */

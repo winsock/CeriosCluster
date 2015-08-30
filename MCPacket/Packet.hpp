@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "AbstractClient.hpp"
 
 struct PairHash {
 public:
@@ -23,30 +24,24 @@ public:
     }
 };
 
+#pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
-    class Client;
-    
-    typedef enum : std::int32_t {
-        HANDSHAKE = 0,
-        STATUS = 1,
-        LOGIN = 2,
-        PLAY = 3
-    } ClientState;
-    
-    class Packet {
+    class Packet : public std::enable_shared_from_this<Packet> {
     public:
         using parsePacketFunction = std::shared_ptr<Packet>(std::shared_ptr<Cerios::Server::Packet> packetInProgress);
         using newPacketFunction = std::shared_ptr<Packet>();
         using packet_registry = std::unordered_map<std::pair<ClientState, std::int32_t>, std::pair<newPacketFunction *, parsePacketFunction *>, PairHash>;
         using packet_data_store = std::vector<std::int8_t>;
+        
+        static const std::uint32_t MAX_LENGTH_BYTES = 3; // Magic constant max size in Minecraft
     protected:
         std::int32_t packetId;
         packet_data_store rawPayload;
     public:
         virtual ~Packet() = default;
         
-        virtual void onReceivedBy(Cerios::Server::Client *client) {}
-        virtual void sendTo(Cerios::Server::Client *client) {}
+        virtual void onReceivedBy(Cerios::Server::AbstractClient *client);
+        virtual void sendTo(Cerios::Server::AbstractClient *client) {}
         virtual void serializePacket() {}
         
         static std::shared_ptr<Packet> parsePacket(std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, ClientState state, bool consumeData = true);
@@ -68,9 +63,10 @@ namespace Cerios { namespace Server {
     protected:
         Packet(std::shared_ptr<Cerios::Server::Packet> packetToCopy) : packetId(packetToCopy->packetId), rawPayload(packetToCopy->rawPayload) { }
         Packet(std::int32_t packetId) : packetId(packetId) {}
-        void writeVarIntToBuffer(std::int32_t input);
-        void writeVarLongToBuffer(std::int64_t input);
+        void writeVarIntToBuffer(std::uint32_t input);
+        void writeVarLongToBuffer(std::uint64_t input);
         void writeBufferLengthToFront();
+        void write64bitInt(std::int64_t input);
         
         static std::shared_ptr<Packet> instantiateFromData(ClientState const &state, std::shared_ptr<Cerios::Server::Packet> packetInProgress) {
             auto it = registry().find(std::pair<ClientState, std::int32_t>(state, packetInProgress->packetId));
@@ -92,5 +88,6 @@ namespace Cerios { namespace Server {
         CompressedPacket(std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, bool consumeData = true);
     };
 }}
+#pragma GCC visibility pop
 
 #endif /* Packet_hpp */

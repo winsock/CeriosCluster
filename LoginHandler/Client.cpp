@@ -11,11 +11,12 @@
 #include <iostream>
 #include <istream>
 
-#include "Packet.hpp"
-#include "HandshakePacket.hpp"
+#include <Packet.hpp>
+#include <HandshakePacket.hpp>
+
 #include "LoginServer.hpp"
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, Cerios::Server::Login *parentPtr) : socket(clientSocket), buffer(new std::vector<std::int8_t>()), parent(parentPtr) {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, Cerios::Server::Login *parentPtr) : AbstractClient(clientSocket), parent(parentPtr) {
     this->startAsyncRead();
 }
 
@@ -38,7 +39,9 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
             this->buffer->erase(this->buffer->begin(), this->buffer->begin() + varintSize);
             if (dataBuffer.size() >= messageLength + varintSize) {
                 auto parsedPacket = Cerios::Server::Packet::parsePacket(messageLength, this->buffer, this->state);
-                parsedPacket->onReceivedBy(this);
+                if (parsedPacket != nullptr) {
+                    parsedPacket->onReceivedBy(this);
+                }
             }
         }
     } catch(std::exception &e) {
@@ -56,6 +59,10 @@ void Cerios::Server::Client::sendData(std::vector<std::int8_t> &data) {
     asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
 }
 
+void Cerios::Server::Client::sendData(std::vector<std::int8_t> &data, std::function<void(Cerios::Server::AbstractClient *)> &callback) {
+    asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteCompleteCallback, this, std::placeholders::_1, std::placeholders::_2, callback));
+}
+
 void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std::size_t bytes_transferred) {
     if (error) {
         std::cerr<<"Error during on send: "<<error.message()<<std::endl;
@@ -64,14 +71,22 @@ void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std:
     }
 }
 
-void Cerios::Server::Client::setState(ClientState state) {
-    this->state = state;
+void Cerios::Server::Client::onWriteCompleteCallback(const asio::error_code &error, std::size_t bytes_transferred, std::function<void (Cerios::Server::AbstractClient *)> &callback) {
+    if (error) {
+        std::cerr<<"Error during on send: "<<error.message()<<std::endl;
+        this->parent->clientDisconnected(this);
+        return;
+    }
+    callback(this);
 }
 
-Cerios::Server::ClientState Cerios::Server::Client::getState() {
-    return this->state;
+void Cerios::Server::Client::disconnect() {
+    this->parent->clientDisconnected(this);
 }
 
-std::shared_ptr<asio::ip::tcp::socket> Cerios::Server::Client::getSocket() {
-    return this->socket;
+void Cerios::Server::Client::receivedMessage(std::shared_ptr<Cerios::Server::Packet> packet) {
+    auto handshake = std::dynamic_pointer_cast<Cerios::Server::HandshakePacket>(packet);
+    if (handshake != nullptr) {
+        this->setState(handshake->requestedNextState);
+    }
 }

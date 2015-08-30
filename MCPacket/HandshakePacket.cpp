@@ -7,15 +7,9 @@
 //
 
 #include "HandshakePacket.hpp"
+#include "AbstractClient.hpp"
 
 #include <iostream>
-
-#include "Packet.hpp"
-#include "Client.hpp"
-
-namespace {
-    Cerios::Server::Packet::Registrar<Cerios::Server::HandshakePacket> registrar(Cerios::Server::ClientState::HANDSHAKE, 0x00);
-}
 
 Cerios::Server::HandshakePacket::HandshakePacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
     Cerios::Server::Packet::readVarIntFromBuffer(&this->protocolVersion, &this->rawPayload, true);
@@ -29,10 +23,4 @@ Cerios::Server::HandshakePacket::HandshakePacket(std::shared_ptr<Cerios::Server:
     this->rawPayload.clear();
 }
 
-Cerios::Server::HandshakePacket::HandshakePacket() : Packet(0x00) {
-    
-}
-
-void Cerios::Server::HandshakePacket::onReceivedBy(Cerios::Server::Client *client) {
-    client->setState(this->requestedNextState);
-}
+Cerios::Server::HandshakePacket::HandshakePacket() : Packet(0x00) { }

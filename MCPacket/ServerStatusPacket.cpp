@@ -7,13 +7,9 @@
 //
 
 #include "ServerStatusPacket.hpp"
-#include "Client.hpp"
+#include "AbstractClient.hpp"
 
 #include <iostream>
-
-namespace {
-    Cerios::Server::Packet::Registrar<Cerios::Server::ServerStatusPacket> registrar(Cerios::Server::ClientState::STATUS, 0x00);
-}
 
 Cerios::Server::ServerStatusPacket::ServerStatusPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
     this->rawPayload.clear();
@@ -23,12 +19,13 @@ Cerios::Server::ServerStatusPacket::ServerStatusPacket() : Packet(0x00) {
     
 }
 
-void Cerios::Server::ServerStatusPacket::onReceivedBy(Cerios::Server::Client *client) {
+void Cerios::Server::ServerStatusPacket::onReceivedBy(Cerios::Server::AbstractClient *client) {
     std::shared_ptr<Cerios::Server::Packet> response = Packet::instantiateNew(client->getState(), 0x00);
+    Packet::onReceivedBy(client);
     response->sendTo(client);
 }
 
-void Cerios::Server::ServerStatusPacket::sendTo(Cerios::Server::Client *client) {
+void Cerios::Server::ServerStatusPacket::sendTo(Cerios::Server::AbstractClient *client) {
     this->jsonEncodedServerStatus = "{"
     "\"version\": {"
     "    \"name\": \"1.8.8\","
@@ -41,7 +38,7 @@ void Cerios::Server::ServerStatusPacket::sendTo(Cerios::Server::Client *client) 
     "\"description\": {"
     "    \"text\": \"Hello World!\""
     "}"
-    "};";
+    "}";
     this->serializePacket();
     client->sendData(this->rawPayload);
 }

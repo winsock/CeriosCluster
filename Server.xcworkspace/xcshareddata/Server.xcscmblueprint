@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "196851C9D741FE94BE7D9E01F70279D97EC8E50C",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "55A7FB660E25DAD7EFF279C9F437500B47348AC7" : 0,
+    "196851C9D741FE94BE7D9E01F70279D97EC8E50C" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "2EA69831-672D-470F-A08D-204D79BA972F",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "55A7FB660E25DAD7EFF279C9F437500B47348AC7" : "Server\/OpenSSL\/",
+    "196851C9D741FE94BE7D9E01F70279D97EC8E50C" : "Server\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Server",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Server.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/winsock\/CeriosCluster",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "196851C9D741FE94BE7D9E01F70279D97EC8E50C"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/openssl\/openssl",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "55A7FB660E25DAD7EFF279C9F437500B47348AC7"
+    }
+  ]
+}

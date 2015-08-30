@@ -1,4 +1,4 @@
-//
+    //
 //  ServerHandshakePacket.hpp
 //  LoginHandler
 //
@@ -11,9 +11,7 @@
 
 #include "Packet.hpp"
 
-#include <memory>
-#include <string>
-
+#pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
     class HandshakePacket : public Packet {
     public:
@@ -22,7 +20,6 @@ namespace Cerios { namespace Server {
         std::uint16_t serverPort;
         ClientState requestedNextState;
     public:
-        void onReceivedBy(Cerios::Server::Client *client);
         static std::shared_ptr<Packet> parsePacket(std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<HandshakePacket>(new HandshakePacket(packetInProgress))); }
         static std::shared_ptr<Packet> newPacket() { return std::static_pointer_cast<Packet>(std::shared_ptr<HandshakePacket>(new HandshakePacket())); }
     protected:
@@ -30,5 +27,6 @@ namespace Cerios { namespace Server {
         HandshakePacket();
     };
 }}
+#pragma GCC visibility pop
 
 #endif /* ServerHandshakePacket_hpp */

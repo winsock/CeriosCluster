@@ -12,9 +12,7 @@
 		4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CB0C5671B90FC0600B65AE7 /* Client.cpp */; };
 		4CBC84031B8E2270009CFAFF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84021B8E2270009CFAFF /* main.cpp */; };
 		4CBC840B1B8E229B009CFAFF /* LoginServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84091B8E229B009CFAFF /* LoginServer.cpp */; };
-		4CFC3F6B1B9229B800B332CE /* Packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CFC3F691B9229B800B332CE /* Packet.cpp */; };
-		4CFC3F6E1B92317200B332CE /* HandshakePacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CFC3F6C1B92317200B332CE /* HandshakePacket.cpp */; };
-		4CFC3F711B9259B100B332CE /* ServerStatusPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CFC3F6F1B9259B100B332CE /* ServerStatusPacket.cpp */; };
+		4CC8B85D1B938E2F009594E4 /* libMCPacket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CC8B85C1B938E2F009594E4 /* libMCPacket.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -54,12 +52,7 @@
 		4CBC84021B8E2270009CFAFF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4CBC84091B8E229B009CFAFF /* LoginServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoginServer.cpp; sourceTree = "<group>"; };
 		4CBC840A1B8E229B009CFAFF /* LoginServer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginServer.hpp; sourceTree = "<group>"; };
-		4CFC3F691B9229B800B332CE /* Packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Packet.cpp; sourceTree = "<group>"; };
-		4CFC3F6A1B9229B800B332CE /* Packet.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Packet.hpp; sourceTree = "<group>"; };
-		4CFC3F6C1B92317200B332CE /* HandshakePacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HandshakePacket.cpp; sourceTree = "<group>"; };
-		4CFC3F6D1B92317200B332CE /* HandshakePacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HandshakePacket.hpp; sourceTree = "<group>"; };
-		4CFC3F6F1B9259B100B332CE /* ServerStatusPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerStatusPacket.cpp; sourceTree = "<group>"; };
-		4CFC3F701B9259B100B332CE /* ServerStatusPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ServerStatusPacket.hpp; sourceTree = "<group>"; };
+		4CC8B85C1B938E2F009594E4 /* libMCPacket.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMCPacket.a; path = build/Debug/libMCPacket.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CC8B85D1B938E2F009594E4 /* libMCPacket.a in Frameworks */,
 				4C10B4B81B8F991700C497B1 /* libcrypto.1.1.dylib in Frameworks */,
 				4C10B4B91B8F991700C497B1 /* libssl.1.1.dylib in Frameworks */,
 			);
@@ -80,6 +74,7 @@
 			children = (
 				4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */,
 				4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */,
+				4CC8B85C1B938E2F009594E4 /* libMCPacket.a */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -109,12 +104,6 @@
 				4CBC840A1B8E229B009CFAFF /* LoginServer.hpp */,
 				4CB0C5671B90FC0600B65AE7 /* Client.cpp */,
 				4CB0C5681B90FC0600B65AE7 /* Client.hpp */,
-				4CFC3F691B9229B800B332CE /* Packet.cpp */,
-				4CFC3F6A1B9229B800B332CE /* Packet.hpp */,
-				4CFC3F6C1B92317200B332CE /* HandshakePacket.cpp */,
-				4CFC3F6D1B92317200B332CE /* HandshakePacket.hpp */,
-				4CFC3F6F1B9259B100B332CE /* ServerStatusPacket.cpp */,
-				4CFC3F701B9259B100B332CE /* ServerStatusPacket.hpp */,
 			);
 			path = LoginHandler;
 			sourceTree = "<group>";
@@ -176,12 +165,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CFC3F711B9259B100B332CE /* ServerStatusPacket.cpp in Sources */,
 				4CBC840B1B8E229B009CFAFF /* LoginServer.cpp in Sources */,
 				4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */,
 				4CBC84031B8E2270009CFAFF /* main.cpp in Sources */,
-				4CFC3F6B1B9229B800B332CE /* Packet.cpp in Sources */,
-				4CFC3F6E1B92317200B332CE /* HandshakePacket.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,10 +262,12 @@
 					"$(PROJECT_DIR)/OpenSSL/include",
 					/usr/local/include,
 					"$(PROJECT_DIR)/ASIO/asio/include",
+					"$(PROJECT_DIR)/MCPacket",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/OpenSSL",
+					"$(PROJECT_DIR)/build/Debug",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -293,10 +281,12 @@
 					"$(PROJECT_DIR)/OpenSSL/include",
 					/usr/local/include,
 					"$(PROJECT_DIR)/ASIO/asio/include",
+					"$(PROJECT_DIR)/MCPacket",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/OpenSSL",
+					"$(PROJECT_DIR)/build/Debug",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

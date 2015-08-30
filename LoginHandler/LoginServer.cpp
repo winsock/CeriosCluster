@@ -44,7 +44,7 @@ void Cerios::Server::Login::handle_receive(std::shared_ptr<asio::ip::tcp::socket
 }
 
 void Cerios::Server::Login::clientDisconnected(Cerios::Server::Client *disconnectedClient) {
-    std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!";
+    std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     if (disconnectedClient->getSocket()->is_open()) {
         disconnectedClient->getSocket()->close();
     }

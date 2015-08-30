@@ -14,25 +14,22 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
-
-#include "Packet.hpp"
+#include <AbstractClient.hpp>
 
 namespace Cerios { namespace Server {
     class Login;
-    class Client {
+    class Client : public AbstractClient {
     private:
-        std::shared_ptr<asio::ip::tcp::socket> socket;
-        std::shared_ptr<std::vector<std::int8_t>> buffer;
-        ClientState state = ClientState::HANDSHAKE;
         Cerios::Server::Login *parent;
     public:
         Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, Cerios::Server::Login *parentPtr);
         void sendData(std::vector<std::int8_t> &data);
+        void sendData(std::vector<std::int8_t> &data, std::function<void(Cerios::Server::AbstractClient *)> &callback);
         void onLengthReceive(std::shared_ptr<asio::streambuf>, const asio::error_code &error, std::size_t bytes_transferred);
         void onWriteComplete(const asio::error_code& error, std::size_t bytes_transferred);
-        void setState(ClientState state);
-        ClientState getState();
-        std::shared_ptr<asio::ip::tcp::socket> getSocket();
+        void onWriteCompleteCallback(const asio::error_code& error, std::size_t bytes_transferred, std::function<void(Cerios::Server::AbstractClient *)> &callback);
+        void receivedMessage(std::shared_ptr<Cerios::Server::Packet> packet);
+        void disconnect();
     private:
         void startAsyncRead();
     };

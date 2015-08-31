@@ -26,11 +26,8 @@ clientServerAcceptor(std::ref(service), asio::ip::tcp::endpoint(ipv6 ? asio::ip:
 }
 
 void Cerios::Server::Login::listen() {
-    try {
         this->service.run();
-    } catch (std::exception &e) {
-        std::cerr << e.what() << std::endl;
-    }
+
 }
 
 void Cerios::Server::Login::asyncClientAccept() {
@@ -50,7 +47,7 @@ void Cerios::Server::Login::init() {
 
 void Cerios::Server::Login::handleClient(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error) {
     if (!error) {
-        std::shared_ptr<Cerios::Server::Client> client(new Cerios::Server::Client(newClient, this));
+        std::shared_ptr<Cerios::Server::Client> client(new Cerios::Server::Client(newClient, this->shared_from_this()));
         pendingClients[newClient->native_handle()] = client;
     }
     this->asyncClientAccept();
@@ -66,11 +63,15 @@ void Cerios::Server::Login::handleNode(std::shared_ptr<asio::ip::tcp::socket> ne
 }
 
 
-void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::Client> disconnectedClient) {
+void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient) {
     std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
-    if (disconnectedClient->getSocket()->is_open()) {
-        disconnectedClient->getSocket()->close();
-    }
+    try {
+        if (disconnectedClient->getSocket()->is_open()) {
+            disconnectedClient->getSocket()->shutdown(asio::ip::tcp::socket::shutdown_both);
+            disconnectedClient->getSocket()->close();
+        }
+    } catch (...) { }
+    
     pendingClients.erase(disconnectedClient->getSocket()->native_handle());
 }
 
@@ -81,7 +82,9 @@ void Cerios::Server::Login::handoffClient(std::shared_ptr<Cerios::Server::Client
     RandomSelect<> randomSelection{};
     uint8_t maxAttemps = 16;
     while (maxAttemps > 0) {
-        if (randomSelection(this->connectedNodes).second->addClient(client)) {
+        auto random = randomSelection(this->connectedNodes).second;
+        if (random->addClient(client)) {
+            client->setOwner(random->shared_from_this());
             this->pendingClients.erase(client->getSocket()->native_handle());
             return;
         }

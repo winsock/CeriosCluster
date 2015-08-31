@@ -47,6 +47,7 @@
 /* Begin PBXFileReference section */
 		4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.1.1.dylib; path = OpenSSL/libcrypto.1.1.dylib; sourceTree = "<group>"; };
 		4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.1.1.dylib; path = OpenSSL/libssl.1.1.dylib; sourceTree = "<group>"; };
+		4C53734F1B94AC19003EF834 /* ClientOwner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ClientOwner.hpp; sourceTree = "<group>"; };
 		4CB0C5671B90FC0600B65AE7 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
 		4CB0C5681B90FC0600B65AE7 /* Client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Client.hpp; sourceTree = "<group>"; };
 		4CBC83FF1B8E2270009CFAFF /* LoginHandler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LoginHandler; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,6 +112,7 @@
 				4CB0C5671B90FC0600B65AE7 /* Client.cpp */,
 				4CB0C5681B90FC0600B65AE7 /* Client.hpp */,
 				4CC8B8611B93C79B009594E4 /* RandomSelect.hpp */,
+				4C53734F1B94AC19003EF834 /* ClientOwner.hpp */,
 			);
 			path = LoginHandler;
 			sourceTree = "<group>";
@@ -275,7 +277,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/OpenSSL",
-					"$(PROJECT_DIR)/build/Debug",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -294,7 +295,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/OpenSSL",
-					"$(PROJECT_DIR)/build/Debug",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

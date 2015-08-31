@@ -19,31 +19,12 @@ Cerios::Server::ServerStatusPacket::ServerStatusPacket() : Packet(0x00) {
     
 }
 
-void Cerios::Server::ServerStatusPacket::onReceivedBy(Cerios::Server::AbstractClient *client) {
-    std::shared_ptr<Cerios::Server::Packet> response = Packet::instantiateNew(client->getState(), 0x00);
-    Packet::onReceivedBy(client);
-    response->sendTo(client);
-}
-
 void Cerios::Server::ServerStatusPacket::sendTo(Cerios::Server::AbstractClient *client) {
-    this->jsonEncodedServerStatus = "{"
-    "\"version\": {"
-    "    \"name\": \"1.8.8\","
-    "    \"protocol\": 47"
-    "},"
-    "\"players\": {"
-    "    \"max\": 10000,"
-    "    \"online\": 0"
-    "},"
-    "\"description\": {"
-    "    \"text\": \"Hello World!\""
-    "}"
-    "}";
-    this->serializePacket();
+    this->serializePacket(client->getSide());
     client->sendData(this->rawPayload);
 }
 
-void Cerios::Server::ServerStatusPacket::serializePacket() {
+void Cerios::Server::ServerStatusPacket::serializePacket(Cerios::Server::Side sideFrom) {
     this->rawPayload.clear();
     this->writeVarIntToBuffer(this->packetId);
     this->writeVarIntToBuffer(static_cast<std::int32_t>(this->jsonEncodedServerStatus.size()));

@@ -12,10 +12,11 @@
 #include <asio.hpp>
 #include <unordered_map>
 #include <memory>
+#include "ClientOwner.hpp"
 
 namespace Cerios { namespace Server {
     class Client;
-    class ClientServer {
+    class ClientServer : public ClientOwner {
     private:
         std::shared_ptr<asio::ip::tcp::socket> socket;
         std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> clients;
@@ -34,6 +35,9 @@ namespace Cerios { namespace Server {
         
         void onDataReceived(std::shared_ptr<asio::streambuf>, const asio::error_code &error, std::size_t bytes_transferred);
         void onWriteCompleteCallback(const asio::error_code& error, std::size_t bytes_transferred, std::shared_ptr<std::function<void(void)>> callback, bool shutdownMessage = false);
+        
+        void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient);
+        bool onPacketReceived(std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<Cerios::Server::Packet> packet);
     private:
         void startAsyncReceive();
     };

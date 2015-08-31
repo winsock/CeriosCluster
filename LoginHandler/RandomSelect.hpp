@@ -22,7 +22,7 @@ struct RandomSelect {
     
     template <typename Iter>
     Iter select(Iter start, Iter end) {
-        std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+        std::uniform_int_distribution<> dis(0, static_cast<std::uniform_int_distribution<>::result_type>(std::distance(start, end)) - 1);
         std::advance(start, dis(gen));
         return start;
     }

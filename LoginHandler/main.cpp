@@ -7,13 +7,13 @@
 //
 
 #include <iostream>
+#include <memory>
 #include "LoginServer.hpp"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    Cerios::Server::Login *loginServer = new Cerios::Server::Login(25565, 1337, false);
+    std::shared_ptr<Cerios::Server::Login> loginServer(new Cerios::Server::Login(25565, 1337, false));
     loginServer->init();
     loginServer->listen();
-    delete loginServer;
     return EXIT_SUCCESS;
 }

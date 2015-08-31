@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C5373521B94C2D6003EF834 /* LoginStartPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5373501B94C2D6003EF834 /* LoginStartPacket.cpp */; };
+		4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		4C5373561B94C48E003EF834 /* EncryptionPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */; };
+		4C5373571B94C48E003EF834 /* EncryptionPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4CC8B8501B9388A3009594E4 /* Packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8B8481B9388A3009594E4 /* Packet.cpp */; };
 		4CC8B8511B9388A3009594E4 /* Packet.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4CC8B8491B9388A3009594E4 /* Packet.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4CC8B8521B9388A3009594E4 /* HandshakePacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8B84A1B9388A3009594E4 /* HandshakePacket.cpp */; };
@@ -19,6 +23,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4C5373501B94C2D6003EF834 /* LoginStartPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoginStartPacket.cpp; sourceTree = "<group>"; };
+		4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginStartPacket.hpp; sourceTree = "<group>"; };
+		4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EncryptionPacket.cpp; sourceTree = "<group>"; };
+		4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EncryptionPacket.hpp; sourceTree = "<group>"; };
 		4CC8B82A1B938834009594E4 /* libMCPacket.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMCPacket.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CC8B8481B9388A3009594E4 /* Packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Packet.cpp; sourceTree = "<group>"; };
 		4CC8B8491B9388A3009594E4 /* Packet.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Packet.hpp; sourceTree = "<group>"; };
@@ -70,6 +78,10 @@
 				4CC8B84D1B9388A3009594E4 /* ServerStatusPacket.hpp */,
 				4CC8B84E1B9388A3009594E4 /* PingPacket.cpp */,
 				4CC8B84F1B9388A3009594E4 /* PingPacket.hpp */,
+				4C5373501B94C2D6003EF834 /* LoginStartPacket.cpp */,
+				4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */,
+				4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */,
+				4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */,
 			);
 			path = MCPacket;
 			sourceTree = "<group>";
@@ -82,6 +94,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CC8B8531B9388A3009594E4 /* HandshakePacket.hpp in Headers */,
+				4C5373571B94C48E003EF834 /* EncryptionPacket.hpp in Headers */,
+				4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */,
 				4CC8B85B1B9388B4009594E4 /* AbstractClient.hpp in Headers */,
 				4CC8B8551B9388A3009594E4 /* ServerStatusPacket.hpp in Headers */,
 				4CC8B8571B9388A3009594E4 /* PingPacket.hpp in Headers */,
@@ -147,8 +161,10 @@
 			files = (
 				4CC8B8541B9388A3009594E4 /* ServerStatusPacket.cpp in Sources */,
 				4CC8B8561B9388A3009594E4 /* PingPacket.cpp in Sources */,
+				4C5373561B94C48E003EF834 /* EncryptionPacket.cpp in Sources */,
 				4CC8B8501B9388A3009594E4 /* Packet.cpp in Sources */,
 				4CC8B8521B9388A3009594E4 /* HandshakePacket.cpp in Sources */,
+				4C5373521B94C2D6003EF834 /* LoginStartPacket.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

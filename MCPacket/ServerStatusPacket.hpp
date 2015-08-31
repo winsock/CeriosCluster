@@ -17,9 +17,8 @@ namespace Cerios { namespace Server {
     public:
         std::string jsonEncodedServerStatus;
     public:
-        void onReceivedBy(Cerios::Server::AbstractClient *client);
         void sendTo(Cerios::Server::AbstractClient *client);
-        void serializePacket();
+        void serializePacket(Cerios::Server::Side sideSending);
         
         static std::shared_ptr<Packet> parsePacket(std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<ServerStatusPacket>(new ServerStatusPacket(packetInProgress))); }
         static std::shared_ptr<Packet> newPacket() { return std::static_pointer_cast<Packet>(std::shared_ptr<ServerStatusPacket>(new ServerStatusPacket())); }

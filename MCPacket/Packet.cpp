@@ -14,11 +14,15 @@
 #include "HandshakePacket.hpp"
 #include "ServerStatusPacket.cpp"
 #include "PingPacket.hpp"
+#include "LoginStartPacket.hpp"
+#include "EncryptionPacket.hpp"
 
 namespace {
     Cerios::Server::Packet::Registrar<Cerios::Server::HandshakePacket> handshake(Cerios::Server::ClientState::HANDSHAKE, 0x00);
     Cerios::Server::Packet::Registrar<Cerios::Server::ServerStatusPacket> status(Cerios::Server::ClientState::STATUS, 0x00);
     Cerios::Server::Packet::Registrar<Cerios::Server::PingPacket> ping(Cerios::Server::ClientState::STATUS, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::LoginStartPacket> loginStart(Cerios::Server::ClientState::LOGIN, 0x00);
+    Cerios::Server::Packet::Registrar<Cerios::Server::EncryptionPacket> encryption(Cerios::Server::ClientState::LOGIN, 0x01);
 }
 
 Cerios::Server::Packet::packet_registry &Cerios::Server::Packet::registry() {
@@ -100,12 +104,10 @@ const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *int
 
 Cerios::Server::Packet::Packet(std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer,Cerios::Server::ClientState state, bool consumeData) {
     std::size_t idSize = Cerios::Server::Packet::readVarIntFromBuffer(&this->packetId, buffer.get());
-    if (length > 0) {
-        std::copy(buffer->begin() + idSize, buffer->begin() + length, std::back_inserter(this->rawPayload));
-        if (consumeData) {
-            // Length includes the packet id.
-            buffer->erase(buffer->begin(), buffer->begin() + length);
-        }
+    std::copy(buffer->begin() + idSize, buffer->begin() + length, std::back_inserter(this->rawPayload));
+    if (consumeData) {
+        // Length includes the packet id.
+        buffer->erase(buffer->begin(), buffer->begin() + length);
     }
 }
 
@@ -114,10 +116,5 @@ std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::newPacket(Cerios
 }
 
 std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::parsePacket(std::size_t length, std::shared_ptr<std::vector<std::int8_t> > buffer, ClientState state, bool consumeData) {
-    std::shared_ptr<Cerios::Server::Packet> tempPacket(new Cerios::Server::Packet(length, buffer, state, consumeData));
-    return Packet::instantiateFromData(state, tempPacket);
-}
-
-void Cerios::Server::Packet::onReceivedBy(Cerios::Server::AbstractClient *client) {
-    client->receivedMessage(this->shared_from_this());
+    return Packet::instantiateFromData(state, std::shared_ptr<Cerios::Server::Packet>(new Cerios::Server::Packet(length, buffer, state, consumeData)));
 }

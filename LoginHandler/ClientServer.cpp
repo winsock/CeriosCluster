@@ -54,3 +54,22 @@ bool Cerios::Server::ClientServer::addClient(std::shared_ptr<Cerios::Server::Cli
     // TODO Implementation
     return true;
 }
+
+bool Cerios::Server::ClientServer::onPacketReceived(std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<Cerios::Server::Packet> packet) {
+    
+    
+    // We're redirecting the packet to be handled by the client server. Cancel the login/status packet parsing
+    // TODO Research TCP Handoff.
+    // Most likely only viable on Linux. Might be possible on OS X with porting a BSD driver into a kext.
+    return false;
+}
+
+void Cerios::Server::ClientServer::clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient) {
+    // TODO Gracefully tell node to cleanup client data
+    std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
+    if (disconnectedClient->getSocket()->is_open()) {
+        disconnectedClient->getSocket()->shutdown(asio::ip::tcp::socket::shutdown_both);
+        disconnectedClient->getSocket()->close();
+    }
+    this->clients.erase(disconnectedClient->getSocket()->native_handle());
+}

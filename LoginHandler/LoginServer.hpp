@@ -16,13 +16,14 @@
 #include <memory>
 #include <asio.hpp>
 #include <unordered_map>
+#include "ClientOwner.hpp"
 
 struct sockaddr_in;
 typedef uint32_t in_addr_t;
 namespace Cerios { namespace Server {
     class Client;
     class ClientServer;
-    class Login {
+    class Login : public ClientOwner {
     private:
         asio::io_service service;
         asio::ip::tcp::acceptor clientAcceptor;
@@ -45,7 +46,7 @@ namespace Cerios { namespace Server {
 
         bool checkAuth(std::string authtoken, int clientSocketHandle);
         void getFreeServerForClientWithToken(std::string authtoken, std::shared_ptr<Cerios::Server::Client> client);
-        void clientDisconnected(std::shared_ptr<Cerios::Server::Client> disconnectedClient);
+        void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient);
         in_addr_t getAddrFromHostname(std::string hostname, bool ipv6Prefered = false);
         ~Login();
     private:

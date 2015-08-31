@@ -19,12 +19,17 @@
 #pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
     class Packet;
-    typedef enum {
+    enum ClientState {
         HANDSHAKE = 0,
         STATUS = 1,
         LOGIN = 2,
         PLAY = 3
-    } ClientState;
+    };
+    enum Side {
+        CLIENT = 0,
+        SERVER = 1,
+        BOTH = 2
+    };
     class AbstractClient {
     protected:
         std::shared_ptr<asio::ip::tcp::socket> socket;
@@ -33,12 +38,12 @@ namespace Cerios { namespace Server {
     public:
         AbstractClient(std::shared_ptr<asio::ip::tcp::socket> clientConnection) : socket(clientConnection), buffer(new std::vector<std::int8_t>()) {}
         virtual ClientState getState() { return state; }
+        virtual Side getSide() = 0;
         virtual void setState(ClientState state) { this->state = state; }
         virtual std::shared_ptr<asio::ip::tcp::socket> getSocket() { return socket; }
         virtual void disconnect() = 0;
         virtual void sendData(std::vector<std::int8_t> &data) = 0;
-        virtual void sendData(std::vector<std::int8_t> &data, std::function<void(Cerios::Server::AbstractClient *)> &callback) = 0;
-        virtual void receivedMessage(std::shared_ptr<Cerios::Server::Packet> packet) = 0;
+        virtual void receivedMessage(Side side, std::shared_ptr<Cerios::Server::Packet> packet) = 0;
     };
 }}
 #pragma GCC visibility pop

@@ -12,12 +12,19 @@
 #include <istream>
 
 #include <Packet.hpp>
+#include <PingPacket.hpp>
 #include <HandshakePacket.hpp>
+#include <ServerStatusPacket.hpp>
+#include <EncryptionPacket.hpp>
 
 #include "LoginServer.hpp"
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, Cerios::Server::Login *parentPtr) : AbstractClient(clientSocket), parent(parentPtr) {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner) {
     this->startAsyncRead();
+}
+
+void Cerios::Server::Client::setOwner(std::shared_ptr<Cerios::Server::ClientOwner> newOwner) {
+    this->owner = newOwner;
 }
 
 void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) {
@@ -27,20 +34,18 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
         return;
     }
     
-    data->commit(bytes_transferred);
     asio::const_buffer dataBuffer = data->data();
     std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), &reinterpret_cast<const uint8_t *>(dataBuffer.data())[dataBuffer.size()], std::back_inserter(*this->buffer));
-    
     try {
         std::int32_t messageLength;
-        std::size_t varintSize;
-        if ((varintSize = Cerios::Server::Packet::readVarIntFromBuffer(&messageLength, this->buffer.get()))) {
-            // Remove the message length from the buffer
-            this->buffer->erase(this->buffer->begin(), this->buffer->begin() + varintSize);
-            if (dataBuffer.size() >= messageLength + varintSize) {
+        std::size_t varintSize = 0;
+        while ((varintSize = Cerios::Server::Packet::readVarIntFromBuffer(&messageLength, this->buffer.get()))) {
+            if (this->buffer->size() >= messageLength + varintSize) {
+                // Remove the message length from the buffer
+                this->buffer->erase(this->buffer->begin(), this->buffer->begin() + varintSize);
                 auto parsedPacket = Cerios::Server::Packet::parsePacket(messageLength, this->buffer, this->state);
                 if (parsedPacket != nullptr) {
-                    parsedPacket->onReceivedBy(this);
+                    this->receivedMessage(Cerios::Server::Side::CLIENT, parsedPacket);
                 }
             }
         }
@@ -59,10 +64,6 @@ void Cerios::Server::Client::sendData(std::vector<std::int8_t> &data) {
     asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-void Cerios::Server::Client::sendData(std::vector<std::int8_t> &data, std::function<void(Cerios::Server::AbstractClient *)> &callback) {
-    asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteCompleteCallback, this, std::placeholders::_1, std::placeholders::_2, callback));
-}
-
 void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std::size_t bytes_transferred) {
     if (error) {
         std::cerr<<"Error during on send: "<<error.message()<<std::endl;
@@ -71,22 +72,70 @@ void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std:
     }
 }
 
-void Cerios::Server::Client::onWriteCompleteCallback(const asio::error_code &error, std::size_t bytes_transferred, std::function<void (Cerios::Server::AbstractClient *)> &callback) {
-    if (error) {
-        std::cerr<<"Error during on send: "<<error.message()<<std::endl;
-        this->disconnect();
-        return;
-    }
-    callback(this);
+Cerios::Server::Side Cerios::Server::Client::getSide() {
+    return Cerios::Server::Side::SERVER;
 }
 
 void Cerios::Server::Client::disconnect() {
-    this->parent->clientDisconnected(this->shared_from_this());
+    this->owner->clientDisconnected(this->shared_from_this());
 }
 
-void Cerios::Server::Client::receivedMessage(std::shared_ptr<Cerios::Server::Packet> packet) {
-    auto handshake = std::dynamic_pointer_cast<Cerios::Server::HandshakePacket>(packet);
-    if (handshake != nullptr) {
-        this->setState(handshake->requestedNextState);
+void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packet) {
+    // This is the server, I hope we don't receive messages from ourselves....
+    if (side != Side::CLIENT) {
+        return;
+    }
+    
+    auto pingPacket = std::dynamic_pointer_cast<Cerios::Server::PingPacket>(packet);
+    if (pingPacket != nullptr) {
+        // Send it right back
+        pingPacket->sendTo(this);
+        this->setState(ClientState::HANDSHAKE);
+        return;
+    }
+    
+    // Test if this client is already authed and should just be forwarding packets.
+    if (!this->owner->onPacketReceived(side, this->shared_from_this(), packet)) {
+        return;
+    }
+    
+    // Handle handshake requests if we're in handshake state
+    if (this->getState() == Cerios::Server::ClientState::HANDSHAKE) {
+        auto handshake = std::dynamic_pointer_cast<Cerios::Server::HandshakePacket>(packet);
+        if (handshake != nullptr) {
+            this->setState(handshake->requestedNextState);
+            return;
+        }
+    }
+    
+    // Handle status requests
+    if (this->getState() == Cerios::Server::ClientState::STATUS) {
+        auto serverStatus = std::dynamic_pointer_cast<Cerios::Server::ServerStatusPacket>(packet);
+        if (serverStatus != nullptr) {
+            serverStatus->jsonEncodedServerStatus = "{"
+            "\"version\": {"
+            "    \"name\": \"1.8.8\","
+            "    \"protocol\": 47"
+            "},"
+            "\"players\": {"
+            "    \"max\": 10000,"
+            "    \"online\": 0"
+            "},"
+            "\"description\": {"
+            "    \"text\": \"Hello World!\""
+            "}"
+            "}";
+            serverStatus->sendTo(this);
+            return;
+        }
+    }
+    
+    // Handle encryption request for login
+    if (this->getState() == Cerios::Server::ClientState::LOGIN) {
+        auto encryptionRequest = std::dynamic_pointer_cast<Cerios::Server::EncryptionPacket>(packet);
+        if (encryptionRequest != nullptr) {
+            std::shared_ptr<Cerios::Server::Packet> response = Packet::newPacket(Cerios::Server::ClientState::LOGIN, 0x1);
+            return;
+        }
     }
 }

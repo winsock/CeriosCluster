@@ -267,12 +267,14 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ASIO_STANDALONE=1",
 					"DEBUG=1",
+					"OPENSSL_USE_DEPRECATED=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/OpenSSL/include",
 					/usr/local/include,
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/MCPacket",
+					"$(PROJECT_DIR)/OpenSSL/crypto/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -285,12 +287,16 @@
 		4CBC84081B8E2270009CFAFF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = "ASIO_STANDALONE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"ASIO_STANDALONE=1",
+					"OPENSSL_USE_DEPRECATED=1",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/OpenSSL/include",
 					/usr/local/include,
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/MCPacket",
+					"$(PROJECT_DIR)/OpenSSL/crypto/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

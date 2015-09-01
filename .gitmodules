@@ -1,6 +1,3 @@
-[submodule "OpenSSL"]
-	path = OpenSSL
-	url = https://github.com/openssl/openssl
 [submodule "ASIO"]
 	path = ASIO
 	url = https://github.com/chriskohlhoff/asio/

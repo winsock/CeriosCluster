@@ -23,7 +23,6 @@
 #include <openssl/x509v3.h>
 #include <openssl/engine.h>
 #include <openssl/rsa.h>
-#include <asio/ssl.hpp>
 
 #include "ClientOwner.hpp"
 

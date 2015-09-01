@@ -125,20 +125,6 @@ void Cerios::Server::Login::handoffClient(std::shared_ptr<Cerios::Server::Client
 }
 
 bool Cerios::Server::Login::checkAuth(std::string authtoken, int clientSocketHandle) {
-    asio::ssl::context sslContext(asio::ssl::context::sslv23);
-    sslContext.set_default_verify_paths();
-
-    // Open a socket and connect it to the remote host.
-    asio::ssl::stream<asio::ip::tcp::socket> sock(this->service, sslContext);
-    asio::ip::tcp::resolver resolver(this->service);
-    asio::ip::tcp::resolver::query query("authserver.mojang.com", "https");
-    asio::connect(sock.lowest_layer(), resolver.resolve(query));
-    sock.lowest_layer().set_option(asio::ip::tcp::no_delay(true));
-    
-    // Perform SSL handshake and verify the remote host's certificate.
-    sock.set_verify_mode(asio::ssl::verify_peer);
-    sock.set_verify_callback(asio::ssl::rfc2818_verification("authserver.mojang.com"));
-    sock.handshake(asio::ssl::stream<asio::ip::tcp::socket>::client);
 //    int socketDiscriptor;
 //    struct sockaddr_in authServerAddress;
 //    SSL_CTX *sslContext;

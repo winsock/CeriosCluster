@@ -4346,11 +4346,6 @@
 		4C85B9521B8F887A00960378 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-					"OPENSSL_USE_DEPRECATED=1",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -4358,7 +4353,6 @@
 		4C85B9531B8F887A00960378 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = "OPENSSL_USE_DEPRECATED=1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

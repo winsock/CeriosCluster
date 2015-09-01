@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C10B4B81B8F991700C497B1 /* libcrypto.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */; };
-		4C10B4B91B8F991700C497B1 /* libssl.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */; };
 		4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CB0C5671B90FC0600B65AE7 /* Client.cpp */; };
 		4CBC84031B8E2270009CFAFF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84021B8E2270009CFAFF /* main.cpp */; };
 		4CBC840B1B8E229B009CFAFF /* LoginServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84091B8E229B009CFAFF /* LoginServer.cpp */; };
@@ -45,8 +43,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.1.1.dylib; path = OpenSSL/libcrypto.1.1.dylib; sourceTree = "<group>"; };
-		4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.1.1.dylib; path = OpenSSL/libssl.1.1.dylib; sourceTree = "<group>"; };
 		4C53734F1B94AC19003EF834 /* ClientOwner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ClientOwner.hpp; sourceTree = "<group>"; };
 		4CB0C5671B90FC0600B65AE7 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
 		4CB0C5681B90FC0600B65AE7 /* Client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Client.hpp; sourceTree = "<group>"; };
@@ -66,8 +62,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CC8B85D1B938E2F009594E4 /* libMCPacket.a in Frameworks */,
-				4C10B4B81B8F991700C497B1 /* libcrypto.1.1.dylib in Frameworks */,
-				4C10B4B91B8F991700C497B1 /* libssl.1.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,8 +71,6 @@
 		4C10B49A1B8F8FF800C497B1 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				4C10B48E1B8F8F7800C497B1 /* libcrypto.1.1.dylib */,
-				4C10B48F1B8F8F7800C497B1 /* libssl.1.1.dylib */,
 				4CC8B85C1B938E2F009594E4 /* libMCPacket.a */,
 			);
 			name = Libraries;

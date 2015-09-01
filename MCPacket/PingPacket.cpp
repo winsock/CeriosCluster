@@ -28,8 +28,7 @@ void Cerios::Server::PingPacket::sendTo(Cerios::Server::AbstractClient *client) 
 }
 
 void Cerios::Server::PingPacket::serializePacket(Cerios::Server::Side sideSending) {
-    this->rawPayload.clear();
-    this->writeVarIntToBuffer(this->packetId);
+    Packet::serializePacket(sideSending);
     this->write64bitInt(this->unixEpoch);
     this->writeBufferLengthToFront();
 }

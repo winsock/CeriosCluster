@@ -111,10 +111,10 @@ Cerios::Server::Packet::Packet(std::size_t length, std::shared_ptr<std::vector<s
     }
 }
 
-std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::newPacket(Cerios::Server::ClientState state, std::int32_t packetId) {
-    return Packet::instantiateNew(state, packetId);
+std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::newPacket(Cerios::Server::Side side, Cerios::Server::ClientState state, std::int32_t packetId) {
+    return Packet::instantiateNew(side, state, packetId);
 }
 
-std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::parsePacket(std::size_t length, std::shared_ptr<std::vector<std::int8_t> > buffer, ClientState state, bool consumeData) {
-    return Packet::instantiateFromData(state, std::shared_ptr<Cerios::Server::Packet>(new Cerios::Server::Packet(length, buffer, state, consumeData)));
+std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::parsePacket(Cerios::Server::Side side, std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, ClientState state, bool consumeData) {
+    return Packet::instantiateFromData(side, state, std::shared_ptr<Cerios::Server::Packet>(new Cerios::Server::Packet(length, buffer, state, consumeData)));
 }

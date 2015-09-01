@@ -11,23 +11,33 @@
 
 #include "Packet.hpp"
 
+#include <array>
+
+#include <openssl/pem.h>
+#include <openssl/conf.h>
+#include <openssl/x509v3.h>
+#include <openssl/engine.h>
+#include <openssl/rsa.h>
+
 #pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
     class EncryptionPacket : public Packet {
     public:
         std::string serverId;
-        std::vector<std::int8_t> pubKeyData;
-        std::vector<std::int8_t> verifyTokenData;
-
+        std::shared_ptr<EVP_PKEY> keyPair;
+        std::array<std::int8_t, 16> clearVerifyToken;
+        std::vector<std::int8_t> clearSharedSecret;
+        std::vector<std::int8_t> sealedVerifyToken;
+        std::vector<std::int8_t> sealedSharedSecret;
     public:
         void sendTo(Cerios::Server::AbstractClient *client);
         void serializePacket(Cerios::Server::Side sideSending);
         
-        static std::shared_ptr<Packet> parsePacket(std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<EncryptionPacket>(new EncryptionPacket(packetInProgress))); }
-        static std::shared_ptr<Packet> newPacket() { return std::static_pointer_cast<Packet>(std::shared_ptr<EncryptionPacket>(new EncryptionPacket())); }
+        static std::shared_ptr<Packet> parsePacket(Cerios::Server::Side side, std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<EncryptionPacket>(new EncryptionPacket(side, packetInProgress))); }
+        static std::shared_ptr<Packet> newPacket(Cerios::Server::Side side) { return std::static_pointer_cast<Packet>(std::shared_ptr<EncryptionPacket>(new EncryptionPacket(side))); }
     protected:
-        EncryptionPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress);
-        EncryptionPacket();
+        EncryptionPacket(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress);
+        EncryptionPacket(Cerios::Server::Side side);
     };
 }}
 #pragma GCC visibility pop

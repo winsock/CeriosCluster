@@ -20,8 +20,8 @@ namespace Cerios { namespace Server {
         std::uint16_t serverPort;
         ClientState requestedNextState;
     public:
-        static std::shared_ptr<Packet> parsePacket(std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<HandshakePacket>(new HandshakePacket(packetInProgress))); }
-        static std::shared_ptr<Packet> newPacket() { return std::static_pointer_cast<Packet>(std::shared_ptr<HandshakePacket>(new HandshakePacket())); }
+        static std::shared_ptr<Packet> parsePacket(Cerios::Server::Side side, std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<HandshakePacket>(new HandshakePacket(packetInProgress))); }
+        static std::shared_ptr<Packet> newPacket(Cerios::Server::Side side) { return std::static_pointer_cast<Packet>(std::shared_ptr<HandshakePacket>(new HandshakePacket())); }
     protected:
         HandshakePacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress);
         HandshakePacket();

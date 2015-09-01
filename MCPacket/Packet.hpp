@@ -31,8 +31,8 @@ public:
 namespace Cerios { namespace Server {
     class Packet : public std::enable_shared_from_this<Packet> {
     public:
-        using parsePacketFunction = std::shared_ptr<Packet>(std::shared_ptr<Cerios::Server::Packet> packetInProgress);
-        using newPacketFunction = std::shared_ptr<Packet>();
+        using parsePacketFunction = std::shared_ptr<Packet>(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress);
+        using newPacketFunction = std::shared_ptr<Packet>(Cerios::Server::Side side);
         using packetRegistryKeyType = std::pair<ClientState, std::int32_t>;
         using packet_registry = std::unordered_map<packetRegistryKeyType, std::pair<newPacketFunction *, parsePacketFunction *>, PairHash>;
         using packet_data_store = std::vector<std::int8_t>;
@@ -45,10 +45,13 @@ namespace Cerios { namespace Server {
         virtual ~Packet() = default;
         
         virtual void sendTo(Cerios::Server::AbstractClient *client) {}
-        virtual void serializePacket(Cerios::Server::Side sideSending) {}
+        virtual void serializePacket(Cerios::Server::Side sideSending) {
+            this->rawPayload.clear();
+            this->writeVarIntToBuffer(this->packetId);
+        }
         
-        static std::shared_ptr<Packet> parsePacket(std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, ClientState state, bool consumeData = true);
-        static std::shared_ptr<Packet> newPacket(ClientState state, std::int32_t packetId);
+        static std::shared_ptr<Packet> parsePacket(Cerios::Server::Side side, std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, ClientState state, bool consumeData = true);
+        static std::shared_ptr<Packet> newPacket(Cerios::Server::Side side, ClientState state, std::int32_t packetId);
         
         static const std::size_t readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::int8_t> *buffer, std::size_t offset, bool consume = false);
         static const std::size_t readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::int8_t> *buffer, bool consume = false);
@@ -72,14 +75,14 @@ namespace Cerios { namespace Server {
         void write64bitInt(std::int64_t input);
         
     private:
-        static std::shared_ptr<Packet> instantiateFromData(ClientState const &state, std::shared_ptr<Cerios::Server::Packet> packetInProgress) {
+        static std::shared_ptr<Packet> instantiateFromData(Cerios::Server::Side side, ClientState const &state, std::shared_ptr<Cerios::Server::Packet> packetInProgress) {
             auto it = registry().find(packetRegistryKeyType(state, packetInProgress->packetId));
-            return it == registry().end() ? nullptr : (it->second.second)(packetInProgress);
+            return it == registry().end() ? nullptr : (it->second.second)(side, packetInProgress);
         }
         
-        static std::shared_ptr<Packet> instantiateNew(ClientState const &state, std::int32_t packetId) {
+        static std::shared_ptr<Packet> instantiateNew(Cerios::Server::Side side, ClientState const &state, std::int32_t packetId) {
             auto it = registry().find(packetRegistryKeyType(state, packetId));
-            return it == registry().end() ? nullptr : (it->second.first)();
+            return it == registry().end() ? nullptr : (it->second.first)(side);
         }
         static packet_registry &registry();
         Packet(std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, ClientState state, bool consumeData = true);

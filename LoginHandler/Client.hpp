@@ -8,13 +8,19 @@
 
 #ifndef Client_hpp
 #define Client_hpp
+
 #include <asio.hpp>
 #include <asio/read.hpp>
+
 #include <cstddef>
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include <array>
+#include <random>
+
 #include <AbstractClient.hpp>
+
 #include "ClientOwner.hpp"
 
 namespace Cerios { namespace Server {
@@ -22,6 +28,8 @@ namespace Cerios { namespace Server {
     class Client : public AbstractClient, public std::enable_shared_from_this<Client> {
     private:
         std::shared_ptr<Cerios::Server::ClientOwner> owner;
+        std::array<std::int8_t, 16> verifyToken;
+        std::function<int(void)> randomEngine = std::bind(std::uniform_int_distribution<>(0, UINT8_MAX), std::mt19937(std::random_device()()));
     public:
         Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner);
         void sendData(std::vector<std::int8_t> &data);

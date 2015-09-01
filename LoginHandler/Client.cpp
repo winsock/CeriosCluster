@@ -7,14 +7,17 @@
 //
 
 #include "Client.hpp"
+
 #include <asio.hpp>
 #include <iostream>
 #include <istream>
+#include <random>
 
 #include <Packet.hpp>
 #include <PingPacket.hpp>
 #include <HandshakePacket.hpp>
 #include <ServerStatusPacket.hpp>
+#include <LoginStartPacket.hpp>
 #include <EncryptionPacket.hpp>
 
 #include "LoginServer.hpp"
@@ -43,7 +46,7 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
             if (this->buffer->size() >= messageLength + varintSize) {
                 // Remove the message length from the buffer
                 this->buffer->erase(this->buffer->begin(), this->buffer->begin() + varintSize);
-                auto parsedPacket = Cerios::Server::Packet::parsePacket(messageLength, this->buffer, this->state);
+                auto parsedPacket = Cerios::Server::Packet::parsePacket(Cerios::Server::Side::CLIENT, messageLength, this->buffer, this->state);
                 if (parsedPacket != nullptr) {
                     this->receivedMessage(Cerios::Server::Side::CLIENT, parsedPacket);
                 }
@@ -130,11 +133,65 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         }
     }
     
-    // Handle encryption request for login
     if (this->getState() == Cerios::Server::ClientState::LOGIN) {
-        auto encryptionRequest = std::dynamic_pointer_cast<Cerios::Server::EncryptionPacket>(packet);
-        if (encryptionRequest != nullptr) {
-            std::shared_ptr<Cerios::Server::Packet> response = Packet::newPacket(Cerios::Server::ClientState::LOGIN, 0x1);
+        // Handle encryption request for login
+        auto loginRequest = std::dynamic_pointer_cast<Cerios::Server::LoginStartPacket>(packet);
+        if (loginRequest != nullptr) {
+            // TODO locahost/::1 check to disable encryption
+            auto response = std::dynamic_pointer_cast<Cerios::Server::EncryptionPacket>(Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1));
+            if (this->owner->getCertificate() == nullptr) {
+                return;
+            }
+            response->keyPair = this->owner->getKeyPair();
+            
+            // Generate the verify token
+            std::generate_n(this->verifyToken.begin(), this->verifyToken.size(), randomEngine);
+            response->clearVerifyToken = this->verifyToken;
+            
+            response->sendTo(this);
+            return;
+        }
+
+        // Handle encryption response
+        auto encryptionResponse = std::dynamic_pointer_cast<Cerios::Server::EncryptionPacket>(packet);
+        if (encryptionResponse != nullptr) {
+            if (this->owner->getKeyPair() == nullptr) {
+                return;
+            }
+            EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(this->owner->getKeyPair().get(), nullptr);
+            if (!ctx) {
+                return;
+            }
+            if (EVP_PKEY_decrypt_init(ctx) <= 0) {
+                return;
+            }
+            /* Error */
+            if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) <= 0) {
+                return;
+            }
+            
+            std::size_t outVerifyTokenLength, outSharedSecretLength;
+            EVP_PKEY_decrypt(ctx, nullptr, &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedVerifyToken.data()), encryptionResponse->sealedVerifyToken.size());
+            EVP_PKEY_decrypt(ctx, nullptr, &outSharedSecretLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedSharedSecret.data()), encryptionResponse->sealedSharedSecret.size());
+            
+            std::vector<std::uint8_t> verifyTokenBuffer(outVerifyTokenLength); // Worst case size
+            encryptionResponse->clearSharedSecret.resize(outSharedSecretLength); // Worst case
+            
+            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(verifyTokenBuffer.data()), &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedVerifyToken.data()), encryptionResponse->sealedSharedSecret.size()) <= 0) {
+                return;
+            }
+            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(encryptionResponse->clearSharedSecret.data()), &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedSharedSecret.data()), encryptionResponse->sealedSharedSecret.size()) <= 0) {
+                return;
+            }
+            
+            EVP_PKEY_CTX_free(ctx);
+            
+            if (!std::equal(this->verifyToken.begin(), this->verifyToken.end(), verifyTokenBuffer.begin())) {
+                return;
+            }
+
+            // TODO ENABLE ENCRYPTION
+            std::cout<<"Client: "<<this->getSocket()->remote_endpoint()<<" enabled encryption successfully!"<<std::endl;
             return;
         }
     }

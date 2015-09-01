@@ -8,6 +8,7 @@
 
 #ifndef LoginServer_hpp
 #define LoginServer_hpp
+
 #include <string>
 #include <map>
 #include <vector>
@@ -16,6 +17,13 @@
 #include <memory>
 #include <asio.hpp>
 #include <unordered_map>
+
+#include <openssl/pem.h>
+#include <openssl/conf.h>
+#include <openssl/x509v3.h>
+#include <openssl/engine.h>
+#include <openssl/rsa.h>
+
 #include "ClientOwner.hpp"
 
 struct sockaddr_in;
@@ -23,6 +31,7 @@ typedef uint32_t in_addr_t;
 namespace Cerios { namespace Server {
     class Client;
     class ClientServer;
+    typedef std::chrono::duration<std::int32_t, std::ratio<86400>> Days;
     class Login : public ClientOwner {
     private:
         asio::io_service service;
@@ -31,6 +40,8 @@ namespace Cerios { namespace Server {
         std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> pendingClients;\
         using nodeMap = std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::ClientServer>>;
         nodeMap connectedNodes;
+        std::shared_ptr<EVP_PKEY> keyPair;
+        std::shared_ptr<X509> certificate;
     public:
         Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6);
         void init();
@@ -38,6 +49,12 @@ namespace Cerios { namespace Server {
         
         void handleClient(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error);
         void handleNode(std::shared_ptr<asio::ip::tcp::socket> newNode, const asio::error_code &error);
+        
+        /**
+         * Accessors for the login node's encryption stuff.
+         **/
+        std::shared_ptr<EVP_PKEY> getKeyPair();
+        std::shared_ptr<X509> getCertificate();
         
         /**
          * Initial login suceeded, connect to actual game logic servers.

@@ -13,7 +13,7 @@ Cerios::Server::LoginStartPacket::LoginStartPacket(std::shared_ptr<Cerios::Serve
     std::int32_t stringLength;
     Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, &this->rawPayload, true);
     if (this->rawPayload.size() >= stringLength) {
-        this->serverName = std::string(this->rawPayload.begin(), this->rawPayload.begin() + stringLength);
+        this->playerName = std::string(this->rawPayload.begin(), this->rawPayload.begin() + stringLength);
     }
     this->rawPayload.clear();
 }
@@ -24,9 +24,8 @@ void Cerios::Server::LoginStartPacket::sendTo(Cerios::Server::AbstractClient *cl
 }
 
 void Cerios::Server::LoginStartPacket::serializePacket(Cerios::Server::Side sideFrom) {
-    this->rawPayload.clear();
-    this->writeVarIntToBuffer(this->packetId);
-    this->writeVarIntToBuffer(static_cast<std::int32_t>(this->serverName.size()));
-    std::copy(this->serverName.begin(), this->serverName.end(), std::back_inserter(this->rawPayload));
+    Packet::serializePacket(sideFrom);
+    this->writeVarIntToBuffer(static_cast<std::int32_t>(this->playerName.size()));
+    std::copy(this->playerName.begin(), this->playerName.end(), std::back_inserter(this->rawPayload));
     this->writeBufferLengthToFront();
 }

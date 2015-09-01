@@ -11,6 +11,8 @@
 		4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C5373561B94C48E003EF834 /* EncryptionPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */; };
 		4C5373571B94C48E003EF834 /* EncryptionPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		4CBFEBC61B9608F1000C258C /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC41B9608F1000C258C /* libcrypto.a */; };
+		4CBFEBC71B9608F1000C258C /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC51B9608F1000C258C /* libssl.a */; };
 		4CC8B8501B9388A3009594E4 /* Packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8B8481B9388A3009594E4 /* Packet.cpp */; };
 		4CC8B8511B9388A3009594E4 /* Packet.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4CC8B8491B9388A3009594E4 /* Packet.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4CC8B8521B9388A3009594E4 /* HandshakePacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8B84A1B9388A3009594E4 /* HandshakePacket.cpp */; };
@@ -27,6 +29,8 @@
 		4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginStartPacket.hpp; sourceTree = "<group>"; };
 		4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EncryptionPacket.cpp; sourceTree = "<group>"; };
 		4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EncryptionPacket.hpp; sourceTree = "<group>"; };
+		4CBFEBC41B9608F1000C258C /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = build/Debug/crypto/libcrypto.a; sourceTree = "<group>"; };
+		4CBFEBC51B9608F1000C258C /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = build/Debug/ssl/libssl.a; sourceTree = "<group>"; };
 		4CC8B82A1B938834009594E4 /* libMCPacket.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMCPacket.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CC8B8481B9388A3009594E4 /* Packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Packet.cpp; sourceTree = "<group>"; };
 		4CC8B8491B9388A3009594E4 /* Packet.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Packet.hpp; sourceTree = "<group>"; };
@@ -44,6 +48,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CBFEBC61B9608F1000C258C /* libcrypto.a in Frameworks */,
+				4CBFEBC71B9608F1000C258C /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,6 +59,8 @@
 		4C53735C1B95146C003EF834 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4CBFEBC41B9608F1000C258C /* libcrypto.a */,
+				4CBFEBC51B9608F1000C258C /* libssl.a */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -265,11 +273,12 @@
 				GCC_ENABLE_CPP_RTTI = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ASIO/asio/include",
-					"$(PROJECT_DIR)/OpenSSL/include",
+					"$(PROJECT_DIR)/BoringSSL/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/OpenSSL",
+					"$(TARGET_BUILD_DIR)/crypto",
+					"$(TARGET_BUILD_DIR)/ssl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -283,11 +292,12 @@
 				GCC_ENABLE_CPP_RTTI = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ASIO/asio/include",
-					"$(PROJECT_DIR)/OpenSSL/include",
+					"$(PROJECT_DIR)/BoringSSL/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/OpenSSL",
+					"$(TARGET_BUILD_DIR)/crypto",
+					"$(TARGET_BUILD_DIR)/ssl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

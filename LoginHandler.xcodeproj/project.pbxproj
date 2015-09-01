@@ -10,6 +10,8 @@
 		4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CB0C5671B90FC0600B65AE7 /* Client.cpp */; };
 		4CBC84031B8E2270009CFAFF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84021B8E2270009CFAFF /* main.cpp */; };
 		4CBC840B1B8E229B009CFAFF /* LoginServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84091B8E229B009CFAFF /* LoginServer.cpp */; };
+		4CBFEBC21B9608DA000C258C /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC01B9608DA000C258C /* libcrypto.a */; };
+		4CBFEBC31B9608DA000C258C /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC11B9608DA000C258C /* libssl.a */; };
 		4CC8B85D1B938E2F009594E4 /* libMCPacket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CC8B85C1B938E2F009594E4 /* libMCPacket.a */; };
 		4CC8B8601B93AF6A009594E4 /* ClientServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8B85E1B93AF6A009594E4 /* ClientServer.cpp */; };
 /* End PBXBuildFile section */
@@ -50,6 +52,8 @@
 		4CBC84021B8E2270009CFAFF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4CBC84091B8E229B009CFAFF /* LoginServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoginServer.cpp; sourceTree = "<group>"; };
 		4CBC840A1B8E229B009CFAFF /* LoginServer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginServer.hpp; sourceTree = "<group>"; };
+		4CBFEBC01B9608DA000C258C /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = build/Debug/crypto/libcrypto.a; sourceTree = "<group>"; };
+		4CBFEBC11B9608DA000C258C /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = build/Debug/ssl/libssl.a; sourceTree = "<group>"; };
 		4CC8B85C1B938E2F009594E4 /* libMCPacket.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMCPacket.a; path = build/Debug/libMCPacket.a; sourceTree = "<group>"; };
 		4CC8B85E1B93AF6A009594E4 /* ClientServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientServer.cpp; sourceTree = "<group>"; };
 		4CC8B85F1B93AF6A009594E4 /* ClientServer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ClientServer.hpp; sourceTree = "<group>"; };
@@ -62,6 +66,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CC8B85D1B938E2F009594E4 /* libMCPacket.a in Frameworks */,
+				4CBFEBC21B9608DA000C258C /* libcrypto.a in Frameworks */,
+				4CBFEBC31B9608DA000C258C /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +77,8 @@
 		4C10B49A1B8F8FF800C497B1 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4CBFEBC01B9608DA000C258C /* libcrypto.a */,
+				4CBFEBC11B9608DA000C258C /* libssl.a */,
 				4CC8B85C1B938E2F009594E4 /* libMCPacket.a */,
 			);
 			name = Libraries;
@@ -261,14 +269,14 @@
 					"DEBUG=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/OpenSSL/include",
-					/usr/local/include,
+					"$(PROJECT_DIR)/BoringSSL/include",
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/MCPacket",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/OpenSSL",
+					"$(TARGET_BUILD_DIR)/crypto",
+					"$(TARGET_BUILD_DIR)/ssl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -279,14 +287,14 @@
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = "ASIO_STANDALONE=1";
 				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/OpenSSL/include",
-					/usr/local/include,
+					"$(PROJECT_DIR)/BoringSSL/include",
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/MCPacket",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/OpenSSL",
+					"$(TARGET_BUILD_DIR)/crypto",
+					"$(TARGET_BUILD_DIR)/ssl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

@@ -5,12 +5,14 @@
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
     "55A7FB660E25DAD7EFF279C9F437500B47348AC7" : 0,
-    "196851C9D741FE94BE7D9E01F70279D97EC8E50C" : 0
+    "196851C9D741FE94BE7D9E01F70279D97EC8E50C" : 0,
+    "1F749A9C17645530CD5B454B2D8030B9C45FEF70" : 0
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "2EA69831-672D-470F-A08D-204D79BA972F",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
     "55A7FB660E25DAD7EFF279C9F437500B47348AC7" : "Server\/OpenSSL\/",
-    "196851C9D741FE94BE7D9E01F70279D97EC8E50C" : "Server\/"
+    "196851C9D741FE94BE7D9E01F70279D97EC8E50C" : "Server\/",
+    "1F749A9C17645530CD5B454B2D8030B9C45FEF70" : "Server\/BoringSSL\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "Server",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
@@ -20,6 +22,11 @@
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/winsock\/CeriosCluster",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "196851C9D741FE94BE7D9E01F70279D97EC8E50C"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/boringssl.googlesource.com\/boringssl\/",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "1F749A9C17645530CD5B454B2D8030B9C45FEF70"
     },
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/openssl\/openssl",

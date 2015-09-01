@@ -15,7 +15,6 @@
 #include <thread>
 #include <cstdint>
 #include <memory>
-#include <asio.hpp>
 #include <unordered_map>
 
 #include <openssl/pem.h>
@@ -23,6 +22,22 @@
 #include <openssl/x509v3.h>
 #include <openssl/engine.h>
 #include <openssl/rsa.h>
+#include <openssl/bn.h>
+#include <openssl/err.h>
+
+#include <asio.hpp>
+#if defined(OPENSSL_IS_BORINGSSL)
+extern "C" {
+#if !defined(SSL_R_SHORT_READ)
+# define SSL_R_SHORT_READ    SSL_R_UNEXPECTED_RECORD
+#endif // !defined(SSL_R_SHORT_READ)
+    inline void CONF_modules_unload(int p) {}
+#undef ERR_PACK
+#define ERR_PACK(lib, int, reason) \
+    (((((uint32_t)lib) & 0xff) << 24) | ((((uint32_t)reason) & 0xfff)))
+}
+#endif // defined(OPENSSL_IS_BORINGSSL)
+#include <asio/ssl.hpp>
 
 #include "ClientOwner.hpp"
 

@@ -16,7 +16,6 @@
 #include <cstdlib>
 #include <chrono>
 
-#include <openssl/bn.h>
 
 #include "Client.hpp"
 #include "ClientServer.hpp"

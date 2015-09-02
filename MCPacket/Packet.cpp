@@ -16,6 +16,9 @@
 #include "PingPacket.hpp"
 #include "LoginStartPacket.hpp"
 #include "EncryptionPacket.hpp"
+#include "LoginSuccessPacket.hpp"
+#include "SetCompressionPacket.hpp"
+#include "JoinGamePacket.hpp"
 
 namespace {
     Cerios::Server::Packet::Registrar<Cerios::Server::HandshakePacket> handshake(Cerios::Server::ClientState::HANDSHAKE, 0x00);
@@ -23,6 +26,10 @@ namespace {
     Cerios::Server::Packet::Registrar<Cerios::Server::PingPacket> ping(Cerios::Server::ClientState::STATUS, 0x01);
     Cerios::Server::Packet::Registrar<Cerios::Server::LoginStartPacket> loginStart(Cerios::Server::ClientState::LOGIN, 0x00);
     Cerios::Server::Packet::Registrar<Cerios::Server::EncryptionPacket> encryption(Cerios::Server::ClientState::LOGIN, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::LoginSuccessPacket> loginSuccess(Cerios::Server::ClientState::LOGIN, 0x02);
+    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionLogin(Cerios::Server::ClientState::LOGIN, 0x03);
+    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionPlay(Cerios::Server::ClientState::PLAY, 0x46);
+    Cerios::Server::Packet::Registrar<Cerios::Server::JoinGamePacket> joinGame(Cerios::Server::ClientState::PLAY, 0x01);
 }
 
 Cerios::Server::Packet::packet_registry &Cerios::Server::Packet::registry() {
@@ -95,6 +102,14 @@ void Cerios::Server::Packet::writeBufferLengthToFront() {
 }
 
 void Cerios::Server::Packet::write64bitInt(std::int64_t input) {
+    std::copy(&input, &input + sizeof(input), std::back_inserter(this->rawPayload));
+}
+
+void Cerios::Server::Packet::write32bitInt(std::int32_t input) {
+    std::copy(&input, &input + sizeof(input), std::back_inserter(this->rawPayload));
+}
+
+void Cerios::Server::Packet::writeByte(std::int8_t input) {
     std::copy(&input, &input + sizeof(input), std::back_inserter(this->rawPayload));
 }
 

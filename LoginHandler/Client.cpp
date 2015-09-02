@@ -19,8 +19,11 @@
 #include <ServerStatusPacket.hpp>
 #include <LoginStartPacket.hpp>
 #include <EncryptionPacket.hpp>
+#include <LoginSuccessPacket.hpp>
 
 #include <openssl/crypto.h>
+#include <openssl/ssl.h>
+#include <openssl/evp.h>
 
 #include <rapidjson/rapidjson.h>
 
@@ -45,7 +48,9 @@ std::string hexStr(unsigned char *data, int len) {
     return s;
 }
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("/session/minecraft/hasJoined"), httpBuffer(new std::vector<std::int8_t>) {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("/session/minecraft/hasJoined"), httpBuffer(new std::vector<std::int8_t>), encryptedBuffer(new std::vector<std::int8_t>) {
+    EVP_CIPHER_CTX_init(&this->encryptCipherContext);
+    EVP_CIPHER_CTX_init(&this->decryptCipherContext);
     this->startAsyncRead();
 }
 
@@ -63,7 +68,17 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
     }
     
     asio::const_buffer dataBuffer = data->data();
-    std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), &reinterpret_cast<const uint8_t *>(dataBuffer.data())[dataBuffer.size()], std::back_inserter(*this->buffer));
+    if (encrypted) {
+        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), &reinterpret_cast<const uint8_t *>(dataBuffer.data())[dataBuffer.size()], std::back_inserter(*this->encryptedBuffer));
+        std::size_t numberOfBlocksInBuffer = this->encryptedBuffer->size() >> 4;
+        std::size_t cyphertextLength = numberOfBlocksInBuffer << 4;
+        std::size_t clearBufferOriginalSize = this->buffer->size();
+        this->buffer->resize(clearBufferOriginalSize + cyphertextLength);
+        std::size_t cleartextLength = this->decrypt(reinterpret_cast<std::uint8_t *>(this->encryptedBuffer->data()), cyphertextLength, reinterpret_cast<std::uint8_t *>(this->buffer->data() + clearBufferOriginalSize));
+        this->buffer->resize(clearBufferOriginalSize + cleartextLength); // Prune any extra memory
+    } else {
+        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), &reinterpret_cast<const uint8_t *>(dataBuffer.data())[dataBuffer.size()], std::back_inserter(*this->buffer));
+    }
     
     std::int32_t messageLength;
     std::size_t varintSize = 0;
@@ -90,7 +105,15 @@ void Cerios::Server::Client::startAsyncRead() {
 }
 
 void Cerios::Server::Client::sendData(std::vector<std::int8_t> &data) {
-    asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+    if (encrypted) {
+        std::vector<std::uint8_t> encryptedData(data.size() + 15); // Plaintext Length in + Cipher blocksize - 1 is the max worse case encrypted data size
+        std::size_t actualLength = this->encrypt(reinterpret_cast<std::uint8_t *>(data.data()), data.size(), encryptedData.data());
+        // Prune extra memory
+        encryptedData.resize(actualLength);
+        asio::async_write(*this->socket, asio::buffer(encryptedData), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+    } else {
+        asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+    }
 }
 
 void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std::size_t bytes_transferred) {
@@ -278,13 +301,18 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             
             this->authWithMojang(hashString);
             
+            if (EVP_EncryptInit_ex(&this->encryptCipherContext, EVP_aes_128_cfb(), nullptr, reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data()), reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data())) != 1) {
+                return;
+            }
+            if (EVP_DecryptInit_ex(&this->encryptCipherContext, EVP_aes_128_cfb(), nullptr, reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data()), reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data())) != 1) {
+                return;
+            }
             return;
         }
     }
 }
 
 void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::shared_ptr<asio::streambuf> data, std::uint64_t contentLength, const asio::error_code &error, std::size_t bytes_transferred) {
-    std::cout<<bytes_transferred<<std::endl;
     if (error && error != asio::error::eof) {
         std::cerr<<"Error on ssl received: "<<error.message()<<std::endl;
         return;
@@ -310,9 +338,22 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
                 this->userid = this->playerInfo["id"].GetString();
                 this->requestedUsername = this->playerInfo["name"].GetString();
                 
-                // TODO ENABLE ENCRYPTION
+                // Send Login Sucess Packet
+                auto loginSucessPacket = std::dynamic_pointer_cast<Cerios::Server::LoginSuccessPacket>(Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02));
+                loginSucessPacket->uuid = this->userid;
+                loginSucessPacket->username = this->requestedUsername;
+                loginSucessPacket->sendTo(this);
+                this->setState(Cerios::Server::ClientState::PLAY);
+                
+                this->encrypted = true;
+                // Clear the buffer of any data. We now expect encrypted data.
+                this->buffer->clear();
                 std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
                 httpBuffer->clear();
+                
+                // Post Set compression Packet (Set to disabled by default for now)
+                auto setCompression = Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
+                setCompression->sendTo(this);
             }
         }
         if (error != asio::error::eof) {
@@ -372,4 +413,54 @@ void Cerios::Server::Client::authWithMojang(std::string serverIdHexDigest) {
     asio::ip::tcp::resolver resolver(*service);
     asio::ip::tcp::resolver::query query("sessionserver.mojang.com", "https");
     asio::async_connect(sock->lowest_layer(), resolver.resolve(query), std::bind(&Cerios::Server::Client::connectedToMojang, this, sock, httpHeader.str(), std::placeholders::_1));
+}
+
+int Cerios::Server::Client::encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext) {
+    int len;
+    int ciphertext_len;
+    
+    EVP_EncryptInit_ex(&this->encryptCipherContext, NULL, NULL, NULL, NULL);
+    
+    /* Provide the message to be encrypted, and obtain the encrypted output.
+     * EVP_EncryptUpdate can be called multiple times if necessary
+     */
+    if(1 != EVP_EncryptUpdate(&this->encryptCipherContext, ciphertext, &len, plaintext, static_cast<int>(plaintext_len))) {
+        return -1;
+    }
+    ciphertext_len = len;
+    
+    /* Finalise the encryption. Further ciphertext bytes may be written at
+     * this stage.
+     */
+    if(1 != EVP_EncryptFinal_ex(&this->encryptCipherContext, ciphertext + len, &len)) {
+        return -1;
+    }
+    ciphertext_len += len;
+    
+    return ciphertext_len;
+}
+
+int Cerios::Server::Client::decrypt(unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *plaintext) {
+    int len;
+    int plaintext_len;
+    
+    EVP_DecryptInit_ex(&this->decryptCipherContext, NULL, NULL, NULL, NULL);
+    
+    /* Provide the message to be decrypted, and obtain the plaintext output.
+     * EVP_DecryptUpdate can be called multiple times if necessary
+     */
+    if(1 != EVP_DecryptUpdate(&this->decryptCipherContext, plaintext, &len, ciphertext, static_cast<int>(ciphertext_len))) {
+        return -1;
+    }
+    plaintext_len = len;
+    
+    /* Finalise the decryption. Further plaintext bytes may be written at
+     * this stage.
+     */
+    if(1 != EVP_DecryptFinal_ex(&this->decryptCipherContext, plaintext + len, &len)) {
+        return -1;
+    }
+    plaintext_len += len;
+    
+    return plaintext_len;
 }

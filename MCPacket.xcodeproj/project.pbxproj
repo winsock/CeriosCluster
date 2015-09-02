@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C07E8ED1B978A0900479AF1 /* LoginSuccessPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C07E8EB1B978A0900479AF1 /* LoginSuccessPacket.cpp */; };
+		4C07E8EE1B978A0900479AF1 /* LoginSuccessPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C07E8EC1B978A0900479AF1 /* LoginSuccessPacket.hpp */; };
+		4C07E8F11B978DBA00479AF1 /* SetCompressionPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C07E8EF1B978DBA00479AF1 /* SetCompressionPacket.cpp */; };
+		4C07E8F21B978DBA00479AF1 /* SetCompressionPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C07E8F01B978DBA00479AF1 /* SetCompressionPacket.hpp */; };
+		4C07E8F51B978F8A00479AF1 /* JoinGamePacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C07E8F31B978F8A00479AF1 /* JoinGamePacket.cpp */; };
+		4C07E8F61B978F8A00479AF1 /* JoinGamePacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C07E8F41B978F8A00479AF1 /* JoinGamePacket.hpp */; };
 		4C5373521B94C2D6003EF834 /* LoginStartPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5373501B94C2D6003EF834 /* LoginStartPacket.cpp */; };
 		4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C5373561B94C48E003EF834 /* EncryptionPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */; };
@@ -25,6 +31,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4C07E8EB1B978A0900479AF1 /* LoginSuccessPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoginSuccessPacket.cpp; sourceTree = "<group>"; };
+		4C07E8EC1B978A0900479AF1 /* LoginSuccessPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginSuccessPacket.hpp; sourceTree = "<group>"; };
+		4C07E8EF1B978DBA00479AF1 /* SetCompressionPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetCompressionPacket.cpp; sourceTree = "<group>"; };
+		4C07E8F01B978DBA00479AF1 /* SetCompressionPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SetCompressionPacket.hpp; sourceTree = "<group>"; };
+		4C07E8F31B978F8A00479AF1 /* JoinGamePacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JoinGamePacket.cpp; sourceTree = "<group>"; };
+		4C07E8F41B978F8A00479AF1 /* JoinGamePacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = JoinGamePacket.hpp; sourceTree = "<group>"; };
 		4C5373501B94C2D6003EF834 /* LoginStartPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoginStartPacket.cpp; sourceTree = "<group>"; };
 		4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginStartPacket.hpp; sourceTree = "<group>"; };
 		4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EncryptionPacket.cpp; sourceTree = "<group>"; };
@@ -98,6 +110,12 @@
 				4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */,
 				4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */,
 				4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */,
+				4C07E8EB1B978A0900479AF1 /* LoginSuccessPacket.cpp */,
+				4C07E8EC1B978A0900479AF1 /* LoginSuccessPacket.hpp */,
+				4C07E8EF1B978DBA00479AF1 /* SetCompressionPacket.cpp */,
+				4C07E8F01B978DBA00479AF1 /* SetCompressionPacket.hpp */,
+				4C07E8F31B978F8A00479AF1 /* JoinGamePacket.cpp */,
+				4C07E8F41B978F8A00479AF1 /* JoinGamePacket.hpp */,
 			);
 			path = MCPacket;
 			sourceTree = "<group>";
@@ -114,7 +132,10 @@
 				4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */,
 				4CC8B85B1B9388B4009594E4 /* AbstractClient.hpp in Headers */,
 				4CC8B8551B9388A3009594E4 /* ServerStatusPacket.hpp in Headers */,
+				4C07E8F21B978DBA00479AF1 /* SetCompressionPacket.hpp in Headers */,
 				4CC8B8571B9388A3009594E4 /* PingPacket.hpp in Headers */,
+				4C07E8EE1B978A0900479AF1 /* LoginSuccessPacket.hpp in Headers */,
+				4C07E8F61B978F8A00479AF1 /* JoinGamePacket.hpp in Headers */,
 				4CC8B8511B9388A3009594E4 /* Packet.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,11 +197,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CC8B8541B9388A3009594E4 /* ServerStatusPacket.cpp in Sources */,
+				4C07E8ED1B978A0900479AF1 /* LoginSuccessPacket.cpp in Sources */,
 				4CC8B8561B9388A3009594E4 /* PingPacket.cpp in Sources */,
 				4C5373561B94C48E003EF834 /* EncryptionPacket.cpp in Sources */,
 				4CC8B8501B9388A3009594E4 /* Packet.cpp in Sources */,
 				4CC8B8521B9388A3009594E4 /* HandshakePacket.cpp in Sources */,
+				4C07E8F51B978F8A00479AF1 /* JoinGamePacket.cpp in Sources */,
 				4C5373521B94C2D6003EF834 /* LoginStartPacket.cpp in Sources */,
+				4C07E8F11B978DBA00479AF1 /* SetCompressionPacket.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

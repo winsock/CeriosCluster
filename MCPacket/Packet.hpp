@@ -73,6 +73,8 @@ namespace Cerios { namespace Server {
         void writeVarLongToBuffer(std::uint64_t input);
         void writeBufferLengthToFront();
         void write64bitInt(std::int64_t input);
+        void write32bitInt(std::int32_t input);
+        void writeByte(std::int8_t input);
         
     private:
         static std::shared_ptr<Packet> instantiateFromData(Cerios::Server::Side side, ClientState const &state, std::shared_ptr<Cerios::Server::Packet> packetInProgress) {

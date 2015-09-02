@@ -30,6 +30,11 @@ namespace Cerios { namespace Server {
         std::array<std::int8_t, 16> verifyToken;
         std::shared_ptr<std::vector<std::int8_t>> httpBuffer;
 
+        EVP_CIPHER_CTX encryptCipherContext;
+        EVP_CIPHER_CTX decryptCipherContext;
+        bool encrypted = false;
+        std::shared_ptr<std::vector<std::int8_t>> encryptedBuffer;
+
         std::function<int(void)> randomEngine = std::bind(std::uniform_int_distribution<>(0, UINT8_MAX), std::mt19937(std::random_device()()));
         const std::string SessionServer;
         const std::string httpNewline = "\r\n";
@@ -51,6 +56,8 @@ namespace Cerios { namespace Server {
         Side getSide();
         void disconnect();
     private:
+        int encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext);
+        int decrypt(unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *plaintext);
         void startAsyncRead();
     };
 }}

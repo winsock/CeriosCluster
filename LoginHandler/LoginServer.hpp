@@ -25,7 +25,6 @@
 #include <openssl/bn.h>
 #include <openssl/err.h>
 
-#include <asio.hpp>
 #if defined(OPENSSL_IS_BORINGSSL)
 extern "C" {
 #if !defined(SSL_R_SHORT_READ)
@@ -34,10 +33,12 @@ extern "C" {
     inline void CONF_modules_unload(int p) {}
 #undef ERR_PACK
 #define ERR_PACK(lib, int, reason) \
-    (((((uint32_t)lib) & 0xff) << 24) | ((((uint32_t)reason) & 0xfff)))
+(((((uint32_t)lib) & 0xff) << 24) | ((((uint32_t)reason) & 0xfff)))
 }
 #endif // defined(OPENSSL_IS_BORINGSSL)
+#include <asio.hpp>
 #include <asio/ssl.hpp>
+#include <asio/read.hpp>
 
 #include "ClientOwner.hpp"
 
@@ -49,7 +50,7 @@ namespace Cerios { namespace Server {
     typedef std::chrono::duration<std::int32_t, std::ratio<86400>> Days;
     class Login : public ClientOwner {
     private:
-        asio::io_service service;
+        std::shared_ptr<asio::io_service> service;
         asio::ip::tcp::acceptor clientAcceptor;
         asio::ip::tcp::acceptor clientServerAcceptor;
         std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> pendingClients;\
@@ -80,6 +81,7 @@ namespace Cerios { namespace Server {
         void getFreeServerForClientWithToken(std::string authtoken, std::shared_ptr<Cerios::Server::Client> client);
         void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient);
         in_addr_t getAddrFromHostname(std::string hostname, bool ipv6Prefered = false);
+        std::weak_ptr<asio::io_service> getIOService();
         ~Login();
     private:
         void tryGetClientServer();

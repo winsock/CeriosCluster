@@ -7,10 +7,13 @@
 //
 
 #include "ClientServer.hpp"
-#include <iostream>
-#include "Client.hpp"
 
-Cerios::Server::ClientServer::ClientServer(std::shared_ptr<asio::ip::tcp::socket> serverEndpoint) : socket(serverEndpoint) {
+#include <iostream>
+
+#include "Client.hpp"
+#include "LoginServer.hpp"
+
+Cerios::Server::ClientServer::ClientServer(std::shared_ptr<asio::ip::tcp::socket> serverEndpoint, std::shared_ptr<Cerios::Server::Login> owner) : socket(serverEndpoint), owner(owner) {
     this->startAsyncReceive();
 }
 
@@ -53,6 +56,10 @@ bool Cerios::Server::ClientServer::addClient(std::shared_ptr<Cerios::Server::Cli
     this->clients[client->getSocket()->native_handle()] = client;
     // TODO Implementation
     return true;
+}
+
+std::weak_ptr<asio::io_service> Cerios::Server::ClientServer::getIOService() {
+    return this->owner->getIOService();
 }
 
 bool Cerios::Server::ClientServer::onPacketReceived(std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<Cerios::Server::Packet> packet) {

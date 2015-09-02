@@ -10,12 +10,16 @@
 #define ClientOwner_hpp
 
 #include <memory>
-#include <AbstractClient.hpp>
 #include <openssl/x509v3.h>
+#include <asio.hpp>
+
+#include <AbstractClient.hpp>
 
 namespace Cerios { namespace Server {
     class ClientOwner : public std::enable_shared_from_this<ClientOwner> {
     public:
+        virtual std::weak_ptr<asio::io_service> getIOService() = 0;
+        
         virtual void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient) = 0;
         virtual bool onPacketReceived(Side side, std::shared_ptr<AbstractClient> client, std::shared_ptr<Packet> packet) { return true; }
         

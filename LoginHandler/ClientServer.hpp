@@ -16,12 +16,14 @@
 
 namespace Cerios { namespace Server {
     class Client;
+    class Login;
     class ClientServer : public ClientOwner {
     private:
         std::shared_ptr<asio::ip::tcp::socket> socket;
         std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> clients;
+        std::shared_ptr<Cerios::Server::Login> owner;
     public:
-        ClientServer(std::shared_ptr<asio::ip::tcp::socket> serverEndpoint);
+        ClientServer(std::shared_ptr<asio::ip::tcp::socket> serverEndpoint, std::shared_ptr<Cerios::Server::Login> owner);
         
         /**
          * Returns false if for some reason the client could not have been added to the client server
@@ -38,6 +40,8 @@ namespace Cerios { namespace Server {
         
         void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient);
         bool onPacketReceived(std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<Cerios::Server::Packet> packet);
+        
+        std::weak_ptr<asio::io_service> getIOService();
     private:
         void startAsyncReceive();
     };

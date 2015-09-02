@@ -8,7 +8,6 @@
 
 #include "Client.hpp"
 
-#include <asio.hpp>
 #include <iostream>
 #include <istream>
 #include <random>
@@ -21,8 +20,9 @@
 #include <EncryptionPacket.hpp>
 
 #include "LoginServer.hpp"
+#include "ClientOwner.hpp"
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner) {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("https://sessionserver.mojang.com/session/minecraft/hasJoined") {
     this->startAsyncRead();
 }
 
@@ -177,16 +177,17 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             std::vector<std::uint8_t> verifyTokenBuffer(outVerifyTokenLength); // Worst case size
             encryptionResponse->clearSharedSecret.resize(outSharedSecretLength); // Worst case
             
-            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(verifyTokenBuffer.data()), &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedVerifyToken.data()), encryptionResponse->sealedSharedSecret.size()) <= 0) {
+            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(verifyTokenBuffer.data()), &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedVerifyToken.data()), encryptionResponse->sealedVerifyToken.size()) <= 0) {
                 return;
             }
-            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(encryptionResponse->clearSharedSecret.data()), &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedSharedSecret.data()), encryptionResponse->sealedSharedSecret.size()) <= 0) {
+            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(encryptionResponse->clearSharedSecret.data()), &outSharedSecretLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedSharedSecret.data()), encryptionResponse->sealedSharedSecret.size()) <= 0) {
                 return;
             }
             
             EVP_PKEY_CTX_free(ctx);
             
-            if (!std::equal(this->verifyToken.begin(), this->verifyToken.end(), verifyTokenBuffer.begin())) {
+            std::copy_n(verifyTokenBuffer.begin(), encryptionResponse->clearVerifyToken.size(), encryptionResponse->clearVerifyToken.data());
+            if (this->verifyToken != encryptionResponse->clearVerifyToken) {
                 return;
             }
 
@@ -195,4 +196,25 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             return;
         }
     }
+}
+
+bool Cerios::Server::Client::authWithMojang() {
+    // Create a context that uses the default paths for finding CA certificates.
+    asio::ssl::context ctx(asio::ssl::context::sslv23);
+    ctx.set_default_verify_paths();
+    
+    // Open a socket and connect it to the remote host.
+    asio::ssl::stream<asio::ip::tcp::socket> sock(*this->owner->getIOService().lock(), ctx);
+    asio::ip::tcp::resolver resolver(*this->owner->getIOService().lock());
+    asio::ip::tcp::resolver::query query("authserver.mojang.com/verify", "https");
+    asio::connect(sock.lowest_layer(), resolver.resolve(query));
+    sock.lowest_layer().set_option(asio::ip::tcp::no_delay(true));
+    
+    // Perform SSL handshake and verify the remote host's certificate.
+    sock.set_verify_mode(asio::ssl::verify_peer);
+    sock.set_verify_callback(asio::ssl::rfc2818_verification("sessionserver.mojang.com"));
+    sock.handshake(asio::ssl::stream<asio::ip::tcp::socket>::client);
+    
+    // ... read and write as normal ...
+    return false;
 }

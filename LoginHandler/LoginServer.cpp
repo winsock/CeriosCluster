@@ -16,21 +16,20 @@
 #include <cstdlib>
 #include <chrono>
 
-
 #include "Client.hpp"
 #include "ClientServer.hpp"
 #include "RandomSelect.hpp"
 
-Cerios::Server::Login::Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6) :
-clientAcceptor(std::ref(service), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)),
-clientServerAcceptor(std::ref(service), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), nodeCommsPort)),
+Cerios::Server::Login::Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6) : service(new asio::io_service()),
+clientAcceptor(std::ref(*service.get()), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)),
+clientServerAcceptor(std::ref(*service.get()), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), nodeCommsPort)),
 keyPair(EVP_PKEY_new(), [=](EVP_PKEY* keyPair) { EVP_PKEY_free(keyPair); }),
 certificate(X509_new(), [=](X509* cert) { X509_free(cert); }) {
     
 }
 
 void Cerios::Server::Login::listen() {
-        this->service.run();
+        this->service->run();
 
 }
 
@@ -80,7 +79,7 @@ void Cerios::Server::Login::handleClient(std::shared_ptr<asio::ip::tcp::socket> 
 void Cerios::Server::Login::handleNode(std::shared_ptr<asio::ip::tcp::socket> newNode, const asio::error_code &error) {
     if (!error) {
         std::cout<<newNode->remote_endpoint()<<std::endl;
-        std::shared_ptr<Cerios::Server::ClientServer> node(new Cerios::Server::ClientServer(newNode));
+        std::shared_ptr<Cerios::Server::ClientServer> node(new Cerios::Server::ClientServer(newNode, std::dynamic_pointer_cast<Cerios::Server::Login>(this->shared_from_this())));
         this->connectedNodes[newNode->native_handle()] = node;
     }
     this->asyncNodeAccept();
@@ -123,117 +122,13 @@ void Cerios::Server::Login::handoffClient(std::shared_ptr<Cerios::Server::Client
     }
 }
 
+std::weak_ptr<asio::io_service> Cerios::Server::Login::getIOService() {
+    return std::weak_ptr<asio::io_service>(this->service);
+}
+
 bool Cerios::Server::Login::checkAuth(std::string authtoken, int clientSocketHandle) {
-//    int socketDiscriptor;
-//    struct sockaddr_in authServerAddress;
-//    SSL_CTX *sslContext;
-//    SSL *ssl;
-//    
-//    socketDiscriptor = socket(AF_INET, SOCK_STREAM, 0);
-//    if (socketDiscriptor < 0) {
-//        return false;
-//    }
-//    
-//    SSLeay_add_ssl_algorithms();
-//    SSL_load_error_strings();
-//    sslContext = SSL_CTX_new(TLS_client_method());
-//    if (sslContext == nullptr) {
-//        return false;
-//    }
-//    memset(&authServerAddress, 0, sizeof(authServerAddress));
-//    authServerAddress.sin_family      = AF_INET;
-//    authServerAddress.sin_addr.s_addr = this->getAddrFromHostname("authserver.mojang.com");   /* Server Address */
-//    authServerAddress.sin_port        = htons(443);          /* Server Port number */
-//    
-//    if (connect(socketDiscriptor, (struct sockaddr*) &authServerAddress, sizeof(authServerAddress)) < 0) {
-//        return false;
-//    }
-//    
-//    /* ----------------------------------------------- */
-//    /* Now we have TCP conncetion. Start SSL negotiation. */
-//    
-//    ssl = SSL_new(sslContext);
-//    if (ssl == nullptr) {
-//        return false;
-//    }
-//    SSL_set_fd(ssl, socketDiscriptor);
-//    if (SSL_connect(ssl) < 0) {
-//        return false;
-//    }
-//    
-//    /* Get the cipher - opt
-//    
-//    std::cout<<"SSL connection using: "<<SSL_get_cipher(ssl)<<std::endl; */
-//    
-//    /* Get server's certificate (note: beware of dynamic allocation) - opt
-//    X509 *server_cert = SSL_get_peer_certificate(ssl);
-//    
-//    X509_free(server_cert); */
-//    
-//    /**
-//     * Do auth check here
-//     */
-//    std::string content =
-//    "{\r\n"
-//    "\"accessToken\": \"" + authtoken + "\"\r\n"
-//    "}";
-//    
-//    std::string requestString =
-//    "POST /validate HTTP/1.1\r\n"
-//    "Host: authserver.mojang.com\r\n"
-//    "User-Agent: CeriosCluster\r\n"
-//    "Accept: application/json\r\n"
-//    "Content-Type: application/json; charset=UTF-8\r\n"
-//    "Content-Length: " + std::to_string(content.length()) + "\r\n"
-//    "Connection: Close\r\n"
-//    "\r\n" + content;
-//    SSL_write(ssl, requestString.c_str(), static_cast<int>(requestString.length()));
-//    std::stringbuf responseBuffer;
-//    
-//    char buffer[4096];
-//    size_t contentLength;
-//    std::string contentBreakToken = "\r\n\r\n";
-//    std::string contentLengthToken = "Content-Length: ";
-//
-//    while (true){
-//        int lengthReceived = SSL_read(ssl, &buffer, sizeof(buffer));
-//        if (lengthReceived < 0)
-//            break;
-//        if (lengthReceived == 0)
-//            break;
-//        responseBuffer.sputn(buffer, lengthReceived);
-//        
-//        size_t contentBreak = 0;
-//        if ((contentBreak = responseBuffer.str().find(contentBreakToken)) > 0 && contentBreak != std::string::npos) {
-//            if (contentBreak + contentBreakToken.length() >= responseBuffer.str().length()) {
-//                break;
-//            }
-//            
-//            size_t contentLengthLocation = responseBuffer.str().find(contentLengthToken);
-//            if (contentLengthLocation == std::string::npos) {
-//                break;
-//            }
-//            
-//            size_t contentLengthEnd = responseBuffer.str().find("\r\n", contentLengthLocation + contentLengthToken.length());
-//            if (contentLengthEnd == std::string::npos) {
-//                break;
-//            }
-//            
-//            std::string contentLengthString = responseBuffer.str().substr(contentLengthLocation + contentLengthToken.length(), contentLengthEnd);
-//            contentLength = std::stoul(contentLengthString, nullptr, 0);
-//            if (contentBreak + contentBreakToken.length() + contentLength >= responseBuffer.str().length()) {
-//                break;
-//            }
-//        }
-//    };
-//    
-//    SSL_shutdown(ssl);
-//    
-//    close(socketDiscriptor);
-//    SSL_free(ssl);
-//    SSL_CTX_free(sslContext);
-//    
-//    return responseBuffer.str().find("204 No Content") != std::string::npos;
+
+
     return false;
 }
 

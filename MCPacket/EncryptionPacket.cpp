@@ -10,7 +10,7 @@
 #include "AbstractClient.hpp"
 #include <openssl/ssl.h>
 
-Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
+Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress), serverId("") {
     if (side == Side::SERVER) { // If packet is from the server going to the client, not priority to finish client side receipt processing.
         std::int32_t stringLength;
         Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, &this->rawPayload, true);
@@ -30,7 +30,7 @@ Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side, st
     this->rawPayload.clear();
 }
 
-Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side) : Packet(0x01) {
+Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side) : Packet(0x01), serverId("") {
 }
 
 void Cerios::Server::EncryptionPacket::sendTo(Cerios::Server::AbstractClient *client) {

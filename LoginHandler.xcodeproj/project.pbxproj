@@ -272,6 +272,7 @@
 					"$(PROJECT_DIR)/BoringSSL/include",
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/MCPacket",
+					"$(PROJECT_DIR)/RapidJSON/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -290,6 +291,7 @@
 					"$(PROJECT_DIR)/BoringSSL/include",
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/MCPacket",
+					"$(PROJECT_DIR)/RapidJSON/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

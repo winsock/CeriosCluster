@@ -4,3 +4,6 @@
 [submodule "BoringSSL"]
 	path = BoringSSL
 	url = https://boringssl.googlesource.com/boringssl/
+[submodule "RapidJSON"]
+	path = RapidJSON
+	url = https://github.com/miloyip/rapidjson

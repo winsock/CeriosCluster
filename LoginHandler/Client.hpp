@@ -18,6 +18,7 @@
 #include <random>
 
 #include <AbstractClient.hpp>
+#include <rapidjson/document.h>
 
 #include "ClientOwner.hpp"
 
@@ -34,7 +35,8 @@ namespace Cerios { namespace Server {
         const std::string httpNewline = "\r\n";
         const std::string dataSeparator = "\r\n\r\n";
         const std::string contentLengthField = "Content-Length: ";
-        std::string requestedUsername;
+        std::string requestedUsername, userid;
+        rapidjson::Document playerInfo;
     public:
         Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner);
         void sendData(std::vector<std::int8_t> &data);

@@ -19,7 +19,10 @@
 #include <ServerStatusPacket.hpp>
 #include <LoginStartPacket.hpp>
 #include <EncryptionPacket.hpp>
+
 #include <openssl/crypto.h>
+
+#include <rapidjson/rapidjson.h>
 
 #include "LoginServer.hpp"
 #include "ClientOwner.hpp"
@@ -302,9 +305,13 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
             if (this->httpBuffer->end() - (dataLocation + this->dataSeparator.size()) >= contentLength) {
                 // Full content
                 std::string jsonResponseString(dataLocation + this->dataSeparator.size(), dataLocation + this->dataSeparator.size() + contentLength);
-                std::cout<<"Got response back from sessionserver!"<<std::endl<<jsonResponseString<<std::endl;
+                
+                this->playerInfo.Parse(jsonResponseString.c_str());
+                this->userid = this->playerInfo["id"].GetString();
+                this->requestedUsername = this->playerInfo["name"].GetString();
+                
                 // TODO ENABLE ENCRYPTION
-                std::cout<<"Client: "<<this->getSocket()->remote_endpoint()<<" enabled encryption successfully!"<<std::endl;
+                std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
                 httpBuffer->clear();
             }
         }
@@ -336,7 +343,7 @@ void Cerios::Server::Client::sslHandshakeComplete(std::shared_ptr<asio::ssl::str
 void Cerios::Server::Client::connectedToMojang(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::string request, const asio::error_code &error) {
     sslSock->lowest_layer().set_option(asio::ip::tcp::no_delay(true));
     /**
-     * TODO: Embed the Root cert that signs Mojang's SSL Cert so we can actually verify.
+     * TODO: Embed the Root cert that signs Mojang's SSL Cert so we can actually verify the session server endpoint.
      **/
     // Perform SSL handshake and verify the remote host's certificate.
     /* sock->set_verify_mode(asio::ssl::verify_peer);

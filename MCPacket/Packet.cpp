@@ -86,19 +86,81 @@ std::size_t getVarIntSize(std::int64_t input) {
     return 5;
 }
 
+void Cerios::Server::Packet::sendTo(Cerios::Server::AbstractClient *client, std::int32_t compressionThreshold) {
+    this->serializePacket(client->getSide());
+    if (compressionThreshold >= 0 && this->rawPayload.size() > compressionThreshold) {
+        std::size_t inflatedSize = this->rawPayload.size();
+        std::vector<std::int8_t> compressedBuffer(inflatedSize);
+        z_stream zStream;
+        
+        zStream.zalloc = Z_NULL;
+        zStream.zfree = Z_NULL;
+        zStream.opaque = Z_NULL;
+        
+        if (deflateInit(&zStream, Z_DEFAULT_COMPRESSION) != Z_OK) {
+            return;
+        }
+        
+        std::int32_t returnCode;
+        zStream.avail_in = static_cast<std::uint32_t>(this->rawPayload.size());
+        zStream.next_in = reinterpret_cast<std::uint8_t *>(this->rawPayload.data());
+        
+        std::size_t offset = 0;
+        std::size_t compressedSize = 0;
+        zStream.avail_out = 0;
+        
+        do {
+            if (zStream.avail_in > 0 && zStream.avail_out <= 0) {
+                // We have more data and we ran out of buffer!
+                zStream.avail_out = static_cast<std::uint32_t>(inflatedSize);
+                zStream.next_out = reinterpret_cast<std::uint8_t *>(compressedBuffer.data() + offset);
+            }
+            
+            std::size_t originalOutputSize = zStream.avail_out;
+            
+            returnCode = deflate(&zStream, Z_FINISH);
+            
+            compressedSize += originalOutputSize - zStream.avail_out;
+            
+            if (zStream.avail_in > 0 && zStream.avail_out <=0) {
+                // We have more data and we ran out of buffer!
+                // Update the offset in preperation for expanding the vector
+                offset += inflatedSize;
+            }
+        } while (returnCode != Z_STREAM_ERROR && zStream.avail_in > 0 && returnCode != Z_STREAM_END);
+        
+        // resize down to the actual used size
+        compressedBuffer.resize(compressedSize);
+        deflateEnd(&zStream);
+        // Write inflated size
+        this->writeVarIntToFront(&compressedBuffer, static_cast<std::int32_t>(inflatedSize));
+        // Make the payload the compressed data + length
+        this->rawPayload = compressedBuffer;
+        // Fall through for writing the full packet length and sending
+    }
+    this->writeBufferLengthToFront();
+    client->sendData(this->rawPayload);
+}
+
 void Cerios::Server::Packet::writeBufferLengthToFront() {
-    if (getVarIntSize(this->rawPayload.size()) > Cerios::Server::Packet::MAX_LENGTH_BYTES) {
+    this->writeBufferLengthToFront(&this->rawPayload);
+}
+
+void Cerios::Server::Packet::writeBufferLengthToFront(std::vector<std::int8_t> *buffer) {
+    if (getVarIntSize(buffer->size()) > Cerios::Server::Packet::MAX_LENGTH_BYTES) {
         throw std::runtime_error("Packet size too large to prepend! Packet size: " + std::to_string(getVarIntSize(this->rawPayload.size())));
     }
-    
-    std::vector<std::int8_t> lengthBytes;
-    std::uint64_t input(this->rawPayload.size());
+    this->writeVarIntToFront(buffer, static_cast<std::int32_t>(buffer->size()));
+}
+
+void Cerios::Server::Packet::writeVarIntToFront(std::vector<std::int8_t> *buffer, std::int32_t input) {
+    std::vector<std::int8_t> bytes;
     while ((input & -128) != 0) {
-        lengthBytes.push_back(static_cast<std::int8_t>((input & 127) | 128));
+        bytes.push_back(static_cast<std::int8_t>((input & 127) | 128));
         input >>= 7;
     }
-    lengthBytes.push_back(static_cast<std::int8_t>(input & 127));
-    this->rawPayload.insert(this->rawPayload.begin(), lengthBytes.begin(), lengthBytes.end());
+    bytes.push_back(static_cast<std::int8_t>(input & 127));
+    buffer->insert(buffer->begin(), bytes.begin(), bytes.end());
 }
 
 void Cerios::Server::Packet::write64bitInt(std::int64_t input) {
@@ -124,12 +186,4 @@ Cerios::Server::Packet::Packet(std::size_t length, std::shared_ptr<std::vector<s
         // Length includes the packet id.
         buffer->erase(buffer->begin(), buffer->begin() + length);
     }
-}
-
-std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::newPacket(Cerios::Server::Side side, Cerios::Server::ClientState state, std::int32_t packetId) {
-    return Packet::instantiateNew(side, state, packetId);
-}
-
-std::shared_ptr<Cerios::Server::Packet> Cerios::Server::Packet::parsePacket(Cerios::Server::Side side, std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, ClientState state, bool consumeData) {
-    return Packet::instantiateFromData(side, state, std::shared_ptr<Cerios::Server::Packet>(new Cerios::Server::Packet(length, buffer, state, consumeData)));
 }

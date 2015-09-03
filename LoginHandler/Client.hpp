@@ -29,6 +29,7 @@ namespace Cerios { namespace Server {
         std::shared_ptr<Cerios::Server::ClientOwner> owner;
         std::array<std::int8_t, 16> verifyToken;
         std::shared_ptr<std::vector<std::int8_t>> httpBuffer;
+        std::int32_t compressionThreshold = -1;
 
         EVP_CIPHER_CTX encryptCipherContext;
         EVP_CIPHER_CTX decryptCipherContext;
@@ -58,6 +59,7 @@ namespace Cerios { namespace Server {
     private:
         int encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext);
         int decrypt(unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *plaintext);
+        void sendPacket(std::shared_ptr<Cerios::Server::Packet> packet);
         void startAsyncRead();
     };
 }}

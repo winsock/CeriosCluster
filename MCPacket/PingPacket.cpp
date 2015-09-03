@@ -22,13 +22,7 @@ Cerios::Server::PingPacket::PingPacket() : Packet(0x01) {
     this->unixEpoch = std::chrono::milliseconds(std::time(NULL)).count();
 }
 
-void Cerios::Server::PingPacket::sendTo(Cerios::Server::AbstractClient *client) {
-    this->serializePacket(client->getSide());
-    client->sendData(this->rawPayload);
-}
-
 void Cerios::Server::PingPacket::serializePacket(Cerios::Server::Side sideSending) {
     Packet::serializePacket(sideSending);
     this->write64bitInt(this->unixEpoch);
-    this->writeBufferLengthToFront();
 }

@@ -46,11 +46,6 @@ Cerios::Server::JoinGamePacket::JoinGamePacket(std::shared_ptr<Cerios::Server::P
 Cerios::Server::JoinGamePacket::JoinGamePacket() : Packet(0x01), playerEntityId(0), gamemode(0), dimensionId(0), difficulty(0), maxPlayersOnPlayerList(255), levelType("default"), reducedDebugInfo(false) {
 }
 
-void Cerios::Server::JoinGamePacket::sendTo(Cerios::Server::AbstractClient *client) {
-    this->serializePacket(client->getSide());
-    client->sendData(this->rawPayload);
-}
-
 void Cerios::Server::JoinGamePacket::serializePacket(Cerios::Server::Side sideSending) {
     Packet::serializePacket(sideSending);
     Cerios::Server::Packet::write32bitInt(this->playerEntityId);
@@ -60,5 +55,4 @@ void Cerios::Server::JoinGamePacket::serializePacket(Cerios::Server::Side sideSe
     Cerios::Server::Packet::writeByte(this->maxPlayersOnPlayerList);
     Cerios::Server::Packet::writeVarIntToBuffer(static_cast<std::int32_t>(this->levelType.size()));
     std::copy(this->levelType.begin(), this->levelType.end(), std::back_inserter(this->rawPayload));
-    this->writeBufferLengthToFront();
 }

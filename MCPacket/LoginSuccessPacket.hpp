@@ -17,7 +17,6 @@ namespace Cerios { namespace Server {
     public:
         std::string uuid, username;
     public:
-        void sendTo(Cerios::Server::AbstractClient *client);
         void serializePacket(Cerios::Server::Side sideSending);
         
         static std::shared_ptr<Packet> parsePacket(Cerios::Server::Side side, std::shared_ptr<Packet> packetInProgress) { return std::static_pointer_cast<Packet>(std::shared_ptr<LoginSuccessPacket>(new LoginSuccessPacket(packetInProgress))); }

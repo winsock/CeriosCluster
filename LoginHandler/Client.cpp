@@ -20,6 +20,7 @@
 #include <LoginStartPacket.hpp>
 #include <EncryptionPacket.hpp>
 #include <LoginSuccessPacket.hpp>
+#include <SetCompressionPacket.hpp>
 
 #include <openssl/crypto.h>
 #include <openssl/ssl.h>
@@ -31,7 +32,7 @@
 #include "ClientOwner.hpp"
 
 /**
- * HexStr found on stackexchange, shouble be moved to a helper class/file for the ability to be reused
+ * HexStr found on stackexchange, should be moved to a helper class/file for the ability to be reused
  * http://codereview.stackexchange.com/questions/78535/converting-array-of-bytes-to-the-hex-string-representation
  **/
 constexpr char hexmap[] = {
@@ -86,7 +87,7 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
         if (this->buffer->size() >= messageLength + varintSize) {
             // Remove the message length from the buffer
             this->buffer->erase(this->buffer->begin(), this->buffer->begin() + varintSize);
-            auto parsedPacket = Cerios::Server::Packet::parsePacket(Cerios::Server::Side::CLIENT, messageLength, this->buffer, this->state);
+            auto parsedPacket = Cerios::Server::Packet::parsePacket(Cerios::Server::Side::CLIENT, messageLength, this->buffer, this->state, this->compressionThreshold >= 0);
             if (parsedPacket != nullptr) {
                 try {
                     this->receivedMessage(Cerios::Server::Side::CLIENT, parsedPacket);
@@ -132,6 +133,10 @@ void Cerios::Server::Client::disconnect() {
     this->owner->clientDisconnected(this->shared_from_this());
 }
 
+void Cerios::Server::Client::sendPacket(std::shared_ptr<Cerios::Server::Packet> packet) {
+    packet->sendTo(this, this->compressionThreshold);
+}
+
 void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packet) {
     // This is the server, I hope we don't receive messages from ourselves....
     if (side != Side::CLIENT) {
@@ -141,7 +146,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
     auto pingPacket = std::dynamic_pointer_cast<Cerios::Server::PingPacket>(packet);
     if (pingPacket != nullptr) {
         // Send it right back
-        pingPacket->sendTo(this);
+        this->sendPacket(pingPacket);
         this->setState(ClientState::HANDSHAKE);
         return;
     }
@@ -177,7 +182,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             "    \"text\": \"Hello World!\""
             "}"
             "}";
-            serverStatus->sendTo(this);
+            this->sendPacket(serverStatus);
             return;
         }
     }
@@ -189,7 +194,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             this->requestedUsername = loginRequest->playerName;
             
             // TODO locahost/::1 check to disable encryption
-            auto response = std::dynamic_pointer_cast<Cerios::Server::EncryptionPacket>(Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1));
+            auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1);
             if (this->owner->getCertificate() == nullptr) {
                 return;
             }
@@ -199,7 +204,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             std::generate_n(this->verifyToken.begin(), this->verifyToken.size(), randomEngine);
             response->clearVerifyToken = this->verifyToken;
             
-            response->sendTo(this);
+            this->sendPacket(response);
             return;
         }
 
@@ -339,10 +344,10 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
                 this->requestedUsername = this->playerInfo["name"].GetString();
                 
                 // Send Login Sucess Packet
-                auto loginSucessPacket = std::dynamic_pointer_cast<Cerios::Server::LoginSuccessPacket>(Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02));
+                auto loginSucessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
                 loginSucessPacket->uuid = this->userid;
                 loginSucessPacket->username = this->requestedUsername;
-                loginSucessPacket->sendTo(this);
+                this->sendPacket(loginSucessPacket);
                 this->setState(Cerios::Server::ClientState::PLAY);
                 
                 this->encrypted = true;
@@ -351,9 +356,10 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
                 std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
                 httpBuffer->clear();
                 
-                // Post Set compression Packet (Set to disabled by default for now)
-                auto setCompression = Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
-                setCompression->sendTo(this);
+                // Post Set compression Packet
+                auto setCompression = Packet::newPacket<Cerios::Server::SetCompressionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
+                setCompression->compressionThreshold = -1;
+                this->sendPacket(setCompression);
             }
         }
         if (error != asio::error::eof) {

@@ -33,11 +33,6 @@ Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side, st
 Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side) : Packet(0x01), serverId("") {
 }
 
-void Cerios::Server::EncryptionPacket::sendTo(Cerios::Server::AbstractClient *client) {
-    this->serializePacket(client->getSide());
-    client->sendData(this->rawPayload);
-}
-
 void Cerios::Server::EncryptionPacket::serializePacket(Cerios::Server::Side sideSending) {
     Packet::serializePacket(sideSending);
     if (sideSending == Cerios::Server::Side::SERVER) {
@@ -54,5 +49,4 @@ void Cerios::Server::EncryptionPacket::serializePacket(Cerios::Server::Side side
         this->writeVarIntToBuffer(static_cast<std::int32_t>(this->clearVerifyToken.size()));
         std::copy(this->clearVerifyToken.begin(), this->clearVerifyToken.end(), std::back_inserter(this->rawPayload));
     }
-    this->writeBufferLengthToFront();
 }

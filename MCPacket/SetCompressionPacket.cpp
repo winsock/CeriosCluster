@@ -17,13 +17,7 @@ Cerios::Server::SetCompressionPacket::SetCompressionPacket(std::shared_ptr<Cerio
 Cerios::Server::SetCompressionPacket::SetCompressionPacket() : Packet(0x01), compressionThreshold(-1) {
 }
 
-void Cerios::Server::SetCompressionPacket::sendTo(Cerios::Server::AbstractClient *client) {
-    this->serializePacket(client->getSide());
-    client->sendData(this->rawPayload);
-}
-
 void Cerios::Server::SetCompressionPacket::serializePacket(Cerios::Server::Side sideSending) {
     Packet::serializePacket(sideSending);
     Cerios::Server::Packet::writeVarIntToBuffer(this->compressionThreshold);
-    this->writeBufferLengthToFront();
 }

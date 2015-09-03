@@ -26,16 +26,10 @@ Cerios::Server::LoginSuccessPacket::LoginSuccessPacket(std::shared_ptr<Cerios::S
 Cerios::Server::LoginSuccessPacket::LoginSuccessPacket() : Packet(0x02) {
 }
 
-void Cerios::Server::LoginSuccessPacket::sendTo(Cerios::Server::AbstractClient *client) {
-    this->serializePacket(client->getSide());
-    client->sendData(this->rawPayload);
-}
-
 void Cerios::Server::LoginSuccessPacket::serializePacket(Cerios::Server::Side sideFrom) {
     Packet::serializePacket(sideFrom);
     this->writeVarIntToBuffer(static_cast<std::int32_t>(this->uuid.size()));
     std::copy(this->uuid.begin(), this->uuid.end(), std::back_inserter(this->rawPayload));
     this->writeVarIntToBuffer(static_cast<std::int32_t>(this->username.size()));
     std::copy(this->username.begin(), this->username.end(), std::back_inserter(this->rawPayload));
-    this->writeBufferLengthToFront();
 }

@@ -9,7 +9,6 @@
 #ifndef ClientServer_hpp
 #define ClientServer_hpp
 #include <vector>
-#include <vector>
 #include <cstdint>
 
 #include <asio.hpp>
@@ -25,15 +24,14 @@ namespace Cerios { namespace Server {
         
     private:
         std::shared_ptr<asio::io_service> service;
-        asio::ip::udp::socket socket;
-        std::vector<std::uint8_t> messageBuffer;
+        asio::ip::udp::socket sendSocket, receiveSocket;
         
         std::vector<GameState> players;
     public:
-        ClientServer(unsigned short nodeCommsPort, bool ipv6);
+        ClientServer(std::uint16_t receivePort, bool ipv6);
         void init();
         void listen();
-        void onDatagramMessageReceived(std::shared_ptr<asio::ip::udp::endpoint> messageEndpoint, const asio::error_code& error, std::size_t bytes_transferred);
+        void onDatagramMessageReceived(const asio::error_code& error);
         ~ClientServer();
     private:
         void startReceive();

@@ -24,7 +24,7 @@
 
 namespace Cerios { namespace Server {
     class Login;
-    class Client : public AbstractClient, public std::enable_shared_from_this<Client> {
+    class Client : public AbstractClient {
     private:
         std::shared_ptr<Cerios::Server::ClientOwner> owner;
         std::array<std::int8_t, 16> verifyToken;

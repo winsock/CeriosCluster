@@ -30,9 +30,8 @@ namespace Cerios { namespace Server {
         std::shared_ptr<asio::io_service> service;
         asio::ip::tcp::acceptor clientAcceptor;
         asio::ip::tcp::acceptor clientServerAcceptor;
+        std::shared_ptr<ClientServer> clientServerHanler;
         std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> pendingClients;\
-        using nodeMap = std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::ClientServer>>;
-        nodeMap connectedNodes;
         std::shared_ptr<EVP_PKEY> keyPair;
         std::shared_ptr<X509> certificate;
     public:
@@ -41,7 +40,6 @@ namespace Cerios { namespace Server {
         void listen();
         
         void handleClient(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error);
-        void handleNode(std::shared_ptr<asio::ip::tcp::socket> newNode, const asio::error_code &error);
         
         /**
          * Accessors for the login node's encryption stuff.
@@ -52,18 +50,14 @@ namespace Cerios { namespace Server {
         /**
          * Initial login suceeded, connect to actual game logic servers.
          */
-        void handoffClient(std::shared_ptr<Cerios::Server::Client> client);
+        void handoffClient(std::shared_ptr<Cerios::Server::AbstractClient> client);
 
-        bool checkAuth(std::string authtoken, int clientSocketHandle);
-        void getFreeServerForClientWithToken(std::string authtoken, std::shared_ptr<Cerios::Server::Client> client);
         void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient);
-        in_addr_t getAddrFromHostname(std::string hostname, bool ipv6Prefered = false);
         std::weak_ptr<asio::io_service> getIOService();
         ~Login();
     private:
         void tryGetClientServer();
         void asyncClientAccept();
-        void asyncNodeAccept();
     };
 }}
 

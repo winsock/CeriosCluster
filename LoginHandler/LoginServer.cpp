@@ -18,7 +18,6 @@
 
 #include "Client.hpp"
 #include "ClientServer.hpp"
-#include "RandomSelect.hpp"
 
 Cerios::Server::Login::Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6) : service(new asio::io_service()),
 clientAcceptor(std::ref(*service.get()), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)),
@@ -41,11 +40,6 @@ void Cerios::Server::Login::asyncClientAccept() {
     clientAcceptor.async_accept(*tmpSocket, std::bind(&Cerios::Server::Login::handleClient, this, tmpSocket, std::placeholders::_1));
 }
 
-void Cerios::Server::Login::asyncNodeAccept() {
-    std::shared_ptr<asio::ip::tcp::socket> tmpSocket = std::shared_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(clientServerAcceptor.get_executor().context()));
-    clientServerAcceptor.async_accept(*tmpSocket, std::bind(&Cerios::Server::Login::handleNode, this, tmpSocket, std::placeholders::_1));
-}
-
 void Cerios::Server::Login::init() {
     RSA *rsa = RSA_new();
     BIGNUM *bne = BN_new();
@@ -66,8 +60,7 @@ void Cerios::Server::Login::init() {
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, reinterpret_cast<const unsigned char *>("localhost"), -1, -1, 0);
     X509_set_issuer_name(this->certificate.get(), name);
     X509_sign(this->certificate.get(), this->keyPair.get(), EVP_sha256());
-
-    this->asyncNodeAccept();
+    this->clientServerHanler = std::shared_ptr<Cerios::Server::ClientServer>(new Cerios::Server::ClientServer(1338, false, std::dynamic_pointer_cast<Cerios::Server::Login>(this->shared_from_this())));
     this->asyncClientAccept();
 }
 
@@ -77,15 +70,6 @@ void Cerios::Server::Login::handleClient(std::shared_ptr<asio::ip::tcp::socket> 
         pendingClients[newClient->native_handle()] = client;
     }
     this->asyncClientAccept();
-}
-
-void Cerios::Server::Login::handleNode(std::shared_ptr<asio::ip::tcp::socket> newNode, const asio::error_code &error) {
-    if (!error) {
-        std::cout<<newNode->remote_endpoint()<<std::endl;
-        std::shared_ptr<Cerios::Server::ClientServer> node(new Cerios::Server::ClientServer(1337, false, std::dynamic_pointer_cast<Cerios::Server::Login>(this->shared_from_this())));
-        this->connectedNodes[newNode->native_handle()] = node;
-    }
-    this->asyncNodeAccept();
 }
 
 std::shared_ptr<EVP_PKEY> Cerios::Server::Login::getKeyPair() {
@@ -100,7 +84,6 @@ void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::A
     std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     try {
         if (disconnectedClient->getSocket()->is_open()) {
-            disconnectedClient->getSocket()->shutdown(asio::ip::tcp::socket::shutdown_both);
             disconnectedClient->getSocket()->close();
         }
     } catch (...) { }
@@ -108,69 +91,15 @@ void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::A
     pendingClients.erase(disconnectedClient->getSocket()->native_handle());
 }
 
-void Cerios::Server::Login::handoffClient(std::shared_ptr<Cerios::Server::Client> client) {
-    if (this->connectedNodes.size() <= 0) {
-        return;
-    }
-    RandomSelect<> randomSelection{};
-    uint8_t maxAttemps = 16;
-    while (maxAttemps > 0) {
-        auto random = randomSelection(this->connectedNodes).second;
-        if (random->addClient(client)) {
-            client->setOwner(random->shared_from_this());
-            this->pendingClients.erase(client->getSocket()->native_handle());
-            return;
-        }
-        maxAttemps--;
-    }
+void Cerios::Server::Login::handoffClient(std::shared_ptr<Cerios::Server::AbstractClient> abstractClient) {
+    auto client = std::dynamic_pointer_cast<Cerios::Server::Client>(abstractClient);
+    client->setOwner(this->clientServerHanler);
+    this->clientServerHanler->addClient(client);
+    this->pendingClients.erase(client->getSocket()->native_handle());
 }
 
 std::weak_ptr<asio::io_service> Cerios::Server::Login::getIOService() {
     return std::weak_ptr<asio::io_service>(this->service);
-}
-
-bool Cerios::Server::Login::checkAuth(std::string authtoken, int clientSocketHandle) {
-
-
-    return false;
-}
-
-void Cerios::Server::Login::getFreeServerForClientWithToken(std::string authToken, std::shared_ptr<Cerios::Server::Client> client) {
-//    /* Send a message to the multicast group specified by the*/
-//    /* groupSock sockaddr structure. */
-//    if(sendto(this->broadcastSocketHandle, authToken.data(), sizeof(authToken.data()[0]) * authToken.size(), 0, (struct sockaddr*)this->groupSocketDiscription, sizeof(sockaddr_in)) < 0) {
-//        std::cerr<<"Sending multicast packet failed"<<std::endl;
-//        close(this->broadcastSocketHandle);
-//    }
-}
-
-in_addr_t Cerios::Server::Login::getAddrFromHostname(std::string hostname, bool ipv6Prefered) {
-    in_addr_t addressResult = 0;
-//    int error;
-//    
-//    /* resolve the domain name into a list of addresses */
-//    error = getaddrinfo(hostname.c_str(), NULL, NULL, &results);
-//    if (error != 0) {
-//        if (error == EAI_SYSTEM) {
-//            perror("getaddrinfo");
-//        } else {
-//            fprintf(stderr, "error in getaddrinfo: %s\n", gai_strerror(error));
-//        }
-//        exit(EXIT_FAILURE);
-//    }
-//    
-//    for (result = results; result != nullptr; result = result->ai_next) {
-//        if (ipv6Prefered && result->ai_protocol == IPPROTO_IPV6) {
-//            addressResult = ((struct sockaddr_in *) result->ai_addr)->sin_addr.s_addr;
-//        }
-//        
-//        if (addressResult == 0) {
-//            addressResult = ((struct sockaddr_in *) result->ai_addr)->sin_addr.s_addr;
-//        }
-//    }
-//    
-//    freeaddrinfo(result);
-    return addressResult;
 }
 
 Cerios::Server::Login::~Login() {

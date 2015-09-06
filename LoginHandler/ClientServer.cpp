@@ -13,11 +13,18 @@
 #include "Client.hpp"
 #include "LoginServer.hpp"
 
-Cerios::Server::ClientServer::ClientServer(std::uint16_t messageListen, bool ipv6, std::shared_ptr<Cerios::Server::Login> owner) :
-socket(new asio::ip::udp::socket(*owner->getIOService().lock(), asio::ip::udp::endpoint(asio::ip::address_v4::any(), messageListen))), owner(owner), messageBuffer(65536) {
+Cerios::Server::ClientServer::ClientServer(std::uint16_t messageReceive, bool ipv6, std::shared_ptr<Cerios::Server::Login> owner) :
+sendSocket(new asio::ip::udp::socket(*owner->getIOService().lock())),
+receiveSocket(new asio::ip::udp::socket(*owner->getIOService().lock())), owner(owner), messageBuffer(65536) {
     // Enable broadcast
-    asio::socket_base::broadcast option(true);
-    socket->set_option(option);
+    sendSocket->open(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4());
+    sendSocket->set_option(asio::socket_base::reuse_address(true));
+    sendSocket->set_option(asio::socket_base::broadcast(true));
+    sendSocket->bind(asio::ip::udp::endpoint(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4(), 0));
+    
+    receiveSocket->open(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4());
+    receiveSocket->set_option(asio::socket_base::reuse_address(true));
+    receiveSocket->bind(asio::ip::udp::endpoint(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4(), messageReceive));
     
     this->startAsyncReceive();
 }
@@ -25,7 +32,7 @@ socket(new asio::ip::udp::socket(*owner->getIOService().lock(), asio::ip::udp::e
 void Cerios::Server::ClientServer::startAsyncReceive() {
     std::shared_ptr<asio::ip::udp::endpoint> messageEndpoint;
 
-    this->socket->async_receive_from(asio::buffer(this->messageBuffer), *messageEndpoint, std::bind(&Cerios::Server::ClientServer::onDataReceived, this, messageEndpoint, std::placeholders::_1, std::placeholders::_2));
+    this->receiveSocket->async_receive_from(asio::buffer(this->messageBuffer), *messageEndpoint, std::bind(&Cerios::Server::ClientServer::onDataReceived, this, messageEndpoint, std::placeholders::_1, std::placeholders::_2));
 }
 
 void Cerios::Server::ClientServer::onDataReceived(std::shared_ptr<asio::ip::udp::endpoint> messageEndpoint, const asio::error_code &error, std::size_t bytes_transferred) {
@@ -60,13 +67,14 @@ void Cerios::Server::ClientServer::sendShutdownSignal() {
     for (auto clientMapPair : this->clients) {
         clientMapPair.second->disconnect();
     }
-    if (this->socket->is_open()) {
-        std::shared_ptr<std::function<void(void)>> functionLambada(new std::function<void(void)>([this]() -> void{
-            if (this->socket->is_open()) {
-                this->socket->shutdown(asio::ip::tcp::socket::shutdown_both);
-                this->socket->close();
+    if (this->receiveSocket->is_open()) {
+        std::shared_ptr<std::function<void(std::shared_ptr<asio::ip::udp::socket> socket)>> functionLambada(new std::function<void(std::shared_ptr<asio::ip::udp::socket> socket)>([](std::shared_ptr<asio::ip::udp::socket> socket) -> void{
+            if (socket->is_open()) {
+                socket->close();
             }
         }));
+        (*functionLambada)(this->sendSocket);
+        (*functionLambada)(this->receiveSocket);
 //        asio::async_write(*this->socket, asio::buffer(std::string("bye")), std::bind(&Cerios::Server::ClientServer::onWriteCompleteCallback, this, std::placeholders::_1, std::placeholders::_2, functionLambada));
     }
 }
@@ -74,15 +82,15 @@ void Cerios::Server::ClientServer::sendShutdownSignal() {
 bool Cerios::Server::ClientServer::addClient(std::shared_ptr<Cerios::Server::Client> client) {
     this->clients[client->getSocket()->native_handle()] = client;
     
-    MessagePacketHeader header;
-    header.id = 0x00;
-    header.packetNumber = 0;
-    header.payloadLength = static_cast<std::uint32_t>(client->getClientId().size());
+    std::shared_ptr<MessagePacketHeader> header(new MessagePacketHeader());
+    header->id = 0x00;
+    header->packetNumber = 0;
+    header->payloadLength = static_cast<std::uint32_t>(client->getClientId().size());
     std::vector<std::uint8_t> packetData(sizeof(MessagePacketHeader));
-    std::copy(reinterpret_cast<std::uint8_t *>(&header), reinterpret_cast<std::uint8_t *>(&header + sizeof(MessagePacketHeader)), std::back_inserter(packetData));
+    std::memcpy(packetData.data(), header.get(), sizeof(MessagePacketHeader));
     std::copy(client->getClientId().begin(), client->getClientId().end(), std::back_inserter(packetData));
     
-    this->socket->async_send_to(asio::buffer(packetData), asio::ip::udp::endpoint(asio::ip::address_v4::broadcast() ,this->socket->local_endpoint().port()), std::bind(&Cerios::Server::ClientServer::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+    this->sendSocket->async_send_to(asio::buffer(packetData), asio::ip::udp::endpoint(asio::ip::address_v4::broadcast(), 1337), std::bind(&Cerios::Server::ClientServer::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
     return true;
 }
 
@@ -103,7 +111,6 @@ void Cerios::Server::ClientServer::clientDisconnected(std::shared_ptr<Cerios::Se
     // TODO Gracefully tell node to cleanup client data
     std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     if (disconnectedClient->getSocket()->is_open()) {
-        disconnectedClient->getSocket()->shutdown(asio::ip::tcp::socket::shutdown_both);
         disconnectedClient->getSocket()->close();
     }
     this->clients.erase(disconnectedClient->getSocket()->native_handle());

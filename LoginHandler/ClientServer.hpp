@@ -27,14 +27,14 @@ namespace Cerios { namespace Server {
     
     class ClientServer : public ClientOwner {
     private:
-        std::shared_ptr<asio::ip::udp::socket> socket;
+        std::shared_ptr<asio::ip::udp::socket> sendSocket, receiveSocket;
         std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> clients;
         std::shared_ptr<Cerios::Server::Login> owner;
         std::vector<std::uint8_t> messageBuffer;
 
         std::vector<std::shared_ptr<asio::ip::udp::endpoint>> canAcceptClient;
     public:
-        ClientServer(std::uint16_t messageListen, bool ipv6, std::shared_ptr<Cerios::Server::Login> owner);
+        ClientServer(std::uint16_t messageReceive, bool ipv6, std::shared_ptr<Cerios::Server::Login> owner);
         
         /**
          * Returns false if for some reason the client could not have been added to the client server

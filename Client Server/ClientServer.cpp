@@ -10,11 +10,21 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <vector>
 
 #include "GameState.hpp"
 
-Cerios::Server::ClientServer::ClientServer(unsigned short nodeCommsPort, bool ipv6) : service(new asio::io_service()), socket(*service, asio::ip::udp::endpoint(asio::ip::address_v4::any(), nodeCommsPort)), messageBuffer(65536)  {
+Cerios::Server::ClientServer::ClientServer(std::uint16_t receivePort, bool ipv6) : service(new asio::io_service()),
+sendSocket(*service),
+receiveSocket(*service){
+    sendSocket.open(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4());
+    sendSocket.set_option(asio::socket_base::reuse_address(true));
+    sendSocket.set_option(asio::socket_base::broadcast(true));
+    sendSocket.bind(asio::ip::udp::endpoint(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4(), 0));
     
+    receiveSocket.open(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4());
+    receiveSocket.set_option(asio::socket_base::reuse_address(true));
+    receiveSocket.bind(asio::ip::udp::endpoint(ipv6 ? asio::ip::udp::v6() : asio::ip::udp::v4(), receivePort));
 }
 
 void Cerios::Server::ClientServer::init() {
@@ -30,18 +40,33 @@ void Cerios::Server::ClientServer::listen() {
 }
 
 void Cerios::Server::ClientServer::startReceive() {
-    std::shared_ptr<asio::ip::udp::endpoint> messageEndpoint;
-    this->socket.async_receive_from(asio::buffer(this->messageBuffer), *messageEndpoint, std::bind(&Cerios::Server::ClientServer::onDatagramMessageReceived, this, messageEndpoint, std::placeholders::_1, std::placeholders::_2));
+    this->receiveSocket.async_wait(asio::socket_base::wait_read, std::bind(&Cerios::Server::ClientServer::onDatagramMessageReceived, this, std::placeholders::_1));
 }
 
-void Cerios::Server::ClientServer::onDatagramMessageReceived(std::shared_ptr<asio::ip::udp::endpoint> messageEndpoint, const asio::error_code &error, std::size_t bytes_transferred) {
-    MessagePacketHeader header;
-    std::copy(this->messageBuffer.begin(), this->messageBuffer.begin() + sizeof(MessagePacketHeader), reinterpret_cast<std::uint8_t *>(&header));
+void Cerios::Server::ClientServer::onDatagramMessageReceived(const asio::error_code &error) {
+    if (error) {
+        std::cerr<<error.message()<<std::endl;
+        return;
+    }
     
-    std::vector<std::uint8_t> packetData(header.payloadLength);
-    std::copy_n(this->messageBuffer.begin() + sizeof(MessagePacketHeader), header.payloadLength, std::back_inserter(packetData));
-    this->messageBuffer.clear();
-    // Packet
+    std::size_t bytesAvailable = this->receiveSocket.available();
+    std::vector<std::uint8_t> data(bytesAvailable);
+    
+    asio::ip::udp::endpoint senderEndpoint;
+    asio::error_code receiveError;
+    std::size_t packetSize = this->receiveSocket.receive_from(asio::buffer(data, bytesAvailable), senderEndpoint, 0, receiveError);
+    if (receiveError) {
+        std::cerr<<receiveError.message()<<std::endl;
+        return;
+    }
+    
+    if (packetSize < sizeof(MessagePacketHeader)) {
+        return;
+    }
+    
+    std::shared_ptr<MessagePacketHeader> message(new MessagePacketHeader());
+    std::memcpy(message.get(), data.data(), sizeof(MessagePacketHeader));
+    std::cout<<std::string(data.begin() + sizeof(MessagePacketHeader), data.begin() + sizeof(MessagePacketHeader) + message->payloadLength)<<std::endl;
     
     this->startReceive();
 }

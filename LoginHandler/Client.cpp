@@ -362,6 +362,9 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
                 auto setCompression = Packet::newPacket<Cerios::Server::SetCompressionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
                 setCompression->compressionThreshold = -1;
                 this->sendPacket(setCompression);
+                
+                // Handoff client to client server relay
+                this->owner->handoffClient(this->shared_from_this());
             }
         }
         if (error != asio::error::eof) {
@@ -378,13 +381,13 @@ void Cerios::Server::Client::sslHandshakeComplete(std::shared_ptr<asio::ssl::str
         std::cerr<<"Error on ssl handshake: "<<error.message()<<std::endl;
         return;
     }
-    asio::async_write(*sslSock, asio::buffer(request), std::bind([](std::shared_ptr<Cerios::Server::Client> client, std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket> > sslSock, const asio::error_code &error, std::size_t bytes_transferred) -> void {
+    asio::async_write(*sslSock, asio::buffer(request), std::bind([](std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket> > sslSock, const asio::error_code &error, std::size_t bytes_transferred) -> void {
         if (error) {
             std::cerr<<"Error during on session send: "<<error.message()<<std::endl;
             return;
         } else {
             std::shared_ptr<asio::streambuf> buffer(new asio::streambuf());
-            asio::async_read(*sslSock, *buffer, std::bind(&Cerios::Server::Client::onHasJoinedPostComplete, client.get(), sslSock, buffer, 0, std::placeholders::_1, std::placeholders::_2));
+            asio::async_read(*sslSock, *buffer, std::bind(&Cerios::Server::Client::onHasJoinedPostComplete, std::dynamic_pointer_cast<Cerios::Server::Client>(client).get(), sslSock, buffer, 0, std::placeholders::_1, std::placeholders::_2));
         }
     }, this->shared_from_this(), sslSock, std::placeholders::_1, std::placeholders::_2));
 }

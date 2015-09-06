@@ -42,6 +42,7 @@ namespace Cerios { namespace Server {
         
         virtual void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient) = 0;
         virtual bool onPacketReceived(Side side, std::shared_ptr<AbstractClient> client, std::shared_ptr<Packet> packet) { return true; }
+        virtual void handoffClient(std::shared_ptr<Cerios::Server::AbstractClient> client) {}
         
         /**
          * Accessors for the login node's encryption stuff.

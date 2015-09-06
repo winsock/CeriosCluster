@@ -55,6 +55,7 @@ namespace Cerios { namespace Server {
         void connectedToMojang(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::string request, const asio::error_code &error);
         void sslHandshakeComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::string request, const asio::error_code &error);
         Side getSide();
+        std::string getClientId();
         void disconnect();
     private:
         int encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext);

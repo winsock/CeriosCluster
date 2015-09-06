@@ -46,8 +46,8 @@ namespace Cerios { namespace Server {
         /**
          * Accessors for the login node's encryption stuff.
          **/
-        virtual std::shared_ptr<EVP_PKEY> getKeyPair() { return nullptr; }
-        virtual std::shared_ptr<X509> getCertificate() { return nullptr; }
+        virtual std::shared_ptr<EVP_PKEY> getKeyPair() = 0;
+        virtual std::shared_ptr<X509> getCertificate() = 0;
     };
 }}
 

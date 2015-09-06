@@ -137,6 +137,10 @@ void Cerios::Server::Client::sendPacket(std::shared_ptr<Cerios::Server::Packet> 
     packet->sendTo(this, this->compressionThreshold);
 }
 
+std::string Cerios::Server::Client::getClientId() {
+    return this->userid;
+}
+
 void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packet) {
     // This is the server, I hope we don't receive messages from ourselves....
     if (side != Side::CLIENT) {
@@ -216,9 +220,6 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         // Handle encryption response
         auto encryptionResponse = std::dynamic_pointer_cast<Cerios::Server::EncryptionPacket>(packet);
         if (encryptionResponse != nullptr) {
-            if (this->owner->getKeyPair() == nullptr) {
-                return;
-            }
             EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(this->owner->getKeyPair().get(), nullptr);
             if (!ctx) {
                 EVP_PKEY_CTX_free(ctx);
@@ -324,7 +325,8 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     }
     try {
         asio::const_buffer dataBuffer = data->data();
-        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), &reinterpret_cast<const uint8_t *>(dataBuffer.data())[dataBuffer.size()], std::back_inserter(*this->httpBuffer));
+        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + bytes_transferred, std::back_inserter(*this->httpBuffer));
+        data->consume(bytes_transferred);
         auto dataLocation = std::search(this->httpBuffer->begin(), this->httpBuffer->end(), this->dataSeparator.begin(), this->dataSeparator.end());
         if (dataLocation != this->httpBuffer->end()) {
             if (contentLength <= 0) {

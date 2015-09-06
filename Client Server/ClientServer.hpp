@@ -8,16 +8,35 @@
 
 #ifndef ClientServer_hpp
 #define ClientServer_hpp
-struct sockaddr_in;
+#include <vector>
+#include <vector>
+#include <cstdint>
+
+#include <asio.hpp>
+
 namespace Cerios { namespace Server {
-    class Client {
+    class GameState;
+    class ClientServer {
+        typedef struct {
+            std::uint8_t id;
+            std::uint8_t packetNumber;
+            std::uint32_t payloadLength;
+        } MessagePacketHeader;
+        
     private:
-        int clientSocket = -1;
-        sockaddr_in *localSocketAddress = nullptr;
+        std::shared_ptr<asio::io_service> service;
+        asio::ip::udp::socket socket;
+        std::vector<std::uint8_t> messageBuffer;
+        
+        std::vector<GameState> players;
     public:
+        ClientServer(unsigned short nodeCommsPort, bool ipv6);
         void init();
         void listen();
-        ~Client();
+        void onDatagramMessageReceived(std::shared_ptr<asio::ip::udp::endpoint> messageEndpoint, const asio::error_code& error, std::size_t bytes_transferred);
+        ~ClientServer();
+    private:
+        void startReceive();
     };
 }}
 

@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		4C1344001B8E6F8200CCD7F4 /* ClientServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C1343FE1B8E6F8200CCD7F4 /* ClientServer.cpp */; };
+		4C4D0AC81B9A3ADA003905F1 /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C4D0AC61B9A3ADA003905F1 /* GameState.cpp */; };
+		4C6FF3BD1B9A3EA4008196C7 /* EntityBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3BB1B9A3EA4008196C7 /* EntityBase.cpp */; };
+		4C6FF3C01B9A3EE6008196C7 /* EntityLiving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3BE1B9A3EE6008196C7 /* EntityLiving.cpp */; };
+		4C6FF3C31B9A3F2A008196C7 /* EntityPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3C11B9A3F2A008196C7 /* EntityPlayer.cpp */; };
 		4CEC40151B8E6F1B00F99F03 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CEC40141B8E6F1B00F99F03 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -26,6 +30,15 @@
 /* Begin PBXFileReference section */
 		4C1343FE1B8E6F8200CCD7F4 /* ClientServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientServer.cpp; sourceTree = "<group>"; };
 		4C1343FF1B8E6F8200CCD7F4 /* ClientServer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ClientServer.hpp; sourceTree = "<group>"; };
+		4C4D0AC61B9A3ADA003905F1 /* GameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
+		4C4D0AC71B9A3ADA003905F1 /* GameState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameState.hpp; sourceTree = "<group>"; };
+		4C6FF3B91B9A3C5A008196C7 /* Bitfield.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Bitfield.hpp; sourceTree = "<group>"; };
+		4C6FF3BB1B9A3EA4008196C7 /* EntityBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityBase.cpp; sourceTree = "<group>"; };
+		4C6FF3BC1B9A3EA4008196C7 /* EntityBase.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EntityBase.hpp; sourceTree = "<group>"; };
+		4C6FF3BE1B9A3EE6008196C7 /* EntityLiving.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityLiving.cpp; sourceTree = "<group>"; };
+		4C6FF3BF1B9A3EE6008196C7 /* EntityLiving.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EntityLiving.hpp; sourceTree = "<group>"; };
+		4C6FF3C11B9A3F2A008196C7 /* EntityPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPlayer.cpp; sourceTree = "<group>"; };
+		4C6FF3C21B9A3F2A008196C7 /* EntityPlayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EntityPlayer.hpp; sourceTree = "<group>"; };
 		4CEC40111B8E6F1B00F99F03 /* Client Server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Client Server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CEC40141B8E6F1B00F99F03 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -41,6 +54,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4C6FF3BA1B9A3E95008196C7 /* Entites */ = {
+			isa = PBXGroup;
+			children = (
+				4C6FF3BB1B9A3EA4008196C7 /* EntityBase.cpp */,
+				4C6FF3BC1B9A3EA4008196C7 /* EntityBase.hpp */,
+				4C6FF3BE1B9A3EE6008196C7 /* EntityLiving.cpp */,
+				4C6FF3BF1B9A3EE6008196C7 /* EntityLiving.hpp */,
+				4C6FF3C11B9A3F2A008196C7 /* EntityPlayer.cpp */,
+				4C6FF3C21B9A3F2A008196C7 /* EntityPlayer.hpp */,
+			);
+			name = Entites;
+			sourceTree = "<group>";
+		};
 		4CEC40081B8E6F1B00F99F03 = {
 			isa = PBXGroup;
 			children = (
@@ -60,9 +86,13 @@
 		4CEC40131B8E6F1B00F99F03 /* Client Server */ = {
 			isa = PBXGroup;
 			children = (
+				4C6FF3BA1B9A3E95008196C7 /* Entites */,
 				4CEC40141B8E6F1B00F99F03 /* main.cpp */,
 				4C1343FE1B8E6F8200CCD7F4 /* ClientServer.cpp */,
 				4C1343FF1B8E6F8200CCD7F4 /* ClientServer.hpp */,
+				4C4D0AC61B9A3ADA003905F1 /* GameState.cpp */,
+				4C4D0AC71B9A3ADA003905F1 /* GameState.hpp */,
+				4C6FF3B91B9A3C5A008196C7 /* Bitfield.hpp */,
 			);
 			path = "Client Server";
 			sourceTree = "<group>";
@@ -123,8 +153,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C6FF3BD1B9A3EA4008196C7 /* EntityBase.cpp in Sources */,
 				4CEC40151B8E6F1B00F99F03 /* main.cpp in Sources */,
+				4C4D0AC81B9A3ADA003905F1 /* GameState.cpp in Sources */,
+				4C6FF3C31B9A3F2A008196C7 /* EntityPlayer.cpp in Sources */,
 				4C1344001B8E6F8200CCD7F4 /* ClientServer.cpp in Sources */,
+				4C6FF3C01B9A3EE6008196C7 /* EntityLiving.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,6 +193,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"ASIO_STANDALONE=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -166,6 +201,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ASIO/asio/include";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -196,12 +232,14 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "ASIO_STANDALONE=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ASIO/asio/include";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;

@@ -29,8 +29,11 @@ certificate(X509_new(), [=](X509* cert) { X509_free(cert); }) {
 }
 
 void Cerios::Server::Login::listen() {
+    try {
         this->service->run();
-
+    } catch (std::exception e) {
+        std::cerr<<"Caught error in main server event loop: "<<e.what()<<std::endl;
+    }
 }
 
 void Cerios::Server::Login::asyncClientAccept() {
@@ -79,7 +82,7 @@ void Cerios::Server::Login::handleClient(std::shared_ptr<asio::ip::tcp::socket> 
 void Cerios::Server::Login::handleNode(std::shared_ptr<asio::ip::tcp::socket> newNode, const asio::error_code &error) {
     if (!error) {
         std::cout<<newNode->remote_endpoint()<<std::endl;
-        std::shared_ptr<Cerios::Server::ClientServer> node(new Cerios::Server::ClientServer(newNode, std::dynamic_pointer_cast<Cerios::Server::Login>(this->shared_from_this())));
+        std::shared_ptr<Cerios::Server::ClientServer> node(new Cerios::Server::ClientServer(1337, false, std::dynamic_pointer_cast<Cerios::Server::Login>(this->shared_from_this())));
         this->connectedNodes[newNode->native_handle()] = node;
     }
     this->asyncNodeAccept();

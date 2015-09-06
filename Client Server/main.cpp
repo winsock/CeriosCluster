@@ -7,13 +7,13 @@
 //
 
 #include <iostream>
+#include <memory>
+
 #include "ClientServer.hpp"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    Cerios::Server::Client *client = new Cerios::Server::Client;
+    std::shared_ptr<Cerios::Server::ClientServer> client(new Cerios::Server::ClientServer(1337, false));
     client->init();
     client->listen();
-    delete client;
     return EXIT_SUCCESS;
 }

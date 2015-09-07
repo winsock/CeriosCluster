@@ -55,6 +55,10 @@ namespace Cerios { namespace Server {
         
         template <typename T = Packet>
         static std::shared_ptr<T> parsePacket(Cerios::Server::Side side, std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer, ClientState state, bool compressed = false, bool consumeData = true) {
+            if (buffer->size() <= 0) {
+                return nullptr;
+            }
+            
             if (compressed) {
                 // Lambada to consume data. I made it a lambada so I wouldn't have to copy and paste this code in each error condition and after inflating.
                 auto consumeFunc = [=]() -> void {

@@ -42,6 +42,10 @@ const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *int
     int numByte = 0;
     int8_t byte;
     
+    if (buffer->size() <= 0) {
+        return 0;
+    }
+    
     do {
         if (offset + numByte >= buffer->size()) {
             return 0;
@@ -164,15 +168,15 @@ void Cerios::Server::Packet::writeVarIntToFront(std::vector<std::int8_t> *buffer
 }
 
 void Cerios::Server::Packet::write64bitInt(std::int64_t input) {
-    std::copy(&input, &input + sizeof(input), std::back_inserter(this->rawPayload));
+    std::copy(reinterpret_cast<std::int8_t *>(&input), reinterpret_cast<std::int8_t *>(&input) + sizeof(input), std::back_inserter(this->rawPayload));
 }
 
 void Cerios::Server::Packet::write32bitInt(std::int32_t input) {
-    std::copy(&input, &input + sizeof(input), std::back_inserter(this->rawPayload));
+    std::copy(reinterpret_cast<std::int8_t *>(&input), reinterpret_cast<std::int8_t *>(&input) + sizeof(input), std::back_inserter(this->rawPayload));
 }
 
 void Cerios::Server::Packet::writeByte(std::int8_t input) {
-    std::copy(&input, &input + sizeof(input), std::back_inserter(this->rawPayload));
+    std::copy(reinterpret_cast<std::int8_t *>(&input), reinterpret_cast<std::int8_t *>(&input) + sizeof(input), std::back_inserter(this->rawPayload));
 }
 
 const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::int8_t> *buffer, bool consume) {

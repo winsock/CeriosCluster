@@ -61,10 +61,8 @@ void Cerios::Server::Client::setOwner(std::shared_ptr<Cerios::Server::ClientOwne
 
 void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) {
     if (error) {
-        std::cerr<<"Error during onLengthReceived: "<<error.message()<<std::endl;
-        if (error != asio::error::operation_aborted) {
-            this->disconnect();
-        }
+        std::cerr<<"Error during client onLengthReceived: "<<error.message()<<std::endl;
+        this->disconnect();
         return;
     }
     
@@ -93,6 +91,8 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
                     this->receivedMessage(Cerios::Server::Side::CLIENT, parsedPacket);
                 } catch(std::exception &e) {
                     std::cerr<<"Exception during packet handling: "<<e.what()<<std::endl;
+                    this->disconnect();
+                    return;
                 }
             }
         }
@@ -151,7 +151,9 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
     if (pingPacket != nullptr) {
         // Send it right back
         this->sendPacket(pingPacket);
-        this->setState(ClientState::HANDSHAKE);
+        if (this->getState() == Cerios::Server::ClientState::STATUS) {
+            this->disconnect();
+        }
         return;
     }
     
@@ -339,7 +341,7 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
             }
             if (this->httpBuffer->end() - (dataLocation + this->dataSeparator.size()) >= contentLength) {
                 // Full content
-                std::string jsonResponseString(dataLocation + this->dataSeparator.size(), dataLocation + this->dataSeparator.size() + contentLength);
+                std::string jsonResponseString(&dataLocation[this->dataSeparator.size()] , &dataLocation[this->dataSeparator.size() + contentLength]);
                 
                 this->playerInfo.Parse(jsonResponseString.c_str());
                 this->userid = this->playerInfo["id"].GetString();

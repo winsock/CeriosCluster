@@ -21,5 +21,5 @@ Cerios::Server::LoginStartPacket::LoginStartPacket(std::shared_ptr<Cerios::Serve
 void Cerios::Server::LoginStartPacket::serializePacket(Cerios::Server::Side sideFrom) {
     Packet::serializePacket(sideFrom);
     this->writeVarIntToBuffer(static_cast<std::int32_t>(this->playerName.size()));
-    std::copy(this->playerName.begin(), this->playerName.end(), std::back_inserter(this->rawPayload));
+    std::copy(this->playerName.data(), this->playerName.data() + this->playerName.size(), std::back_inserter(this->rawPayload));
 }

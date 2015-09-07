@@ -28,11 +28,9 @@ certificate(X509_new(), [=](X509* cert) { X509_free(cert); }) {
 }
 
 void Cerios::Server::Login::listen() {
-    try {
         this->service->run();
-    } catch (std::exception e) {
-        std::cerr<<"Caught error in main server event loop: "<<e.what()<<std::endl;
-    }
+
+    std::cout<<"wtf";
 }
 
 void Cerios::Server::Login::asyncClientAccept() {
@@ -81,8 +79,10 @@ std::shared_ptr<X509> Cerios::Server::Login::getCertificate() {
 }
 
 void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient) {
-    std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     try {
+        std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
+        disconnectedClient->getSocket()->cancel();
+
         if (disconnectedClient->getSocket()->is_open()) {
             disconnectedClient->getSocket()->close();
         }

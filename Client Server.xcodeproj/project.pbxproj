@@ -12,6 +12,7 @@
 		4C6FF3BD1B9A3EA4008196C7 /* EntityBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3BB1B9A3EA4008196C7 /* EntityBase.cpp */; };
 		4C6FF3C01B9A3EE6008196C7 /* EntityLiving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3BE1B9A3EE6008196C7 /* EntityLiving.cpp */; };
 		4C6FF3C31B9A3F2A008196C7 /* EntityPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3C11B9A3F2A008196C7 /* EntityPlayer.cpp */; };
+		4C80FC381B9DD9F900048972 /* libInternalComms.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C80FC371B9DD9F900048972 /* libInternalComms.a */; };
 		4CEC40151B8E6F1B00F99F03 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CEC40141B8E6F1B00F99F03 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		4C6FF3BF1B9A3EE6008196C7 /* EntityLiving.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EntityLiving.hpp; sourceTree = "<group>"; };
 		4C6FF3C11B9A3F2A008196C7 /* EntityPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPlayer.cpp; sourceTree = "<group>"; };
 		4C6FF3C21B9A3F2A008196C7 /* EntityPlayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EntityPlayer.hpp; sourceTree = "<group>"; };
+		4C80FC371B9DD9F900048972 /* libInternalComms.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libInternalComms.a; path = build/Debug/libInternalComms.a; sourceTree = "<group>"; };
 		4CEC40111B8E6F1B00F99F03 /* Client Server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Client Server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CEC40141B8E6F1B00F99F03 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -48,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C80FC381B9DD9F900048972 /* libInternalComms.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,11 +70,20 @@
 			name = Entites;
 			sourceTree = "<group>";
 		};
+		4C80FC391B9DDA0100048972 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				4C80FC371B9DD9F900048972 /* libInternalComms.a */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
 		4CEC40081B8E6F1B00F99F03 = {
 			isa = PBXGroup;
 			children = (
 				4CEC40131B8E6F1B00F99F03 /* Client Server */,
 				4CEC40121B8E6F1B00F99F03 /* Products */,
+				4C80FC391B9DDA0100048972 /* Libraries */,
 			);
 			sourceTree = "<group>";
 		};
@@ -201,7 +213,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ASIO/asio/include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/ASIO/asio/include",
+					"$(PROJECT_DIR)/InternalComms",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -239,7 +254,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ASIO/asio/include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/ASIO/asio/include",
+					"$(PROJECT_DIR)/InternalComms",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -249,6 +267,10 @@
 		4CEC40191B8E6F1B00F99F03 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -256,6 +278,10 @@
 		4CEC401A1B8E6F1B00F99F03 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

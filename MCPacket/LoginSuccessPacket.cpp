@@ -29,7 +29,7 @@ Cerios::Server::LoginSuccessPacket::LoginSuccessPacket() : Packet(0x02) {
 void Cerios::Server::LoginSuccessPacket::serializePacket(Cerios::Server::Side sideFrom) {
     Packet::serializePacket(sideFrom);
     this->writeVarIntToBuffer(static_cast<std::int32_t>(this->uuid.size()));
-    std::copy(this->uuid.begin(), this->uuid.end(), std::back_inserter(this->rawPayload));
+    std::copy(this->uuid.data(), this->uuid.data() + this->uuid.size(), std::back_inserter(this->rawPayload));
     this->writeVarIntToBuffer(static_cast<std::int32_t>(this->username.size()));
-    std::copy(this->username.begin(), this->username.end(), std::back_inserter(this->rawPayload));
+    std::copy(this->username.data(), this->username.data() + this->username.size(), std::back_inserter(this->rawPayload));
 }

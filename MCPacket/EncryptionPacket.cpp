@@ -37,7 +37,7 @@ void Cerios::Server::EncryptionPacket::serializePacket(Cerios::Server::Side side
     Packet::serializePacket(sideSending);
     if (sideSending == Cerios::Server::Side::SERVER) {
         this->writeVarIntToBuffer(static_cast<std::int32_t>(this->serverId.size()));
-        std::copy(this->serverId.begin(), this->serverId.end(), std::back_inserter(this->rawPayload));
+        std::copy(this->serverId.data(), this->serverId.data() + this->serverId.size(), std::back_inserter(this->rawPayload));
         std::size_t neededLength = i2d_PUBKEY(this->keyPair.get(), NULL);
         this->writeVarIntToBuffer(static_cast<std::int32_t>(neededLength));
         unsigned char *tempBuffer, *tempBuffer2;
@@ -47,6 +47,6 @@ void Cerios::Server::EncryptionPacket::serializePacket(Cerios::Server::Side side
         std::copy(tempBuffer, tempBuffer + neededLength, std::back_inserter(this->rawPayload));
         free(tempBuffer);
         this->writeVarIntToBuffer(static_cast<std::int32_t>(this->clearVerifyToken.size()));
-        std::copy(this->clearVerifyToken.begin(), this->clearVerifyToken.end(), std::back_inserter(this->rawPayload));
+        std::copy(this->clearVerifyToken.data(), this->clearVerifyToken.data() + this->clearVerifyToken.size(), std::back_inserter(this->rawPayload));
     }
 }

@@ -8,6 +8,9 @@
       location = "group:MCPacket.xcodeproj">
    </FileRef>
    <FileRef
+      location = "group:InternalComms.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Client Server.xcodeproj">
    </FileRef>
    <FileRef

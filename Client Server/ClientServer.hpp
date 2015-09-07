@@ -10,18 +10,13 @@
 #define ClientServer_hpp
 #include <vector>
 #include <cstdint>
+#include <InternalComms.hpp>
 
 #include <asio.hpp>
 
 namespace Cerios { namespace Server {
     class GameState;
     class ClientServer {
-        typedef struct {
-            std::uint8_t id;
-            std::uint8_t packetNumber;
-            std::uint32_t payloadLength;
-        } MessagePacketHeader;
-        
     private:
         std::shared_ptr<asio::io_service> service;
         asio::ip::udp::socket sendSocket, receiveSocket;
@@ -32,6 +27,7 @@ namespace Cerios { namespace Server {
         void init();
         void listen();
         void onDatagramMessageReceived(const asio::error_code& error);
+        void handleMessage(asio::ip::udp::endpoint &endpoint, std::shared_ptr<Cerios::InternalComms::Packet> packet);
         ~ClientServer();
     private:
         void startReceive();

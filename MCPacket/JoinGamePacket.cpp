@@ -54,5 +54,5 @@ void Cerios::Server::JoinGamePacket::serializePacket(Cerios::Server::Side sideSe
     Cerios::Server::Packet::writeByte(this->difficulty);
     Cerios::Server::Packet::writeByte(this->maxPlayersOnPlayerList);
     Cerios::Server::Packet::writeVarIntToBuffer(static_cast<std::int32_t>(this->levelType.size()));
-    std::copy(this->levelType.begin(), this->levelType.end(), std::back_inserter(this->rawPayload));
+    std::copy(this->levelType.data(), this->levelType.data() + this->levelType.size(), std::back_inserter(this->rawPayload));
 }

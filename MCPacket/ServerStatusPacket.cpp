@@ -22,5 +22,5 @@ Cerios::Server::ServerStatusPacket::ServerStatusPacket() : Packet(0x00) {
 void Cerios::Server::ServerStatusPacket::serializePacket(Cerios::Server::Side sideFrom) {
     Packet::serializePacket(sideFrom);
     this->writeVarIntToBuffer(static_cast<std::int32_t>(this->jsonEncodedServerStatus.size()));
-    std::copy(this->jsonEncodedServerStatus.begin(), this->jsonEncodedServerStatus.end(), std::back_inserter(this->rawPayload));
+    std::copy(this->jsonEncodedServerStatus.data(), this->jsonEncodedServerStatus.data() + this->jsonEncodedServerStatus.size(), std::back_inserter(this->rawPayload));
 }

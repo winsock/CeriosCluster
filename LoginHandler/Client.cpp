@@ -49,7 +49,7 @@ std::string hexStr(unsigned char *data, int len) {
     return s;
 }
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("/session/minecraft/hasJoined"), httpBuffer(new std::vector<std::int8_t>), encryptedBuffer(new std::vector<std::int8_t>) {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("/session/minecraft/hasJoined"), httpBuffer(new std::vector<std::uint8_t>), encryptedBuffer(new std::vector<std::uint8_t>) {
     EVP_CIPHER_CTX_init(&this->encryptCipherContext);
     EVP_CIPHER_CTX_init(&this->decryptCipherContext);
     this->startAsyncRead();
@@ -68,15 +68,15 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
     
     asio::const_buffer dataBuffer = data->data();
     if (encrypted) {
-        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), &reinterpret_cast<const uint8_t *>(dataBuffer.data())[dataBuffer.size()], std::back_inserter(*this->encryptedBuffer));
+        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + dataBuffer.size(), std::back_inserter(*this->encryptedBuffer));
         std::size_t numberOfBlocksInBuffer = this->encryptedBuffer->size() >> 4;
         std::size_t cyphertextLength = numberOfBlocksInBuffer << 4;
         std::size_t clearBufferOriginalSize = this->buffer->size();
         this->buffer->resize(clearBufferOriginalSize + cyphertextLength);
-        std::size_t cleartextLength = this->decrypt(reinterpret_cast<std::uint8_t *>(this->encryptedBuffer->data()), cyphertextLength, reinterpret_cast<std::uint8_t *>(this->buffer->data() + clearBufferOriginalSize));
+        std::size_t cleartextLength = this->decrypt(reinterpret_cast<std::uint8_t *>(this->encryptedBuffer->data()), cyphertextLength, reinterpret_cast<std::uint8_t *>(this->buffer->data()) + clearBufferOriginalSize);
         this->buffer->resize(clearBufferOriginalSize + cleartextLength); // Prune any extra memory
     } else {
-        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), &reinterpret_cast<const uint8_t *>(dataBuffer.data())[dataBuffer.size()], std::back_inserter(*this->buffer));
+        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + dataBuffer.size(), std::back_inserter(*this->buffer));
     }
     
     std::int32_t messageLength;
@@ -105,7 +105,7 @@ void Cerios::Server::Client::startAsyncRead() {
     asio::async_read(*this->socket, *buffer, asio::transfer_at_least(1), std::bind(&Cerios::Server::Client::onLengthReceive, this, buffer, std::placeholders::_1, std::placeholders::_2));
 }
 
-void Cerios::Server::Client::sendData(std::vector<std::int8_t> &data) {
+void Cerios::Server::Client::sendData(std::vector<std::uint8_t> &data) {
     if (encrypted) {
         std::vector<std::uint8_t> encryptedData(data.size() + 15); // Plaintext Length in + Cipher blocksize - 1 is the max worse case encrypted data size
         std::size_t actualLength = this->encrypt(reinterpret_cast<std::uint8_t *>(data.data()), data.size(), encryptedData.data());
@@ -244,11 +244,11 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             std::vector<std::uint8_t> verifyTokenBuffer(outVerifyTokenLength); // Worst case size
             encryptionResponse->clearSharedSecret.resize(outSharedSecretLength); // Worst case
             
-            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(verifyTokenBuffer.data()), &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedVerifyToken.data()), encryptionResponse->sealedVerifyToken.size()) <= 0) {
+            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<std::uint8_t *>(verifyTokenBuffer.data()), &outVerifyTokenLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedVerifyToken.data()), encryptionResponse->sealedVerifyToken.size()) <= 0) {
                 EVP_PKEY_CTX_free(ctx);
                 return;
             }
-            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char *>(encryptionResponse->clearSharedSecret.data()), &outSharedSecretLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedSharedSecret.data()), encryptionResponse->sealedSharedSecret.size()) <= 0) {
+            if (EVP_PKEY_decrypt(ctx, reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data()), &outSharedSecretLength, reinterpret_cast<const unsigned char *>(encryptionResponse->sealedSharedSecret.data()), encryptionResponse->sealedSharedSecret.size()) <= 0) {
                 EVP_PKEY_CTX_free(ctx);
                 return;
             }
@@ -257,7 +257,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             verifyTokenBuffer.resize(outVerifyTokenLength);
             encryptionResponse->clearSharedSecret.resize(outSharedSecretLength);
             
-            std::copy_n(verifyTokenBuffer.begin(), verifyTokenBuffer.size(), encryptionResponse->clearVerifyToken.data());
+            std::copy_n(verifyTokenBuffer.data(), verifyTokenBuffer.size(), reinterpret_cast<std::uint8_t *>(encryptionResponse->clearVerifyToken.data()));
             if (this->verifyToken != encryptionResponse->clearVerifyToken) {
                 return;
             }

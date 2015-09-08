@@ -12,9 +12,7 @@
 #include <chrono>
 
 Cerios::Server::PingPacket::PingPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
-    if (this->rawPayload.size() >= sizeof(this->unixEpoch)) {
-        std::memcpy(&this->unixEpoch, this->rawPayload.data(), sizeof(this->unixEpoch));
-    }
+    this->unixEpoch = this->readPODFromBuffer<std::int64_t>(std::chrono::milliseconds(std::time(NULL)).count());
     this->rawPayload.clear();
 }
 
@@ -24,5 +22,5 @@ Cerios::Server::PingPacket::PingPacket() : Packet(0x01) {
 
 void Cerios::Server::PingPacket::serializePacket(Cerios::Server::Side sideSending) {
     Packet::serializePacket(sideSending);
-    this->write64bitInt(this->unixEpoch);
+    this->writePODToBuffer(this->unixEpoch);
 }

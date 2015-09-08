@@ -10,36 +10,20 @@
 #include "AbstractClient.hpp"
 
 Cerios::Server::JoinGamePacket::JoinGamePacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
-    if (this->rawPayload.size() >= sizeof(this->playerEntityId)) {
-        std::memcpy(&this->playerEntityId, this->rawPayload.data(), sizeof(this->playerEntityId));
-        this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sizeof(this->playerEntityId));
-    }
-    if (this->rawPayload.size() >= sizeof(this->gamemode)) {
-        std::memcpy(&this->gamemode, this->rawPayload.data(), sizeof(this->gamemode));
-        this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sizeof(this->gamemode));
-    }
-    if (this->rawPayload.size() >= sizeof(this->dimensionId)) {
-        std::memcpy(&this->dimensionId, this->rawPayload.data(), sizeof(this->dimensionId));
-        this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sizeof(this->dimensionId));
-    }
-    if (this->rawPayload.size() >= sizeof(this->difficulty)) {
-        std::memcpy(&this->difficulty, this->rawPayload.data(), sizeof(this->difficulty));
-        this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sizeof(this->difficulty));
-    }
-    if (this->rawPayload.size() >= sizeof(this->maxPlayersOnPlayerList)) {
-        std::memcpy(&this->maxPlayersOnPlayerList, this->rawPayload.data(), sizeof(this->maxPlayersOnPlayerList));
-        this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sizeof(this->maxPlayersOnPlayerList));
-    }
+    this->playerEntityId = this->readPODFromBuffer<std::int32_t>(0);
+    this->gamemode = this->readPODFromBuffer<std::uint8_t>(0);
+    this->dimensionId = this->readPODFromBuffer<std::int8_t>(0);
+    this->difficulty = this->readPODFromBuffer<std::uint8_t>(0);
+    this->maxPlayersOnPlayerList = this->readPODFromBuffer<std::uint8_t>(255);
+
     std::int32_t levelTypeStringLength;
     Cerios::Server::Packet::readVarIntFromBuffer(&levelTypeStringLength, &this->rawPayload, true);
     if (this->rawPayload.size() >= levelTypeStringLength) {
         this->levelType = std::string(this->rawPayload.begin(), this->rawPayload.begin() + levelTypeStringLength);
         this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + levelTypeStringLength);
     }
-    if (this->rawPayload.size() >= sizeof(this->reducedDebugInfo)) {
-        std::memcpy(&this->reducedDebugInfo, this->rawPayload.data(), sizeof(this->reducedDebugInfo));
-        this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sizeof(this->reducedDebugInfo));
-    }
+    
+    this->reducedDebugInfo = this->readPODFromBuffer<bool>(false);
     this->rawPayload.clear();
 }
 
@@ -48,11 +32,11 @@ Cerios::Server::JoinGamePacket::JoinGamePacket() : Packet(0x01), playerEntityId(
 
 void Cerios::Server::JoinGamePacket::serializePacket(Cerios::Server::Side sideSending) {
     Packet::serializePacket(sideSending);
-    Cerios::Server::Packet::write32bitInt(this->playerEntityId);
-    Cerios::Server::Packet::writeByte(this->gamemode);
-    Cerios::Server::Packet::writeByte(this->dimensionId);
-    Cerios::Server::Packet::writeByte(this->difficulty);
-    Cerios::Server::Packet::writeByte(this->maxPlayersOnPlayerList);
+    this->writePODToBuffer(this->playerEntityId);
+    this->writePODToBuffer(this->gamemode);
+    this->writePODToBuffer(this->dimensionId);
+    this->writePODToBuffer(this->difficulty);
+    this->writePODToBuffer(this->maxPlayersOnPlayerList);
     Cerios::Server::Packet::writeVarIntToBuffer(static_cast<std::int32_t>(this->levelType.size()));
     std::copy(this->levelType.data(), this->levelType.data() + this->levelType.size(), std::back_inserter(this->rawPayload));
 }

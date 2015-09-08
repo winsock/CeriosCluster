@@ -21,13 +21,13 @@ std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::ne
 
 std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::fromData(std::vector<std::uint8_t> &rawData, bool consume) {
     std::shared_ptr<MessagePacketHeader> messageHeader(new MessagePacketHeader);
-    std::memcpy(messageHeader.get(), rawData.data(), sizeof(MessagePacketHeader));
+    std::copy(rawData.data(), rawData.data() + sizeof(MessagePacketHeader), reinterpret_cast<std::uint8_t *>(messageHeader.get()));
     if (rawData.size() < sizeof(MessagePacketHeader) + messageHeader->payloadLength) {
         return nullptr;
     }
     
-    std::vector<std::uint8_t> payload(messageHeader->payloadLength);
-    std::memcpy(payload.data(), rawData.data() + sizeof(MessagePacketHeader), messageHeader->payloadLength);
+    std::vector<std::uint8_t> payload;
+    std::copy_n(rawData.data() + sizeof(MessagePacketHeader), messageHeader->payloadLength, std::back_inserter(payload));
     if (consume) {
         rawData.erase(rawData.begin(), rawData.begin() + sizeof(MessagePacketHeader) + messageHeader->payloadLength);
     }
@@ -46,11 +46,9 @@ Cerios::InternalComms::PacketImpl::PacketImpl(Cerios::InternalComms::MessageID i
 }
 
 void Cerios::InternalComms::PacketImpl::serializeData(std::vector<std::uint8_t> &outputBuffer) {
-    std::size_t currentLength = outputBuffer.size();
-    outputBuffer.resize(outputBuffer.size() + sizeof(MessagePacketHeader));
-    std::memcpy(this->packetHeader.get(), outputBuffer.data() + currentLength, sizeof(MessagePacketHeader));
+    std::copy(reinterpret_cast<std::uint8_t *>(this->packetHeader.get()), reinterpret_cast<std::uint8_t *>(this->packetHeader.get()) + sizeof(MessagePacketHeader), std::back_inserter(outputBuffer));
     if (this->packetHeader->payloadLength > 0) {
-        std::copy(this->payload->begin(), this->payload->end(), std::back_inserter(outputBuffer));
+        std::copy(this->payload->data(), this->payload->data() + this->packetHeader->payloadLength, std::back_inserter(outputBuffer));
     }
 }
 

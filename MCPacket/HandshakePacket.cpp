@@ -17,8 +17,7 @@ Cerios::Server::HandshakePacket::HandshakePacket(std::shared_ptr<Cerios::Server:
     Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, &this->rawPayload, true);
     this->serverAddress = std::string(this->rawPayload.begin(), this->rawPayload.begin() + stringLength);
     this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + stringLength);
-    std::memcpy(&this->serverPort, this->rawPayload.data(), sizeof(std::uint16_t));
-    this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sizeof(std::uint16_t));
+    this->serverPort = this->readPODFromBuffer<std::uint16_t>(25565);
     Cerios::Server::Packet::readVarIntFromBuffer(reinterpret_cast<std::int32_t *>(&this->requestedNextState), &this->rawPayload, true);
     this->rawPayload.clear();
 }

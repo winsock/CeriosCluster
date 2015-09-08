@@ -14,11 +14,12 @@ Cerios::Server::LoginSuccessPacket::LoginSuccessPacket(std::shared_ptr<Cerios::S
     Cerios::Server::Packet::readVarIntFromBuffer(&uuidLength, &this->rawPayload, true);
     if (this->rawPayload.size() >= uuidLength) {
         this->uuid = std::string(this->rawPayload.begin(), this->rawPayload.begin() + uuidLength);
+        this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + uuidLength);
     }
     std::int32_t usernameLength;
-    Cerios::Server::Packet::readVarIntFromBuffer(&usernameLength, &this->rawPayload, uuidLength, true);
+    Cerios::Server::Packet::readVarIntFromBuffer(&usernameLength, &this->rawPayload, true);
     if (this->rawPayload.size() - uuidLength >= usernameLength) {
-        this->username = std::string(this->rawPayload.begin() + uuidLength, this->rawPayload.begin() + uuidLength + usernameLength);
+        this->username = std::string(this->rawPayload.begin(), this->rawPayload.begin() + usernameLength);
     }
     this->rawPayload.clear();
 }

@@ -37,48 +37,20 @@ Cerios::Server::Packet::packet_registry &Cerios::Server::Packet::registry() {
     return impl;
 }
 
-const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::int8_t> *buffer, std::size_t offset, bool consume) {
-    (*intOut) = 0;
-    int numByte = 0;
-    int8_t byte;
-    
-    if (buffer->size() <= 0) {
-        return 0;
-    }
-    
-    do {
-        if (offset + numByte >= buffer->size()) {
-            return 0;
-        }
-        
-        byte = (*buffer)[offset + numByte];
-        (*intOut) |= (byte & 127) << numByte++ * 7;
-        
-        if (numByte > 5) {
-            throw std::runtime_error("VarInt too big");
-        }
-    } while ((byte & 128) == 128);
-    if (consume) {
-        buffer->erase(buffer->begin(), buffer->begin() + numByte);
-    }
-    
-    return numByte;
-}
-
 void Cerios::Server::Packet::writeVarIntToBuffer(std::uint32_t input) {
     while ((input & -128) != 0) {
-        this->rawPayload.push_back(static_cast<std::int8_t>((input & 127) | 128));
+        this->rawPayload.push_back(static_cast<std::uint8_t>((input & 127) | 128));
         input >>= 7;
     }
-    this->rawPayload.push_back(static_cast<std::int8_t>(input));
+    this->rawPayload.push_back(static_cast<std::uint8_t>(input));
 }
 
 void Cerios::Server::Packet::writeVarLongToBuffer(std::uint64_t input) {
     while ((input & -128L) != 0L) {
-        this->rawPayload.push_back(static_cast<std::int8_t>((input & 127) | 128));
+        this->rawPayload.push_back(static_cast<std::uint8_t>((input & 127) | 128));
         input >>= 7;
     }
-    this->rawPayload.push_back(static_cast<std::int8_t>(input));
+    this->rawPayload.push_back(static_cast<std::uint8_t>(input));
 }
 
 std::size_t getVarIntSize(std::int64_t input) {
@@ -94,7 +66,7 @@ void Cerios::Server::Packet::sendTo(Cerios::Server::AbstractClient *client, std:
     this->serializePacket(client->getSide());
     if (compressionThreshold >= 0 && this->rawPayload.size() > compressionThreshold) {
         std::size_t inflatedSize = this->rawPayload.size();
-        std::vector<std::int8_t> compressedBuffer(inflatedSize);
+        std::vector<std::uint8_t> compressedBuffer(inflatedSize);
         z_stream zStream;
         
         zStream.zalloc = Z_NULL;
@@ -150,40 +122,51 @@ void Cerios::Server::Packet::writeBufferLengthToFront() {
     this->writeBufferLengthToFront(&this->rawPayload);
 }
 
-void Cerios::Server::Packet::writeBufferLengthToFront(std::vector<std::int8_t> *buffer) {
+void Cerios::Server::Packet::writeBufferLengthToFront(std::vector<std::uint8_t> *buffer) {
     if (getVarIntSize(buffer->size()) > Cerios::Server::Packet::MAX_LENGTH_BYTES) {
         throw std::runtime_error("Packet size too large to prepend! Packet size: " + std::to_string(getVarIntSize(this->rawPayload.size())));
     }
     this->writeVarIntToFront(buffer, static_cast<std::int32_t>(buffer->size()));
 }
 
-void Cerios::Server::Packet::writeVarIntToFront(std::vector<std::int8_t> *buffer, std::int32_t input) {
-    std::vector<std::int8_t> bytes;
+void Cerios::Server::Packet::writeVarIntToFront(std::vector<std::uint8_t> *buffer, std::int32_t input) {
+    std::vector<std::uint8_t> bytes;
     while ((input & -128) != 0) {
-        bytes.push_back(static_cast<std::int8_t>((input & 127) | 128));
+        bytes.push_back(static_cast<std::uint8_t>((input & 127) | 128));
         input >>= 7;
     }
-    bytes.push_back(static_cast<std::int8_t>(input & 127));
+    bytes.push_back(static_cast<std::uint8_t>(input & 127));
     buffer->insert(buffer->begin(), bytes.begin(), bytes.end());
 }
 
-void Cerios::Server::Packet::write64bitInt(std::int64_t input) {
-    std::copy(reinterpret_cast<std::int8_t *>(&input), reinterpret_cast<std::int8_t *>(&input) + sizeof(input), std::back_inserter(this->rawPayload));
-}
+const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::uint8_t> *buffer, bool consume) {
+    (*intOut) = 0;
+    int numByte = 0;
+    int8_t byte;
+    
+    if (buffer->size() <= 0) {
+        return 0;
+    }
+    
+    do {
+        if (numByte >= buffer->size()) {
+            return 0;
+        }
+        
+        byte = (*buffer)[numByte];
+        (*intOut) |= (byte & 127) << numByte++ * 7;
+        
+        if (numByte > 5) {
+            throw std::runtime_error("VarInt too big");
+        }
+    } while ((byte & 128) == 128);
+    if (consume) {
+        buffer->erase(buffer->begin(), buffer->begin() + numByte);
+    }
+    
+    return numByte;}
 
-void Cerios::Server::Packet::write32bitInt(std::int32_t input) {
-    std::copy(reinterpret_cast<std::int8_t *>(&input), reinterpret_cast<std::int8_t *>(&input) + sizeof(input), std::back_inserter(this->rawPayload));
-}
-
-void Cerios::Server::Packet::writeByte(std::int8_t input) {
-    std::copy(reinterpret_cast<std::int8_t *>(&input), reinterpret_cast<std::int8_t *>(&input) + sizeof(input), std::back_inserter(this->rawPayload));
-}
-
-const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::int8_t> *buffer, bool consume) {
-    return Cerios::Server::Packet::readVarIntFromBuffer(intOut, buffer, 0, consume);
-}
-
-Cerios::Server::Packet::Packet(std::size_t length, std::shared_ptr<std::vector<std::int8_t>> buffer,Cerios::Server::ClientState state, bool consumeData) {
+Cerios::Server::Packet::Packet(std::size_t length, std::shared_ptr<std::vector<std::uint8_t>> buffer,Cerios::Server::ClientState state, bool consumeData) {
     std::size_t idSize = Cerios::Server::Packet::readVarIntFromBuffer(&this->packetId, buffer.get());
     std::copy(buffer->begin() + idSize, buffer->begin() + length, std::back_inserter(this->rawPayload));
     if (consumeData) {

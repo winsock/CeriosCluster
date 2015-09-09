@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:valgrind.log">
+   </FileRef>
+   <FileRef
       location = "group:BoringSSL.xcodeproj">
    </FileRef>
    <FileRef

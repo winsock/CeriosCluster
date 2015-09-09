@@ -24,16 +24,15 @@ namespace Cerios { namespace Server {
     class ClientServer : public ClientOwner {
     private:
         std::shared_ptr<asio::ip::udp::socket> sendSocket, receiveSocket;
-        std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> clients;
+        std::unordered_map<std::uint32_t, std::unique_ptr<Cerios::Server::Client>> clients;
         std::shared_ptr<Cerios::Server::Login> owner;
-        std::vector<std::shared_ptr<asio::ip::udp::endpoint>> canAcceptClient;
     public:
         ClientServer(std::uint16_t messageReceive, bool ipv6, std::shared_ptr<Cerios::Server::Login> owner);
         
         /**
          * Returns false if for some reason the client could not have been added to the client server
          **/
-        bool addClient(std::shared_ptr<Cerios::Server::Client> client);
+        bool addClient(std::unique_ptr<Cerios::Server::Client> client);
         
         /**
          * Tells the client server to gracefully shutdown
@@ -45,8 +44,8 @@ namespace Cerios { namespace Server {
         void onWriteCompleteCallback(const asio::error_code& error, std::size_t bytes_transferred, std::shared_ptr<std::function<void(void)>> callback);
         void handleMessage(asio::ip::udp::endpoint &endpoint, std::shared_ptr<Cerios::InternalComms::Packet> packet);
 
-        void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient);
-        bool onPacketReceived(std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<Cerios::Server::Packet> packet);
+        void clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient);
+        bool onPacketReceived(Cerios::Server::AbstractClient *client, std::shared_ptr<Cerios::Server::Packet> packet);
         
         std::weak_ptr<asio::io_service> getIOService();
         std::shared_ptr<EVP_PKEY> getKeyPair();

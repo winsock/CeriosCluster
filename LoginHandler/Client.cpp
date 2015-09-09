@@ -133,7 +133,7 @@ Cerios::Server::Side Cerios::Server::Client::getSide() {
 }
 
 void Cerios::Server::Client::disconnect() {
-    this->owner->clientDisconnected(this->shared_from_this());
+    this->owner->clientDisconnected(this);
 }
 
 void Cerios::Server::Client::sendPacket(std::shared_ptr<Cerios::Server::Packet> packet) {
@@ -161,7 +161,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
     }
     
     // Test if this client is already authed and should just be forwarding packets.
-    if (!this->owner->onPacketReceived(side, this->shared_from_this(), packet)) {
+    if (!this->owner->onPacketReceived(side, this, packet)) {
         return;
     }
     
@@ -335,8 +335,8 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     std::string jsonResponseString(reinterpret_cast<const std::uint8_t *>(data->data().data()), reinterpret_cast<const std::uint8_t *>(data->data().data()) + length);
     
     this->playerInfo.Parse(jsonResponseString.c_str());
-    this->userid = this->playerInfo["id"].GetString();
-    this->requestedUsername = this->playerInfo["name"].GetString();
+    this->userid = std::string(this->playerInfo["id"].GetString());
+    this->requestedUsername = std::string(this->playerInfo["name"].GetString());
     
     // Send Login Sucess Packet
     auto loginSucessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
@@ -356,53 +356,61 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     this->sendPacket(setCompression);
     
     // Handoff client to client server relay
-    this->owner->handoffClient(this->shared_from_this());
+    this->owner->handoffClient(this);
 
 }
 
-void Cerios::Server::Client::sslHandshakeComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket> > sslSock, std::string request, const asio::error_code &error) {
+void Cerios::Server::Client::sslHandshakeComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::string request, const asio::error_code &error) {
     if (error) {
         std::cerr<<"Error on ssl handshake: "<<error.message()<<std::endl;
         return;
     }
-    asio::async_write(*sslSock, asio::buffer(request), std::bind([](std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket> > sslSock, const asio::error_code &error, std::size_t bytes_transferred) -> void {
-        if (error) {
-            std::cerr<<"Error during on session send: "<<error.message()<<std::endl;
-            return;
-        } else {
-            std::shared_ptr<asio::streambuf> buffer(new asio::streambuf());
-            asio::async_read_until(*sslSock, *buffer, std::string("\r\n\r\n"), std::bind([](std::shared_ptr<Cerios::Server::Client> thisClient, std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) -> void {
-                if (error) {
-                    return;
-                }
-                
-                std::istream dataStream(data.get());
-                
-                std::map<std::string, std::string> httpKVPairs;
-                std::string line;
-                std::string::size_type index;
-                
-                static auto trim = [](std::string const& str) -> std::string {
-                    if(str.empty())
-                        return str;
-                    
-                    std::size_t firstScan = str.find_first_not_of(' ');
-                    std::size_t first     = firstScan == std::string::npos ? str.length() : firstScan;
-                    std::size_t last      = str.find_last_not_of(' ');
-                    return str.substr(first, last-first+1);
-                };
-                
-                while (std::getline(dataStream, line) && line != "\r") {
-                    index = line.find(':', 0);
-                    if (index != std::string::npos) {
-                        httpKVPairs[trim(line.substr(0, index))] = trim(line.substr(index + 1));
-                    }
-                }
-                
-                asio::async_read(*sslSock, *data, asio::transfer_exactly(std::stoul(httpKVPairs["Content-Length"])), std::bind(&Cerios::Server::Client::onHasJoinedPostComplete, thisClient.get(), sslSock, data, std::placeholders::_1, std::stoul(httpKVPairs["Content-Length"])));
-            }, std::dynamic_pointer_cast<Cerios::Server::Client>(client), sslSock, buffer, std::placeholders::_1, std::placeholders::_2));
+    asio::async_write(*sslSock, asio::buffer(request), std::bind(&Cerios::Server::Client::sendHTTPRequestDone, this, sslSock, std::placeholders::_1, std::placeholders::_2));
+}
+
+void Cerios::Server::Client::sendHTTPRequestDone(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, const asio::error_code &error, std::size_t bytes_transferred) {
+    if (error) {
+        std::cerr<<"Error during HTTP Header Read: "<<error.message()<<std::endl;
+        return;
+    } else {
+        std::shared_ptr<asio::streambuf> buffer(new asio::streambuf());
+        asio::async_read_until(*sslSock, *buffer, std::string("\r\n\r\n"), std::bind(&Cerios::Server::Client::readHTTPHeader, this, sslSock, buffer, std::placeholders::_1, std::placeholders::_2));
+    }
+}
+
+void Cerios::Server::Client::readHTTPHeader(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket> > sslSock, std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) {
+    if (error) {
+        return;
+    }
+    
+    std::istream dataStream(data.get());
+    
+    std::map<std::string, std::string> httpKVPairs;
+    std::string line;
+    std::string::size_type index;
+    
+    static auto trim = [](std::string const& str) -> std::string {
+        if(str.empty())
+            return str;
+        
+        std::size_t firstScan = str.find_first_not_of(' ');
+        std::size_t first     = firstScan == std::string::npos ? str.length() : firstScan;
+        std::size_t last      = str.find_last_not_of(' ');
+        return str.substr(first, last-first+1);
+    };
+    
+    while (std::getline(dataStream, line) && line != "\r") {
+        index = line.find(':', 0);
+        if (index != std::string::npos) {
+            httpKVPairs[trim(line.substr(0, index))] = trim(line.substr(index + 1));
         }
-    }, this->shared_from_this(), sslSock, std::placeholders::_1, std::placeholders::_2));
+    }
+    try {
+        std::size_t contentLength = std::stoul(httpKVPairs["Content-Length"]);
+        asio::async_read(*sslSock, *data, asio::transfer_exactly(contentLength), std::bind(&Cerios::Server::Client::onHasJoinedPostComplete, this, sslSock, data, std::placeholders::_1, contentLength));
+    } catch (...) {
+        std::cerr<<"Error parsing Content Length from Mojang!"<<std::endl;
+    }
 }
 
 void Cerios::Server::Client::connectedToMojang(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::string request, const asio::error_code &error) {
@@ -436,7 +444,7 @@ void Cerios::Server::Client::authWithMojang(std::string serverIdHexDigest) {
     std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sock(new asio::ssl::stream<asio::ip::tcp::socket>(*service, ctx));
     asio::ip::tcp::resolver resolver(*service);
     asio::ip::tcp::resolver::query query("sessionserver.mojang.com", "https");
-    asio::async_connect(sock->lowest_layer(), resolver.resolve(query), std::bind(&Cerios::Server::Client::connectedToMojang, this, sock, httpHeader.str(), std::placeholders::_1));
+    asio::async_connect(sock->lowest_layer(), resolver.resolve(query), std::bind(&Cerios::Server::Client::connectedToMojang, this, sock, std::move(httpHeader.str()), std::placeholders::_1));
 }
 
 int Cerios::Server::Client::encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext) {

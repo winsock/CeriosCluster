@@ -53,6 +53,8 @@ namespace Cerios { namespace Server {
             this->writeVarIntToBuffer(this->packetId);
         }
         
+        void serializeToBuffer(Cerios::Server::Side sideSending, std::vector<std::uint8_t> &buffer);
+        
         template <typename T = Packet>
         static std::shared_ptr<T> parsePacket(Cerios::Server::Side side, std::size_t length, std::shared_ptr<std::vector<std::uint8_t>> buffer, ClientState state, bool compressed = false, bool consumeData = true) {
             if (buffer->size() <= 0) {

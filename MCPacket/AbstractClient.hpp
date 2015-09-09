@@ -30,7 +30,7 @@ namespace Cerios { namespace Server {
         SERVER = 1,
         BOTH = 2
     };
-    class AbstractClient : public std::enable_shared_from_this<AbstractClient> {
+    class AbstractClient {
     protected:
         std::shared_ptr<asio::ip::tcp::socket> socket;
         std::shared_ptr<std::vector<std::uint8_t>> buffer;

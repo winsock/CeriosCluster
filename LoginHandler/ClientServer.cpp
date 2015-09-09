@@ -9,6 +9,7 @@
 #include "ClientServer.hpp"
 
 #include <iostream>
+#include <Packet.hpp>
 
 #include "Client.hpp"
 #include "LoginServer.hpp"
@@ -78,7 +79,7 @@ void Cerios::Server::ClientServer::onWriteCompleteCallback(const asio::error_cod
 }
 
 void Cerios::Server::ClientServer::sendShutdownSignal() {
-    for (auto clientMapPair : this->clients) {
+    for (auto &clientMapPair : this->clients) {
         clientMapPair.second->disconnect();
     }
     if (this->receiveSocket->is_open()) {
@@ -93,12 +94,12 @@ void Cerios::Server::ClientServer::sendShutdownSignal() {
     }
 }
 
-bool Cerios::Server::ClientServer::addClient(std::shared_ptr<Cerios::Server::Client> client) {
-    this->clients[client->getSocket()->native_handle()] = client;
+bool Cerios::Server::ClientServer::addClient(std::unique_ptr<Cerios::Server::Client> client) {
     std::vector<std::uint8_t> payload;
-    std::copy(reinterpret_cast<const std::uint8_t *>(client->getClientId().data()), reinterpret_cast<const std::uint8_t *>(client->getClientId().data()) + client->getClientId().size(), std::back_inserter(payload));
-    std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::ACCEPT_CLIENT, payload);
-    
+    std::copy(client->getClientId().begin(), client->getClientId().end(), std::back_inserter(payload));
+    std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::ACCEPT_CLIENT, client->getClientId(), payload);
+    this->clients[client->getSocket()->native_handle()] = std::move(client);
+
     std::vector<std::uint8_t> rawData;
     message->serializeData(rawData);
     this->sendSocket->async_send_to(asio::buffer(rawData), asio::ip::udp::endpoint(asio::ip::address_v4::broadcast(), 1337), std::bind(&Cerios::Server::ClientServer::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
@@ -109,16 +110,29 @@ std::weak_ptr<asio::io_service> Cerios::Server::ClientServer::getIOService() {
     return this->owner->getIOService();
 }
 
-bool Cerios::Server::ClientServer::onPacketReceived(std::shared_ptr<Cerios::Server::AbstractClient> client, std::shared_ptr<Cerios::Server::Packet> packet) {
+/** 
+ * TODO Research TCP Handoff.
+ * We're redirecting the packet to be handled by the client server. Cancel the login/status packet parsing
+ * Most likely only viable on Linux. Might be possible on OS X with porting a BSD driver into a kext.
+**/
+bool Cerios::Server::ClientServer::onPacketReceived(Cerios::Server::AbstractClient *abstractClient, std::shared_ptr<Cerios::Server::Packet> packet) {
+    Cerios::Server::Client *client = dynamic_cast<Cerios::Server::Client *>(abstractClient);
+    if (client == nullptr) {
+        return false;
+    }
     
+    std::vector<std::uint8_t> payload;
+    packet->serializeToBuffer(Cerios::Server::Side::CLIENT, payload);
+    std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::MC_PACKET, client->getClientId(), payload);
     
-    // We're redirecting the packet to be handled by the client server. Cancel the login/status packet parsing
-    // TODO Research TCP Handoff.
-    // Most likely only viable on Linux. Might be possible on OS X with porting a BSD driver into a kext.
-    return false;
+    std::vector<std::uint8_t> messageData;
+    message->serializeData(messageData);
+    
+    this->sendSocket->async_send_to(asio::buffer(messageData), asio::ip::udp::endpoint(asio::ip::address_v4::broadcast(), 1337), std::bind(&Cerios::Server::ClientServer::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+    return true;
 }
 
-void Cerios::Server::ClientServer::clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient) {
+void Cerios::Server::ClientServer::clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient) {
     // TODO Gracefully tell node to cleanup client data
     try {
         std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;

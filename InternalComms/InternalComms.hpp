@@ -21,7 +21,8 @@ namespace Cerios { namespace InternalComms {
     enum class MessageID : std::uint8_t {
         ACK,
         NAK,
-        ACCEPT_CLIENT
+        ACCEPT_CLIENT,
+        MC_PACKET
     };
     
     class Packet : public std::enable_shared_from_this<Packet>  {
@@ -31,9 +32,12 @@ namespace Cerios { namespace InternalComms {
         virtual std::weak_ptr<std::vector<std::uint8_t>> getPayload() = 0;
         virtual void setPacketNumber(std::uint8_t packetNumber) = 0;
         virtual std::uint8_t getPacketNumber() = 0;
+        virtual std::string getPlayerID() = 0;
 
         static std::shared_ptr<Packet> newPacket(MessageID messageType);
         static std::shared_ptr<Packet> newPacket(MessageID messageType, std::vector<std::uint8_t> &payload);
+        static std::shared_ptr<Packet> newPacket(MessageID messageType, std::string playerId, std::vector<std::uint8_t> &payload);
+
         static std::shared_ptr<Packet> fromData(std::vector<std::uint8_t> &rawData, bool consume = false);
     protected:
         Packet() = default;

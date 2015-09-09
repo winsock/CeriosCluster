@@ -31,7 +31,7 @@ namespace Cerios { namespace Server {
         asio::ip::tcp::acceptor clientAcceptor;
         asio::ip::tcp::acceptor clientServerAcceptor;
         std::shared_ptr<ClientServer> clientServerHanler;
-        std::unordered_map<std::uint32_t, std::shared_ptr<Cerios::Server::Client>> pendingClients;\
+        std::unordered_map<std::uint32_t, std::unique_ptr<Cerios::Server::Client>> pendingClients;
         std::shared_ptr<EVP_PKEY> keyPair;
         std::shared_ptr<X509> certificate;
     public:
@@ -50,9 +50,9 @@ namespace Cerios { namespace Server {
         /**
          * Initial login suceeded, connect to actual game logic servers.
          */
-        void handoffClient(std::shared_ptr<Cerios::Server::AbstractClient> client);
+        void handoffClient(Cerios::Server::AbstractClient *client);
 
-        void clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient);
+        void clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient);
         std::weak_ptr<asio::io_service> getIOService();
         ~Login();
     private:

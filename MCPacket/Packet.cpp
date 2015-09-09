@@ -62,6 +62,11 @@ std::size_t getVarIntSize(std::int64_t input) {
     return 5;
 }
 
+void Cerios::Server::Packet::serializeToBuffer(Cerios::Server::Side sideSending, std::vector<std::uint8_t> &buffer) {
+    this->serializePacket(sideSending);
+    std::copy(this->rawPayload.begin(), this->rawPayload.end(), std::back_inserter(buffer));
+}
+
 void Cerios::Server::Packet::sendTo(Cerios::Server::AbstractClient *client, std::int32_t compressionThreshold) {
     this->serializePacket(client->getSide());
     if (compressionThreshold >= 0 && this->rawPayload.size() > compressionThreshold) {

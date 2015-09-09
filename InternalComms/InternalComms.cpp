@@ -19,6 +19,10 @@ std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::ne
     return std::dynamic_pointer_cast<Cerios::InternalComms::Packet>(std::shared_ptr<Cerios::InternalComms::PacketImpl>(new Cerios::InternalComms::PacketImpl(messageType, payload)));
 }
 
+std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID messageType, std::string playerId, std::vector<std::uint8_t> &payload) {
+    return std::dynamic_pointer_cast<Cerios::InternalComms::Packet>(std::shared_ptr<Cerios::InternalComms::PacketImpl>(new Cerios::InternalComms::PacketImpl(messageType, playerId, payload)));
+}
+
 std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::fromData(std::vector<std::uint8_t> &rawData, bool consume) {
     std::shared_ptr<MessagePacketHeader> messageHeader(new MessagePacketHeader);
     std::copy(rawData.data(), rawData.data() + sizeof(MessagePacketHeader), reinterpret_cast<std::uint8_t *>(messageHeader.get()));
@@ -45,6 +49,14 @@ Cerios::InternalComms::PacketImpl::PacketImpl(Cerios::InternalComms::MessageID i
     packetHeader.payloadLength = payload.size();
 }
 
+Cerios::InternalComms::PacketImpl::PacketImpl(Cerios::InternalComms::MessageID id, std::string playerId, std::vector<std::uint8_t> &payload) : payload(new std::vector<std::uint8_t>(payload)) {
+    packetHeader.id = static_cast<std::uint8_t>(id);
+    packetHeader.payloadLength = payload.size();
+    if (playerId.length() > sizeof(MessagePacketHeader::playerUUID)) {
+        std::copy(playerId.data(), playerId.data() + sizeof(MessagePacketHeader::playerUUID), packetHeader.playerUUID);
+    }
+}
+
 void Cerios::InternalComms::PacketImpl::serializeData(std::vector<std::uint8_t> &outputBuffer) {
     std::copy(reinterpret_cast<std::uint8_t *>(&this->packetHeader), reinterpret_cast<std::uint8_t *>(&this->packetHeader) + sizeof(MessagePacketHeader), std::back_inserter(outputBuffer));
     if (this->packetHeader.payloadLength > 0) {
@@ -54,6 +66,10 @@ void Cerios::InternalComms::PacketImpl::serializeData(std::vector<std::uint8_t> 
 
 Cerios::InternalComms::MessageID Cerios::InternalComms::PacketImpl::getMessageID() {
     return static_cast<MessageID>(this->packetHeader.id);
+}
+
+std::string Cerios::InternalComms::PacketImpl::getPlayerID() {
+    return std::string(this->packetHeader.playerUUID);
 }
 
 std::weak_ptr<std::vector<std::uint8_t>> Cerios::InternalComms::PacketImpl::getPayload() {

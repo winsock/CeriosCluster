@@ -64,8 +64,8 @@ void Cerios::Server::Login::init() {
 
 void Cerios::Server::Login::handleClient(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error) {
     if (!error) {
-        std::shared_ptr<Cerios::Server::Client> client(new Cerios::Server::Client(newClient, this->shared_from_this()));
-        pendingClients[newClient->native_handle()] = client;
+        std::unique_ptr<Cerios::Server::Client> client(new Cerios::Server::Client(newClient, this->shared_from_this()));
+        pendingClients[newClient->native_handle()] = std::move(client);
     }
     this->asyncClientAccept();
 }
@@ -78,7 +78,7 @@ std::shared_ptr<X509> Cerios::Server::Login::getCertificate() {
     return this->certificate;
 }
 
-void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::AbstractClient> disconnectedClient) {
+void Cerios::Server::Login::clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient) {
     try {
         std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
         disconnectedClient->getSocket()->cancel();
@@ -91,11 +91,15 @@ void Cerios::Server::Login::clientDisconnected(std::shared_ptr<Cerios::Server::A
     pendingClients.erase(disconnectedClient->getSocket()->native_handle());
 }
 
-void Cerios::Server::Login::handoffClient(std::shared_ptr<Cerios::Server::AbstractClient> abstractClient) {
-    auto client = std::dynamic_pointer_cast<Cerios::Server::Client>(abstractClient);
-    client->setOwner(this->clientServerHanler);
-    this->clientServerHanler->addClient(client);
+void Cerios::Server::Login::handoffClient(Cerios::Server::AbstractClient *abstractClient) {
+    auto client = std::move(this->pendingClients[abstractClient->getSocket()->native_handle()]);
+    if (client == nullptr) {
+        return;
+    }
+    
     this->pendingClients.erase(client->getSocket()->native_handle());
+    client->setOwner(this->clientServerHanler);
+    this->clientServerHanler->addClient(std::move(client));
 }
 
 std::weak_ptr<asio::io_service> Cerios::Server::Login::getIOService() {

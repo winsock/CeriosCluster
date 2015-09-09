@@ -12,8 +12,8 @@
 #include "ClientServer.hpp"
 
 int main(int argc, const char * argv[]) {
-    std::shared_ptr<Cerios::Server::ClientServer> client(new Cerios::Server::ClientServer(1337, false));
-    client->init();
-    client->listen();
+    Cerios::Server::ClientServer client(1337, false);
+    client.init();
+    client.listen();
     return EXIT_SUCCESS;
 }

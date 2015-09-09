@@ -61,12 +61,12 @@ void Cerios::Server::ClientServer::onDatagramMessageReceived(const asio::error_c
     }
     
     data.resize(packetSize);
-    this->handleMessage(senderEndpoint, Cerios::InternalComms::Packet::fromData(data, true));
+    this->handleMessage(senderEndpoint, *Cerios::InternalComms::Packet::fromData(data, true));
     this->startReceive();
 }
 
-void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpointFrom, std::shared_ptr<Cerios::InternalComms::Packet> packet) {
-    switch (packet->getMessageID()) {
+void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpointFrom, Cerios::InternalComms::Packet &packet) {
+    switch (packet.getMessageID()) {
         case Cerios::InternalComms::MessageID::ACCEPT_CLIENT:
             std::cout<<"Accept Client"<<std::endl;
             break;

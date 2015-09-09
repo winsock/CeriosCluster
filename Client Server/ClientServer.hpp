@@ -27,7 +27,7 @@ namespace Cerios { namespace Server {
         void init();
         void listen();
         void onDatagramMessageReceived(const asio::error_code& error);
-        void handleMessage(asio::ip::udp::endpoint &endpoint, std::shared_ptr<Cerios::InternalComms::Packet> packet);
+        void handleMessage(asio::ip::udp::endpoint &endpoint, Cerios::InternalComms::Packet &packet);
         ~ClientServer();
     private:
         void startReceive();

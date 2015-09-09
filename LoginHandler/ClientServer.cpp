@@ -96,7 +96,7 @@ void Cerios::Server::ClientServer::sendShutdownSignal() {
 bool Cerios::Server::ClientServer::addClient(std::shared_ptr<Cerios::Server::Client> client) {
     this->clients[client->getSocket()->native_handle()] = client;
     std::vector<std::uint8_t> payload;
-    std::copy(client->getClientId().data(), client->getClientId().data() + client->getClientId().size(), std::back_inserter(payload));
+    std::copy(reinterpret_cast<const std::uint8_t *>(client->getClientId().data()), reinterpret_cast<const std::uint8_t *>(client->getClientId().data()) + client->getClientId().size(), std::back_inserter(payload));
     std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::ACCEPT_CLIENT, payload);
     
     std::vector<std::uint8_t> rawData;

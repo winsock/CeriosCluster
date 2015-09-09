@@ -21,7 +21,7 @@ namespace Cerios { namespace InternalComms {
     
     class PacketImpl : public Packet {
     private:
-        std::shared_ptr<MessagePacketHeader> packetHeader;
+        MessagePacketHeader packetHeader;
         std::shared_ptr<std::vector<std::uint8_t>> payload;
     public:
         PacketImpl(Cerios::InternalComms::MessageID id);

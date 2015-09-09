@@ -49,7 +49,7 @@ std::string hexStr(unsigned char *data, int len) {
     return s;
 }
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("/session/minecraft/hasJoined"), httpBuffer(new std::vector<std::uint8_t>), encryptedBuffer(new std::vector<std::uint8_t>) {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("/session/minecraft/hasJoined"), encryptedBuffer(new std::vector<std::uint8_t>) {
     EVP_CIPHER_CTX_init(&this->encryptCipherContext);
     EVP_CIPHER_CTX_init(&this->decryptCipherContext);
     this->startAsyncRead();
@@ -95,8 +95,11 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
                     return;
                 }
             }
+        } else {
+            break;
         }
     }
+    
     this->startAsyncRead();
 }
 
@@ -320,62 +323,41 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
     }
 }
 
-void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::shared_ptr<asio::streambuf> data, std::uint64_t contentLength, const asio::error_code &error, std::size_t bytes_transferred) {
-    if (error && error != asio::error::eof) {
-        std::cerr<<"Error on ssl received: "<<error.message()<<std::endl;
-        return;
-    }
-    try {
-        asio::const_buffer dataBuffer = data->data();
-        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + bytes_transferred, std::back_inserter(*this->httpBuffer));
-        data->consume(bytes_transferred);
-        auto dataLocation = std::search(this->httpBuffer->begin(), this->httpBuffer->end(), this->dataSeparator.begin(), this->dataSeparator.end());
-        if (dataLocation != this->httpBuffer->end()) {
-            if (contentLength <= 0) {
-                auto contentLengthLocation = std::search(this->httpBuffer->begin(), this->httpBuffer->end(), this->contentLengthField.begin(), this->contentLengthField.end());
-                auto contentLengthLineEnd = std::search(contentLengthLocation, this->httpBuffer->end(), this->httpNewline.begin(), this->httpNewline.end());
-                contentLength = std::stoul(std::string(contentLengthLocation + this->contentLengthField.size(), contentLengthLineEnd));
-                if (contentLength <= 0) {
-                    return;
-                }
-            }
-            if (this->httpBuffer->end() - (dataLocation + this->dataSeparator.size()) >= contentLength) {
-                // Full content
-                std::string jsonResponseString(&dataLocation[this->dataSeparator.size()] , &dataLocation[this->dataSeparator.size() + contentLength]);
-                
-                this->playerInfo.Parse(jsonResponseString.c_str());
-                this->userid = this->playerInfo["id"].GetString();
-                this->requestedUsername = this->playerInfo["name"].GetString();
-                
-                // Send Login Sucess Packet
-                auto loginSucessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
-                loginSucessPacket->uuid = this->userid;
-                loginSucessPacket->username = this->requestedUsername;
-                this->sendPacket(loginSucessPacket);
-                this->setState(Cerios::Server::ClientState::PLAY);
-                
-                this->encrypted = true;
-                // Clear the buffer of any data. We now expect encrypted data.
-                this->buffer->clear();
-                std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
-                httpBuffer->clear();
-                
-                // Post Set compression Packet
-                auto setCompression = Packet::newPacket<Cerios::Server::SetCompressionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
-                setCompression->compressionThreshold = -1;
-                this->sendPacket(setCompression);
-                
-                // Handoff client to client server relay
-                this->owner->handoffClient(this->shared_from_this());
-            }
-        }
+void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t length) {
+    if (error) {
         if (error != asio::error::eof) {
-            std::shared_ptr<asio::streambuf> buffer(new asio::streambuf());
-            asio::async_read(*sslSock, *buffer, std::bind(&Cerios::Server::Client::onHasJoinedPostComplete, this, sslSock, buffer, contentLength, std::placeholders::_1, std::placeholders::_2));
+            std::cerr<<"Error on ssl received: "<<error.message()<<std::endl;
+            return;
+        } else if (data->size() < length) {
+            return;
         }
-    } catch (std::exception e) {
-        std::cerr<<"Error during on sslRead: "<<e.what()<<std::endl;
     }
+    std::string jsonResponseString(reinterpret_cast<const std::uint8_t *>(data->data().data()), reinterpret_cast<const std::uint8_t *>(data->data().data()) + length);
+    
+    this->playerInfo.Parse(jsonResponseString.c_str());
+    this->userid = this->playerInfo["id"].GetString();
+    this->requestedUsername = this->playerInfo["name"].GetString();
+    
+    // Send Login Sucess Packet
+    auto loginSucessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
+    loginSucessPacket->uuid = this->userid;
+    loginSucessPacket->username = this->requestedUsername;
+    this->sendPacket(loginSucessPacket);
+    this->setState(Cerios::Server::ClientState::PLAY);
+    
+    this->encrypted = true;
+    // Clear the buffer of any data. We now expect encrypted data.
+    this->buffer->clear();
+    std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
+    
+    // Post Set compression Packet
+    auto setCompression = Packet::newPacket<Cerios::Server::SetCompressionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
+    setCompression->compressionThreshold = -1;
+    this->sendPacket(setCompression);
+    
+    // Handoff client to client server relay
+    this->owner->handoffClient(this->shared_from_this());
+
 }
 
 void Cerios::Server::Client::sslHandshakeComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket> > sslSock, std::string request, const asio::error_code &error) {
@@ -389,7 +371,36 @@ void Cerios::Server::Client::sslHandshakeComplete(std::shared_ptr<asio::ssl::str
             return;
         } else {
             std::shared_ptr<asio::streambuf> buffer(new asio::streambuf());
-            asio::async_read(*sslSock, *buffer, std::bind(&Cerios::Server::Client::onHasJoinedPostComplete, std::dynamic_pointer_cast<Cerios::Server::Client>(client).get(), sslSock, buffer, 0, std::placeholders::_1, std::placeholders::_2));
+            asio::async_read_until(*sslSock, *buffer, std::string("\r\n\r\n"), std::bind([](std::shared_ptr<Cerios::Server::Client> thisClient, std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) -> void {
+                if (error) {
+                    return;
+                }
+                
+                std::istream dataStream(data.get());
+                
+                std::map<std::string, std::string> httpKVPairs;
+                std::string line;
+                std::string::size_type index;
+                
+                static auto trim = [](std::string const& str) -> std::string {
+                    if(str.empty())
+                        return str;
+                    
+                    std::size_t firstScan = str.find_first_not_of(' ');
+                    std::size_t first     = firstScan == std::string::npos ? str.length() : firstScan;
+                    std::size_t last      = str.find_last_not_of(' ');
+                    return str.substr(first, last-first+1);
+                };
+                
+                while (std::getline(dataStream, line) && line != "\r") {
+                    index = line.find(':', 0);
+                    if (index != std::string::npos) {
+                        httpKVPairs[trim(line.substr(0, index))] = trim(line.substr(index + 1));
+                    }
+                }
+                
+                asio::async_read(*sslSock, *data, asio::transfer_exactly(std::stoul(httpKVPairs["Content-Length"])), std::bind(&Cerios::Server::Client::onHasJoinedPostComplete, thisClient.get(), sslSock, data, std::placeholders::_1, std::stoul(httpKVPairs["Content-Length"])));
+            }, std::dynamic_pointer_cast<Cerios::Server::Client>(client), sslSock, buffer, std::placeholders::_1, std::placeholders::_2));
         }
     }, this->shared_from_this(), sslSock, std::placeholders::_1, std::placeholders::_2));
 }

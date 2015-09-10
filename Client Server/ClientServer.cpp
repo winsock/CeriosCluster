@@ -66,6 +66,10 @@ void Cerios::Server::ClientServer::onDatagramMessageReceived(const asio::error_c
 }
 
 void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpointFrom, Cerios::InternalComms::Packet &packet) {
+    if (packet == nullptr) {
+        return;
+    }
+    
     switch (packet.getMessageID()) {
         case Cerios::InternalComms::MessageID::ACCEPT_CLIENT:
             std::cout<<"Client Joined!"<<std::endl;

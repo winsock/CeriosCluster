@@ -79,15 +79,7 @@ std::shared_ptr<X509> Cerios::Server::Login::getCertificate() {
 }
 
 void Cerios::Server::Login::clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient) {
-    try {
-        std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
-        disconnectedClient->getSocket()->cancel();
-
-        if (disconnectedClient->getSocket()->is_open()) {
-            disconnectedClient->getSocket()->close();
-        }
-    } catch (...) { }
-    
+    std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     pendingClients.erase(disconnectedClient->getSocket()->native_handle());
 }
 

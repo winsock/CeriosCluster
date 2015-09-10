@@ -9,19 +9,18 @@
 
 #include "InternalComms.hpp"
 
-#define STRUCT_PACK __attribute__((packed))
-
 /* The classes below are not exported */
 #pragma GCC visibility push(hidden)
 
 namespace Cerios { namespace InternalComms {
-    
-    typedef struct STRUCT_PACK {
+#pragma pack(1)
+    typedef struct {
         std::uint8_t id;
         std::uint8_t packetNumber;
         char playerUUID[36];
         std::size_t payloadLength;
     } MessagePacketHeader;
+#pragma pack()
     
     class PacketImpl : public Packet {
     private:

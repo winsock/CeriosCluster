@@ -133,6 +133,11 @@ Cerios::Server::Side Cerios::Server::Client::getSide() {
 }
 
 void Cerios::Server::Client::disconnect() {
+    this->socket->cancel();
+    try {
+        this->socket->shutdown(asio::socket_base::shutdown_both);
+        this->socket->close();
+    } catch (...) {}
     this->owner->clientDisconnected(this);
 }
 
@@ -155,7 +160,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         // Send it right back
         this->sendPacket(pingPacket);
         if (this->getState() == Cerios::Server::ClientState::STATUS) {
-            this->disconnect();
+            this->socket->cancel();
         }
         return;
     }
@@ -335,8 +340,8 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     std::string jsonResponseString(reinterpret_cast<const std::uint8_t *>(data->data().data()), reinterpret_cast<const std::uint8_t *>(data->data().data()) + length);
     
     this->playerInfo.Parse(jsonResponseString.c_str());
-    this->userid = std::string(this->playerInfo["id"].GetString());
-    this->requestedUsername = std::string(this->playerInfo["name"].GetString());
+    this->userid = std::string(this->playerInfo["id"].GetString(), this->playerInfo["id"].GetStringLength());
+    this->requestedUsername = std::string(this->playerInfo["name"].GetString(), this->playerInfo["name"].GetStringLength());
     
     // Send Login Sucess Packet
     auto loginSucessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);

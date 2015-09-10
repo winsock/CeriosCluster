@@ -96,7 +96,7 @@ void Cerios::Server::ClientServer::sendShutdownSignal() {
 
 bool Cerios::Server::ClientServer::addClient(std::unique_ptr<Cerios::Server::Client> client) {
     std::vector<std::uint8_t> payload;
-    std::copy(client->getClientId().begin(), client->getClientId().end(), std::back_inserter(payload));
+    std::copy_n(client->getClientId().begin(), client->getClientId().length(), std::back_inserter(payload));
     std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::ACCEPT_CLIENT, client->getClientId(), payload);
     this->clients[client->getSocket()->native_handle()] = std::move(client);
 
@@ -133,15 +133,7 @@ bool Cerios::Server::ClientServer::onPacketReceived(Cerios::Server::AbstractClie
 }
 
 void Cerios::Server::ClientServer::clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient) {
-    // TODO Gracefully tell node to cleanup client data
-    try {
-        std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
-        disconnectedClient->getSocket()->cancel();
-
-        if (disconnectedClient->getSocket()->is_open()) {
-            disconnectedClient->getSocket()->close();
-        }
-    } catch (...) {}
+    std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     this->clients.erase(disconnectedClient->getSocket()->native_handle());
 }
 

@@ -271,9 +271,9 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
                 return;
             }
             
-            EVP_EncryptInit_ex(&this->encryptCipherContext, EVP_aes_128_cfb(), NULL, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.data());
+            EVP_EncryptInit_ex(&this->encryptCipherContext, EVP_aes_128_cfb_8(), NULL, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.data());
             EVP_CIPHER_CTX_set_padding(&this->encryptCipherContext, false);
-            EVP_DecryptInit_ex(&this->decryptCipherContext, EVP_aes_128_cfb(), NULL, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.data());
+            EVP_DecryptInit_ex(&this->decryptCipherContext, EVP_aes_128_cfb_8(), NULL, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.data());
             EVP_CIPHER_CTX_set_padding(&this->decryptCipherContext, false);
 
             SHA_CTX *shaContext = new SHA_CTX;
@@ -339,15 +339,23 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     }
     std::string jsonResponseString(reinterpret_cast<const std::uint8_t *>(data->data().data()), reinterpret_cast<const std::uint8_t *>(data->data().data()) + length);
     
+    this->playerInfo.Parse(jsonResponseString.c_str());
+    std::string uuidString = std::string(this->playerInfo["id"].GetString(), this->playerInfo["id"].GetStringLength());
+    
+    static std::regex uuidSplit("([[:xdigit:]]{8})([[:xdigit:]]{4})([[:xdigit:]]{4})([[:xdigit:]]{4})([[:xdigit:]]{12})");
+    std::smatch uuidParts;
+    if (std::regex_match(uuidString, uuidParts, uuidSplit)) {
+        uuidString = uuidParts[1].str() + "-" + uuidParts[2].str() + "-" + uuidParts[3].str() + "-" + uuidParts[4].str() + "-" + uuidParts[5].str();
+    }
+    
+    this->userid = uuidString;
+    this->requestedUsername = std::string(this->playerInfo["name"].GetString(), this->playerInfo["name"].GetStringLength());
+    
     // Set that the connection is encrypted. This is expected before sending the login success packet.
     this->encrypted = true;
     // Clear the buffer of any data. We now expect encrypted data.
     this->buffer->clear();
     std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
-    
-    this->playerInfo.Parse(jsonResponseString.c_str());
-    this->userid = std::string(this->playerInfo["id"].GetString(), this->playerInfo["id"].GetStringLength());
-    this->requestedUsername = std::string(this->playerInfo["name"].GetString(), this->playerInfo["name"].GetStringLength());
     
     // Send Login Sucess Packet
     auto loginSucessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);

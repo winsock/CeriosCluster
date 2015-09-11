@@ -12,6 +12,7 @@
 #include <istream>
 #include <random>
 #include <sstream>
+#include <regex>
 
 #include <Packet.hpp>
 #include <PingPacket.hpp>
@@ -110,8 +111,8 @@ void Cerios::Server::Client::startAsyncRead() {
 
 void Cerios::Server::Client::sendData(std::vector<std::uint8_t> &data) {
     if (encrypted) {
-        std::vector<std::uint8_t> encryptedData(data.size() + 15); // Plaintext Length in + Cipher blocksize - 1 is the max worse case encrypted data size
-        std::size_t actualLength = this->encrypt(reinterpret_cast<std::uint8_t *>(data.data()), data.size(), encryptedData.data());
+        std::vector<std::uint8_t> encryptedData(data.size() + EVP_MAX_BLOCK_LENGTH); // Plaintext Length in + Cipher blocksize - 1 is the max worse case encrypted data size
+        std::size_t actualLength = this->encrypt(data.data(), data.size(), encryptedData.data());
         // Prune extra memory
         encryptedData.resize(actualLength);
         asio::async_write(*this->socket, asio::buffer(encryptedData), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
@@ -160,6 +161,8 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         // Send it right back
         this->sendPacket(pingPacket);
         if (this->getState() == Cerios::Server::ClientState::STATUS) {
+            // If it was a status ping, cancel the pending async operations.
+            // Cancel will cause all other waiting operations to error out, thus disconnecting the client after server ping as per protocol spec.
             this->socket->cancel();
         }
         return;
@@ -209,10 +212,8 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             
             // TODO locahost/::1 check to disable encryption
             auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1);
-            if (this->owner->getCertificate() == nullptr) {
-                return;
-            }
-            response->keyPair = this->owner->getKeyPair();
+
+            response->publickKey = this->owner->getPublicKeyString();
             
             // Generate the verify token
             std::generate_n(this->verifyToken.begin(), this->verifyToken.size(), randomEngine);
@@ -270,6 +271,11 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
                 return;
             }
             
+            EVP_EncryptInit_ex(&this->encryptCipherContext, EVP_aes_128_cfb(), NULL, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.data());
+            EVP_CIPHER_CTX_set_padding(&this->encryptCipherContext, false);
+            EVP_DecryptInit_ex(&this->decryptCipherContext, EVP_aes_128_cfb(), NULL, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.data());
+            EVP_CIPHER_CTX_set_padding(&this->decryptCipherContext, false);
+
             SHA_CTX *shaContext = new SHA_CTX;
             if (SHA1_Init(shaContext) <= 0) {
                 return;
@@ -316,13 +322,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             }
             
             this->authWithMojang(hashString);
-            
-            if (EVP_EncryptInit_ex(&this->encryptCipherContext, EVP_aes_128_cfb(), nullptr, reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data()), reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data())) != 1) {
-                return;
-            }
-            if (EVP_DecryptInit_ex(&this->encryptCipherContext, EVP_aes_128_cfb(), nullptr, reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data()), reinterpret_cast<std::uint8_t *>(encryptionResponse->clearSharedSecret.data())) != 1) {
-                return;
-            }
+
             return;
         }
     }
@@ -339,6 +339,12 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     }
     std::string jsonResponseString(reinterpret_cast<const std::uint8_t *>(data->data().data()), reinterpret_cast<const std::uint8_t *>(data->data().data()) + length);
     
+    // Set that the connection is encrypted. This is expected before sending the login success packet.
+    this->encrypted = true;
+    // Clear the buffer of any data. We now expect encrypted data.
+    this->buffer->clear();
+    std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
+    
     this->playerInfo.Parse(jsonResponseString.c_str());
     this->userid = std::string(this->playerInfo["id"].GetString(), this->playerInfo["id"].GetStringLength());
     this->requestedUsername = std::string(this->playerInfo["name"].GetString(), this->playerInfo["name"].GetStringLength());
@@ -349,11 +355,6 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     loginSucessPacket->username = this->requestedUsername;
     this->sendPacket(loginSucessPacket);
     this->setState(Cerios::Server::ClientState::PLAY);
-    
-    this->encrypted = true;
-    // Clear the buffer of any data. We now expect encrypted data.
-    this->buffer->clear();
-    std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
     
     // Post Set compression Packet
     auto setCompression = Packet::newPacket<Cerios::Server::SetCompressionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
@@ -405,9 +406,20 @@ void Cerios::Server::Client::readHTTPHeader(std::shared_ptr<asio::ssl::stream<as
     };
     
     while (std::getline(dataStream, line) && line != "\r") {
+        
         index = line.find(':', 0);
         if (index != std::string::npos) {
             httpKVPairs[trim(line.substr(0, index))] = trim(line.substr(index + 1));
+        } else if (line.find("HTTP") != std::string::npos) {
+            static std::regex httpStatus("(\\S+) (\\d+) ([\\S| ]+)");
+            std::smatch matchResults;
+            if (std::regex_search(line, matchResults, httpStatus)) {
+                if (std::stoi(matchResults.str(2)) != 200) {
+                    std::cout<<"Failed to authenticate client: "<<this->socket->remote_endpoint()<<" with requested username: "<<this->requestedUsername<<std::endl;
+                    this->socket->cancel(); // Disconnect Client
+                    return;
+                }
+            }
         }
     }
     try {
@@ -456,7 +468,7 @@ int Cerios::Server::Client::encrypt(unsigned char *plaintext, std::size_t plaint
     int len;
     int ciphertext_len;
     
-    EVP_EncryptInit_ex(&this->encryptCipherContext, NULL, NULL, NULL, NULL);
+    EVP_CipherInit_ex(&this->encryptCipherContext, NULL, NULL, NULL, NULL, -1);
     
     /* Provide the message to be encrypted, and obtain the encrypted output.
      * EVP_EncryptUpdate can be called multiple times if necessary
@@ -481,7 +493,7 @@ int Cerios::Server::Client::decrypt(unsigned char *ciphertext, std::size_t ciphe
     int len;
     int plaintext_len;
     
-    EVP_DecryptInit_ex(&this->decryptCipherContext, NULL, NULL, NULL, NULL);
+    EVP_CipherInit_ex(&this->decryptCipherContext, NULL, NULL, NULL, NULL, -1);
     
     /* Provide the message to be decrypted, and obtain the plaintext output.
      * EVP_DecryptUpdate can be called multiple times if necessary

@@ -34,6 +34,7 @@ namespace Cerios { namespace Server {
         std::unordered_map<std::uint32_t, std::unique_ptr<Cerios::Server::Client>> pendingClients;
         std::shared_ptr<EVP_PKEY> keyPair;
         std::shared_ptr<X509> certificate;
+        std::string publicKeyString;
     public:
         Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6);
         void init();
@@ -46,6 +47,7 @@ namespace Cerios { namespace Server {
          **/
         std::shared_ptr<EVP_PKEY> getKeyPair();
         std::shared_ptr<X509> getCertificate();
+        std::string getPublicKeyString();
         
         /**
          * Initial login suceeded, connect to actual game logic servers.

@@ -23,12 +23,11 @@
 namespace Cerios { namespace Server {
     class EncryptionPacket : public Packet {
     public:
-        std::string serverId;
-        std::shared_ptr<EVP_PKEY> keyPair;
-        std::array<std::int8_t, 16> clearVerifyToken;
-        std::vector<std::int8_t> clearSharedSecret;
-        std::vector<std::int8_t> sealedVerifyToken;
-        std::vector<std::int8_t> sealedSharedSecret;
+        std::string serverId, publickKey;
+        std::array<std::uint8_t, 16> clearVerifyToken;
+        std::vector<std::uint8_t> clearSharedSecret;
+        std::vector<std::uint8_t> sealedVerifyToken;
+        std::vector<std::uint8_t> sealedSharedSecret;
     public:
         void serializePacket(Cerios::Server::Side sideSending);
         

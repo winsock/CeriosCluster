@@ -23,12 +23,12 @@ Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side, st
         // From the client received on the server
         std::int32_t sharedSecretLength;
         Cerios::Server::Packet::readVarIntFromBuffer(&sharedSecretLength, &this->rawPayload, true);
-        std::copy(reinterpret_cast<std::uint8_t *>(this->rawPayload.data()), reinterpret_cast<std::uint8_t *>(this->rawPayload.data()) + sharedSecretLength, std::back_inserter(this->sealedSharedSecret));
+        std::copy(this->rawPayload.data(), this->rawPayload.data() + sharedSecretLength, std::back_inserter(this->sealedSharedSecret));
         this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sharedSecretLength);
         
         std::int32_t verifyTokenLength;
         Cerios::Server::Packet::readVarIntFromBuffer(&verifyTokenLength, &this->rawPayload, true);
-        std::copy(reinterpret_cast<std::uint8_t *>(this->rawPayload.data()), reinterpret_cast<std::uint8_t *>(this->rawPayload.data()) + verifyTokenLength, std::back_inserter(this->sealedVerifyToken));
+        std::copy(this->rawPayload.data(), this->rawPayload.data() + verifyTokenLength, std::back_inserter(this->sealedVerifyToken));
     }
     this->rawPayload.clear();
 }
@@ -40,16 +40,14 @@ void Cerios::Server::EncryptionPacket::serializePacket(Cerios::Server::Side side
     Packet::serializePacket(sideSending);
     if (sideSending == Cerios::Server::Side::SERVER) {
         this->writeVarIntToBuffer(static_cast<std::int32_t>(this->serverId.size()));
-        std::copy(this->serverId.data(), this->serverId.data() + this->serverId.size(), std::back_inserter(this->rawPayload));
-        std::size_t neededLength = i2d_PUBKEY(this->keyPair.get(), NULL);
-        this->writeVarIntToBuffer(static_cast<std::int32_t>(neededLength));
-        std::uint8_t *tempBuffer, *tempBuffer2;
-        tempBuffer = static_cast<std::uint8_t *>(malloc(neededLength));
-        tempBuffer2 = tempBuffer;
-        i2d_PUBKEY(this->keyPair.get(), &tempBuffer2);
-        std::copy(tempBuffer, tempBuffer + neededLength, std::back_inserter(this->rawPayload));
-        free(tempBuffer);
+        if (this->serverId.size() > 0) {
+            std::copy(this->serverId.data(), this->serverId.data() + this->serverId.size(), std::back_inserter(this->rawPayload));
+        }
+
+        this->writeVarIntToBuffer(static_cast<std::int32_t>(this->publickKey.length()));
+        std::copy(this->publickKey.data(), this->publickKey.data() + this->publickKey.size(), std::back_inserter(this->rawPayload));
+
         this->writeVarIntToBuffer(static_cast<std::int32_t>(this->clearVerifyToken.size()));
-        std::copy(reinterpret_cast<std::uint8_t *>(this->clearVerifyToken.data()), reinterpret_cast<std::uint8_t *>(this->clearVerifyToken.data()) + this->clearVerifyToken.size(), std::back_inserter(this->rawPayload));
+        std::copy(this->clearVerifyToken.data(), this->clearVerifyToken.data() + this->clearVerifyToken.size(), std::back_inserter(this->rawPayload));
     }
 }

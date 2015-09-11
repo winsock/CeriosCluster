@@ -49,6 +49,7 @@ namespace Cerios { namespace Server {
          **/
         virtual std::shared_ptr<EVP_PKEY> getKeyPair() = 0;
         virtual std::shared_ptr<X509> getCertificate() = 0;
+        virtual std::string getPublicKeyString() = 0;
     };
 }}
 

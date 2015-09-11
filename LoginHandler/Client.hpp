@@ -27,7 +27,7 @@ namespace Cerios { namespace Server {
     class Client : public AbstractClient {
     private:
         std::shared_ptr<Cerios::Server::ClientOwner> owner;
-        std::array<std::int8_t, 16> verifyToken;
+        std::array<std::uint8_t, 16> verifyToken;
         std::int32_t compressionThreshold = -1;
 
         EVP_CIPHER_CTX encryptCipherContext;

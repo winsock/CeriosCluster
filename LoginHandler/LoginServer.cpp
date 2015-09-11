@@ -41,23 +41,21 @@ void Cerios::Server::Login::asyncClientAccept() {
 void Cerios::Server::Login::init() {
     RSA *rsa = RSA_new();
     BIGNUM *bne = BN_new();
-    BN_set_word(bne, RSA_F4);
+    BN_set_word(bne, 17);
     RSA_generate_key_ex(rsa, 1024, bne, nullptr);
     BN_free(bne);
     EVP_PKEY_assign_RSA(this->keyPair.get(), rsa);
-    
-
-    ASN1_INTEGER_set(X509_get_serialNumber(this->certificate.get()), 1);
-    X509_gmtime_adj(X509_get_notBefore(this->certificate.get()), 0);
-    X509_gmtime_adj(X509_get_notAfter(this->certificate.get()), std::chrono::duration_cast<std::chrono::seconds>(Cerios::Server::Days(365)).count());
+    X509_set_version(this->certificate.get(), 0);
     X509_set_pubkey(this->certificate.get(), this->keyPair.get());
-    X509_NAME *name;
-    name = X509_get_subject_name(this->certificate.get());
-    X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC, reinterpret_cast<const unsigned char *>("US"), -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, reinterpret_cast<const unsigned char *>("Cerios Cluster Server"), -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, reinterpret_cast<const unsigned char *>("localhost"), -1, -1, 0);
-    X509_set_issuer_name(this->certificate.get(), name);
-    X509_sign(this->certificate.get(), this->keyPair.get(), EVP_sha256());
+    
+    std::size_t neededLength = i2d_PUBKEY(this->keyPair.get(), NULL);
+    std::uint8_t *tempBuffer, *tempBuffer2;
+    tempBuffer = static_cast<std::uint8_t *>(malloc(neededLength));
+    tempBuffer2 = tempBuffer;
+    i2d_PUBKEY(this->keyPair.get(), &tempBuffer2);
+    this->publicKeyString = std::string(reinterpret_cast<std::string::value_type*>(tempBuffer), neededLength);
+    free(tempBuffer);
+
     this->clientServerHanler = std::shared_ptr<Cerios::Server::ClientServer>(new Cerios::Server::ClientServer(1338, false, std::dynamic_pointer_cast<Cerios::Server::Login>(this->shared_from_this())));
     this->asyncClientAccept();
 }
@@ -76,6 +74,10 @@ std::shared_ptr<EVP_PKEY> Cerios::Server::Login::getKeyPair() {
 
 std::shared_ptr<X509> Cerios::Server::Login::getCertificate() {
     return this->certificate;
+}
+
+std::string Cerios::Server::Login::getPublicKeyString() {
+    return this->publicKeyString;
 }
 
 void Cerios::Server::Login::clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient) {

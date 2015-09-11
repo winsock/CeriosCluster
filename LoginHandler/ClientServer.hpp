@@ -48,8 +48,11 @@ namespace Cerios { namespace Server {
         bool onPacketReceived(Cerios::Server::AbstractClient *client, std::shared_ptr<Cerios::Server::Packet> packet);
         
         std::weak_ptr<asio::io_service> getIOService();
+        
         std::shared_ptr<EVP_PKEY> getKeyPair();
         std::shared_ptr<X509> getCertificate();
+        std::string getPublicKeyString();
+
     private:
         void startAsyncReceive();
     };

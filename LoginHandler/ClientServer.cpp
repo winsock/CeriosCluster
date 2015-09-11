@@ -144,3 +144,7 @@ std::shared_ptr<EVP_PKEY> Cerios::Server::ClientServer::getKeyPair() {
 std::shared_ptr<X509> Cerios::Server::ClientServer::getCertificate() {
     return owner->getCertificate();
 }
+
+std::string Cerios::Server::ClientServer::getPublicKeyString() {
+    return owner->getPublicKeyString();
+}

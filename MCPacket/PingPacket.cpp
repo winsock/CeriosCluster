@@ -7,13 +7,12 @@
 //
 
 #include "PingPacket.hpp"
-#include "AbstractClient.hpp"
 
 #include <chrono>
 
 Cerios::Server::PingPacket::PingPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
     this->unixEpoch = this->readPODFromBuffer<std::int64_t>(std::chrono::milliseconds(std::time(NULL)).count());
-    this->rawPayload.clear();
+    this->resetBuffer();
 }
 
 Cerios::Server::PingPacket::PingPacket() : Packet(0x01) {

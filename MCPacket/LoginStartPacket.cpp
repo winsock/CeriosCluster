@@ -7,15 +7,14 @@
 //
 
 #include "LoginStartPacket.hpp"
-#include "AbstractClient.hpp"
 
 Cerios::Server::LoginStartPacket::LoginStartPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
     std::int32_t stringLength;
-    Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, &this->rawPayload, true);
+    Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, this->rawPayload, true);
     if (this->rawPayload.size() >= stringLength) {
         this->playerName = std::string(this->rawPayload.begin(), this->rawPayload.begin() + stringLength);
     }
-    this->rawPayload.clear();
+    this->resetBuffer();
 }
 
 void Cerios::Server::LoginStartPacket::serializePacket(Cerios::Server::Side sideFrom) {

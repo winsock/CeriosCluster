@@ -12,6 +12,8 @@
 #include <iostream>
 #include <vector>
 
+#include <JoinGamePacket.hpp>
+
 #include "GameState.hpp"
 
 Cerios::Server::ClientServer::ClientServer(std::uint16_t receivePort, bool ipv6) : service(new asio::io_service()),
@@ -61,21 +63,33 @@ void Cerios::Server::ClientServer::onDatagramMessageReceived(const asio::error_c
     }
     
     data.resize(packetSize);
-    this->handleMessage(senderEndpoint, *Cerios::InternalComms::Packet::fromData(data, true));
+    this->handleMessage(senderEndpoint, Cerios::InternalComms::Packet::fromData(data, true));
     this->startReceive();
 }
 
-void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpointFrom, Cerios::InternalComms::Packet &packet) {
-    if (packet == nullptr) {
-        return;
+void Cerios::Server::ClientServer::onWriteComplete(const asio::error_code& error, std::size_t bytes_transferred) {
+    if (error) {
+        std::cerr<<"Internal write error from clientserver node: "<<error.message()<<std::endl;
     }
-    
-    switch (packet.getMessageID()) {
-        case Cerios::InternalComms::MessageID::ACCEPT_CLIENT:
-            std::cout<<"Client Joined!"<<std::endl;
-            break;
+}
+
+void Cerios::Server::ClientServer::sendPacket(std::shared_ptr<Cerios::InternalComms::Packet> message, asio::ip::udp::endpoint &endpointFrom) {
+    std::vector<std::uint8_t> rawData;
+    message->serializeData(rawData);
+    this->sendSocket.async_send_to(asio::buffer(rawData), asio::ip::udp::endpoint(endpointFrom.address(), 1338), std::bind(&Cerios::Server::ClientServer::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpointFrom, std::shared_ptr<Cerios::InternalComms::Packet> packet) {
+    switch (packet->getMessageID()) {
+        case Cerios::InternalComms::MessageID::ACCEPT_CLIENT: {
+            std::cout<<"Received Packet for client: "<<packet->getPlayerID()<<std::endl;
+            auto joinGamePacket = Packet::newPacket<Cerios::Server::JoinGamePacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x01);
+            std::vector<std::uint8_t> payload;
+            joinGamePacket->serializeToBuffer(Cerios::Server::Side::SERVER, payload);
+            std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::MC_PACKET, packet->getPlayerID(), payload);
+            this->sendPacket(message, endpointFrom);
+        } break;
         case Cerios::InternalComms::MessageID::MC_PACKET:
-            std::cout<<"Received MC Packet for client: "<<packet.getPlayerID()<<std::endl;
             break;
         default:
             break;

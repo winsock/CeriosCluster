@@ -7,11 +7,10 @@
 //
 
 #include "SetCompressionPacket.hpp"
-#include "AbstractClient.hpp"
 
 Cerios::Server::SetCompressionPacket::SetCompressionPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
-    Cerios::Server::Packet::readVarIntFromBuffer(&this->compressionThreshold, &this->rawPayload, true);
-    this->rawPayload.clear();
+    Cerios::Server::Packet::readVarIntFromBuffer(&this->compressionThreshold, this->rawPayload, true);
+    this->resetBuffer();
 }
 
 Cerios::Server::SetCompressionPacket::SetCompressionPacket() : Packet(0x01), compressionThreshold(-1) {

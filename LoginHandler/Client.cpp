@@ -50,13 +50,13 @@ std::string hexStr(unsigned char *data, int len) {
     return s;
 }
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<Cerios::Server::ClientOwner> owner) : AbstractClient(clientSocket), owner(owner), SessionServer("/session/minecraft/hasJoined"), encryptedBuffer(new std::vector<std::uint8_t>) {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner) : socket(std::move(clientSocket)), owner(owner), SessionServer("/session/minecraft/hasJoined") {
     EVP_CIPHER_CTX_init(&this->encryptCipherContext);
     EVP_CIPHER_CTX_init(&this->decryptCipherContext);
     this->startAsyncRead();
 }
 
-void Cerios::Server::Client::setOwner(std::shared_ptr<Cerios::Server::ClientOwner> newOwner) {
+void Cerios::Server::Client::setOwner(std::weak_ptr<Cerios::Server::ClientOwner> newOwner) {
     this->owner = newOwner;
 }
 
@@ -69,23 +69,23 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
     
     asio::const_buffer dataBuffer = data->data();
     if (encrypted) {
-        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + dataBuffer.size(), std::back_inserter(*this->encryptedBuffer));
-        std::size_t numberOfBlocksInBuffer = this->encryptedBuffer->size() >> 4;
+        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + dataBuffer.size(), std::back_inserter(this->encryptedBuffer));
+        std::size_t numberOfBlocksInBuffer = this->encryptedBuffer.size() >> 4;
         std::size_t cyphertextLength = numberOfBlocksInBuffer << 4;
-        std::size_t clearBufferOriginalSize = this->buffer->size();
-        this->buffer->resize(clearBufferOriginalSize + cyphertextLength);
-        std::size_t cleartextLength = this->decrypt(reinterpret_cast<std::uint8_t *>(this->encryptedBuffer->data()), cyphertextLength, reinterpret_cast<std::uint8_t *>(this->buffer->data()) + clearBufferOriginalSize);
-        this->buffer->resize(clearBufferOriginalSize + cleartextLength); // Prune any extra memory
+        std::size_t clearBufferOriginalSize = this->buffer.size();
+        this->buffer.resize(clearBufferOriginalSize + cyphertextLength);
+        std::size_t cleartextLength = this->decrypt(reinterpret_cast<std::uint8_t *>(this->encryptedBuffer.data()), cyphertextLength, reinterpret_cast<std::uint8_t *>(this->buffer.data()) + clearBufferOriginalSize);
+        this->buffer.resize(clearBufferOriginalSize + cleartextLength); // Prune any extra memory
     } else {
-        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + dataBuffer.size(), std::back_inserter(*this->buffer));
+        std::copy(reinterpret_cast<const uint8_t *>(dataBuffer.data()), reinterpret_cast<const uint8_t *>(dataBuffer.data()) + dataBuffer.size(), std::back_inserter(this->buffer));
     }
     
     std::int32_t messageLength;
     std::size_t varintSize = 0;
-    while ((varintSize = Cerios::Server::Packet::readVarIntFromBuffer(&messageLength, this->buffer.get()))) {
-        if (this->buffer->size() >= messageLength + varintSize) {
+    while ((varintSize = Cerios::Server::Packet::readVarIntFromBuffer(&messageLength, this->buffer))) {
+        if (this->buffer.size() >= messageLength + varintSize) {
             // Remove the message length from the buffer
-            this->buffer->erase(this->buffer->begin(), this->buffer->begin() + varintSize);
+            this->buffer.erase(this->buffer.begin(), this->buffer.begin() + varintSize);
             auto parsedPacket = Cerios::Server::Packet::parsePacket(Cerios::Server::Side::CLIENT, messageLength, this->buffer, this->state, this->compressionThreshold >= 0);
             if (parsedPacket != nullptr) {
                 try {
@@ -113,9 +113,7 @@ void Cerios::Server::Client::sendData(std::vector<std::uint8_t> &data) {
     if (encrypted) {
         std::vector<std::uint8_t> encryptedData(data.size() + EVP_MAX_BLOCK_LENGTH); // Plaintext Length in + Cipher blocksize - 1 is the max worse case encrypted data size
         std::size_t actualLength = this->encrypt(data.data(), data.size(), encryptedData.data());
-        // Prune extra memory
-        encryptedData.resize(actualLength);
-        asio::async_write(*this->socket, asio::buffer(encryptedData), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+        asio::async_write(*this->socket, asio::buffer(encryptedData, actualLength), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
     } else {
         asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
     }
@@ -139,11 +137,19 @@ void Cerios::Server::Client::disconnect() {
         this->socket->shutdown(asio::socket_base::shutdown_both);
         this->socket->close();
     } catch (...) {}
-    this->owner->clientDisconnected(this);
+    auto owner = this->owner.lock();
+    if (owner != nullptr) {
+        owner->clientDisconnected(this);
+    }
 }
 
 void Cerios::Server::Client::sendPacket(std::shared_ptr<Cerios::Server::Packet> packet) {
-    packet->sendTo(this, this->compressionThreshold);
+    packet->serializePacket(this->getSide());
+    if (compressionThreshold >= 0 && std::dynamic_pointer_cast<Cerios::Server::SetCompressionPacket>(packet->shared_from_this()) == nullptr) {
+        packet->compressIfLargerThan(this->compressionThreshold);
+    }
+    packet->framePacket();
+    this->sendData(packet->getData());
 }
 
 std::string Cerios::Server::Client::getClientId() {
@@ -168,8 +174,12 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         return;
     }
     
+    auto owner = this->owner.lock();
+    if (owner == nullptr) {
+        return;
+    }
     // Test if this client is already authed and should just be forwarding packets.
-    if (!this->owner->onPacketReceived(side, this, packet)) {
+    if (!owner->onPacketReceived(side, this, packet)) {
         return;
     }
     
@@ -213,7 +223,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             // TODO locahost/::1 check to disable encryption
             auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1);
 
-            response->publickKey = this->owner->getPublicKeyString();
+            response->publickKey = owner->getPublicKeyString();
             
             // Generate the verify token
             std::generate_n(this->verifyToken.begin(), this->verifyToken.size(), randomEngine);
@@ -231,7 +241,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         // Handle encryption response
         auto encryptionResponse = std::dynamic_pointer_cast<Cerios::Server::EncryptionPacket>(packet);
         if (encryptionResponse != nullptr) {
-            EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(this->owner->getKeyPair().get(), nullptr);
+            EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(owner->getKeyPair().get(), nullptr);
             if (!ctx) {
                 EVP_PKEY_CTX_free(ctx);
                 return;
@@ -284,11 +294,11 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             SHA1_Update(shaContext, encryptionResponse->serverId.data(), encryptionResponse->serverId.size());
             SHA1_Update(shaContext, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.size());
             
-            std::size_t publicKeyLength = i2d_PUBKEY(this->owner->getKeyPair().get(), NULL);
+            std::size_t publicKeyLength = i2d_PUBKEY(owner->getKeyPair().get(), NULL);
             unsigned char *tempBuffer, *tempBuffer2;
             tempBuffer = (unsigned char *)malloc(publicKeyLength);
             tempBuffer2 = tempBuffer;
-            i2d_PUBKEY(this->owner->getKeyPair().get(), &tempBuffer2);
+            i2d_PUBKEY(owner->getKeyPair().get(), &tempBuffer2);
             SHA1_Update(shaContext, tempBuffer, publicKeyLength);
             free(tempBuffer);
             
@@ -354,24 +364,21 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     // Set that the connection is encrypted. This is expected before sending the login success packet.
     this->encrypted = true;
     // Clear the buffer of any data. We now expect encrypted data.
-    this->buffer->clear();
+    this->buffer.clear();
     std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
     
-    // Send Login Sucess Packet
-    auto loginSucessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
-    loginSucessPacket->uuid = this->userid;
-    loginSucessPacket->username = this->requestedUsername;
-    this->sendPacket(loginSucessPacket);
+    // Send Login Success Packet
+    auto loginSuccessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
+    loginSuccessPacket->uuid = this->userid;
+    loginSuccessPacket->username = this->requestedUsername;
+    this->sendPacket(loginSuccessPacket);
     this->setState(Cerios::Server::ClientState::PLAY);
     
-    // Post Set compression Packet
-    auto setCompression = Packet::newPacket<Cerios::Server::SetCompressionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x46);
-    setCompression->compressionThreshold = -1;
-    this->sendPacket(setCompression);
-    
     // Handoff client to client server relay
-    this->owner->handoffClient(this);
-
+    auto owner = this->owner.lock();
+    if (owner != nullptr) {
+        owner->handoffClient(this);
+    }
 }
 
 void Cerios::Server::Client::sslHandshakeComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::string request, const asio::error_code &error) {
@@ -461,13 +468,17 @@ void Cerios::Server::Client::authWithMojang(std::string serverIdHexDigest) {
     ctx.set_default_verify_paths();
     
     // Open a socket and connect it to the remote host.
-    std::shared_ptr<asio::io_service> service = this->owner->getIOService().lock();
-    if (service == nullptr) {
-        std::cerr<<"Error getting lock on IO Service"<<std::endl;
+    auto owner = this->owner.lock();
+    if (owner == nullptr) {
         return;
     }
-    std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sock(new asio::ssl::stream<asio::ip::tcp::socket>(*service, ctx));
-    asio::ip::tcp::resolver resolver(*service);
+    auto ioService = owner->getIOService().lock();
+    if (ioService == nullptr) {
+        return;
+    }
+
+    std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sock(new asio::ssl::stream<asio::ip::tcp::socket>(*ioService, ctx));
+    asio::ip::tcp::resolver resolver(*ioService);
     asio::ip::tcp::resolver::query query("sessionserver.mojang.com", "https");
     asio::async_connect(sock->lowest_layer(), resolver.resolve(query), std::bind(&Cerios::Server::Client::connectedToMojang, this, sock, std::move(httpHeader.str()), std::placeholders::_1));
 }

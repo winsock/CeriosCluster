@@ -27,9 +27,7 @@ namespace Cerios { namespace InternalComms {
         MessagePacketHeader packetHeader;
         std::shared_ptr<std::vector<std::uint8_t>> payload;
     public:
-        PacketImpl(Cerios::InternalComms::MessageID id);
-        PacketImpl(Cerios::InternalComms::MessageID id, std::vector<std::uint8_t> &payload);
-        PacketImpl(Cerios::InternalComms::MessageID id, std::string playerId, std::vector<std::uint8_t> &payload);
+        PacketImpl(MessagePacketHeader &header, std::vector<std::uint8_t> &payload);
 
         void serializeData(std::vector<std::uint8_t> &outputBuffer);
         MessageID getMessageID();

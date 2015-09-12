@@ -7,27 +7,26 @@
 //
 
 #include "EncryptionPacket.hpp"
-#include "AbstractClient.hpp"
 #include <openssl/ssl.h>
 
 Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress), serverId("") {
     if (side == Side::SERVER) { // If packet is from the server going to the client, not priority to finish client side receipt processing.
         // Not complete
         std::int32_t stringLength;
-        Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, &this->rawPayload, true);
+        Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, this->rawPayload, true);
         if (this->rawPayload.size() >= stringLength) {
             this->serverId = std::string(this->rawPayload.begin(), this->rawPayload.begin() + stringLength);
         }
-        this->rawPayload.clear();
+        this->resetBuffer();
     } else {
         // From the client received on the server
         std::int32_t sharedSecretLength;
-        Cerios::Server::Packet::readVarIntFromBuffer(&sharedSecretLength, &this->rawPayload, true);
+        Cerios::Server::Packet::readVarIntFromBuffer(&sharedSecretLength, this->rawPayload, true);
         std::copy(this->rawPayload.data(), this->rawPayload.data() + sharedSecretLength, std::back_inserter(this->sealedSharedSecret));
         this->rawPayload.erase(this->rawPayload.begin(), this->rawPayload.begin() + sharedSecretLength);
         
         std::int32_t verifyTokenLength;
-        Cerios::Server::Packet::readVarIntFromBuffer(&verifyTokenLength, &this->rawPayload, true);
+        Cerios::Server::Packet::readVarIntFromBuffer(&verifyTokenLength, this->rawPayload, true);
         std::copy(this->rawPayload.data(), this->rawPayload.data() + verifyTokenLength, std::back_inserter(this->sealedVerifyToken));
     }
     this->rawPayload.clear();

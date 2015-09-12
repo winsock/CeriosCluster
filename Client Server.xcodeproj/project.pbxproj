@@ -13,6 +13,7 @@
 		4C6FF3C01B9A3EE6008196C7 /* EntityLiving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3BE1B9A3EE6008196C7 /* EntityLiving.cpp */; };
 		4C6FF3C31B9A3F2A008196C7 /* EntityPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3C11B9A3F2A008196C7 /* EntityPlayer.cpp */; };
 		4C80FC381B9DD9F900048972 /* libInternalComms.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C80FC371B9DD9F900048972 /* libInternalComms.a */; };
+		4CA6D3061BA3828D00974DF6 /* libMCPacket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA6D3051BA3828D00974DF6 /* libMCPacket.a */; };
 		4CEC40151B8E6F1B00F99F03 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CEC40141B8E6F1B00F99F03 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 		4C6FF3C11B9A3F2A008196C7 /* EntityPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPlayer.cpp; sourceTree = "<group>"; };
 		4C6FF3C21B9A3F2A008196C7 /* EntityPlayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EntityPlayer.hpp; sourceTree = "<group>"; };
 		4C80FC371B9DD9F900048972 /* libInternalComms.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libInternalComms.a; path = build/Debug/libInternalComms.a; sourceTree = "<group>"; };
+		4CA6D3051BA3828D00974DF6 /* libMCPacket.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMCPacket.a; path = "../../Library/Developer/Xcode/DerivedData/Server-cjavytfpycauwihcvzhbghexjvsf/Build/Products/Debug/libMCPacket.a"; sourceTree = "<group>"; };
 		4CEC40111B8E6F1B00F99F03 /* Client Server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Client Server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CEC40141B8E6F1B00F99F03 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -50,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CA6D3061BA3828D00974DF6 /* libMCPacket.a in Frameworks */,
 				4C80FC381B9DD9F900048972 /* libInternalComms.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,6 +76,7 @@
 		4C80FC391B9DDA0100048972 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4CA6D3051BA3828D00974DF6 /* libMCPacket.a */,
 				4C80FC371B9DD9F900048972 /* libInternalComms.a */,
 			);
 			name = Libraries;
@@ -216,6 +220,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/InternalComms",
+					"$(PROJECT_DIR)/MCPacket",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -257,6 +262,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ASIO/asio/include",
 					"$(PROJECT_DIR)/InternalComms",
+					"$(PROJECT_DIR)/MCPacket",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;

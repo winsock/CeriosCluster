@@ -19,18 +19,27 @@
 #include <iostream>
 #include <zlib.h>
 
-#include "AbstractClient.hpp"
-
-struct PairHash {
-public:
-    template <typename T, typename U>
-    std::size_t operator()(const std::pair<T, U> &x) const {
-        return std::hash<std::string>()(std::string(std::to_string(x.first) + std::to_string(x.second)));
-    }
-};
-
 #pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
+    enum class Side {
+        CLIENT = 0,
+        SERVER = 1,
+        BOTH = 2
+    };
+    enum class ClientState {
+        HANDSHAKE = 0,
+        STATUS = 1,
+        LOGIN = 2,
+        PLAY = 3
+    };
+    
+    struct PairHash {
+    public:
+        std::size_t operator()(const std::pair<ClientState, std::int32_t> &x) const {
+            return std::hash<std::string>()(std::to_string(static_cast<std::uint8_t>(x.first)) + std::to_string(x.second));
+        }
+    };
+    
     class Packet : public std::enable_shared_from_this<Packet> {
     public:
         using parsePacketFunction = std::shared_ptr<Packet>(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress);
@@ -43,37 +52,41 @@ namespace Cerios { namespace Server {
     protected:
         std::int32_t packetId;
         packet_data_store rawPayload;
+        bool compressed = false;
     public:
         virtual ~Packet() = default;
-        
-        void sendTo(Cerios::Server::AbstractClient *client, std::int32_t compressionThreshold);
-        
+                
         virtual void serializePacket(Cerios::Server::Side sideSending) {
-            this->rawPayload.clear();
+            this->resetBuffer();
             this->writeVarIntToBuffer(this->packetId);
         }
         
         void serializeToBuffer(Cerios::Server::Side sideSending, std::vector<std::uint8_t> &buffer);
+        void compressPacket();
+        void compressIfLargerThan(std::size_t lengthBytes);
+        void resetBuffer();
+        void framePacket();
+        packet_data_store &getData();
         
         template <typename T = Packet>
-        static std::shared_ptr<T> parsePacket(Cerios::Server::Side side, std::size_t length, std::shared_ptr<std::vector<std::uint8_t>> buffer, ClientState state, bool compressed = false, bool consumeData = true) {
-            if (buffer->size() <= 0) {
+        static std::shared_ptr<T> parsePacket(Cerios::Server::Side side, std::size_t length, std::vector<std::uint8_t> &buffer, ClientState state, bool compressed = false, bool consumeData = true) {
+            if (buffer.size() <= 0) {
                 return nullptr;
             }
             
             if (compressed) {
                 // Lambada to consume data. I made it a lambada so I wouldn't have to copy and paste this code in each error condition and after inflating.
-                auto consumeFunc = [=]() -> void {
+                auto consumeFunc = [&buffer, consumeData, length]() -> void {
                     if (consumeData) {
-                        buffer->erase(buffer->begin(), buffer->begin() + length);
+                        buffer.erase(buffer.begin(), buffer.begin() + length);
                     }
                 };
                 
                 std::int32_t inflatedPacketLength;
-                readVarIntFromBuffer(&inflatedPacketLength, buffer.get());
+                readVarIntFromBuffer(&inflatedPacketLength, buffer);
                 if (inflatedPacketLength > 0) {
-                    // Packet buffer
-                    std::shared_ptr<std::vector<std::uint8_t>> inflatedPacketBuffer(new std::vector<std::uint8_t>(inflatedPacketLength));
+                    // Inflated packet buffer
+                    std::vector<std::uint8_t> inflatedPacketBuffer(inflatedPacketLength);
                     
                     // Compressed data.
                     z_stream zStream;
@@ -89,14 +102,14 @@ namespace Cerios { namespace Server {
                         return nullptr;
                     }
                     
-                    zStream.avail_in = static_cast<std::uint32_t>(buffer->size());
-                    zStream.next_in = reinterpret_cast<std::uint8_t *>(buffer->data());
+                    zStream.avail_in = static_cast<std::uint32_t>(buffer.size());
+                    zStream.next_in = reinterpret_cast<std::uint8_t *>(buffer.data());
                     std::int32_t returnCode = 0;
                     std::size_t inflatedData = 0;
                     zStream.avail_out = inflatedPacketLength;
                     
                     do {
-                        zStream.next_out = reinterpret_cast<std::uint8_t *>(inflatedPacketBuffer->data() + inflatedData);
+                        zStream.next_out = reinterpret_cast<std::uint8_t *>(inflatedPacketBuffer.data() + inflatedData);
                         returnCode = inflate(&zStream, Z_NO_FLUSH);
                         if (returnCode == Z_STREAM_ERROR) {
                             inflateEnd(&zStream);
@@ -108,7 +121,7 @@ namespace Cerios { namespace Server {
                     inflateEnd(&zStream);
                     consumeFunc();
                     
-                    if (inflatedPacketBuffer->size() != inflatedPacketLength) {
+                    if (inflatedPacketBuffer.size() != inflatedPacketLength) {
                         return nullptr;
                     }
                     return Packet::instantiateFromData<T>(side, state, std::shared_ptr<Cerios::Server::Packet>(new Cerios::Server::Packet(inflatedPacketLength, inflatedPacketBuffer, state, consumeData)));
@@ -134,12 +147,13 @@ namespace Cerios { namespace Server {
             }
         };
         
-        static const std::size_t readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::uint8_t> *buffer, bool consume = false);
+        static const std::size_t readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::uint8_t> &buffer, bool consume = false);
         static const void writeVarIntToFront(std::vector<std::uint8_t> &buffer, std::int32_t input);
         static const void writeBufferLengthToFront(std::vector<std::uint8_t> &buffer);
     protected:
         Packet(std::shared_ptr<Cerios::Server::Packet> packetToCopy) : packetId(packetToCopy->packetId), rawPayload(packetToCopy->rawPayload) { }
         Packet(std::int32_t packetId) : packetId(packetId) {}
+                
         template <typename T>
         T readPODFromBuffer(typename std::remove_reference<T>::type defaultReturn, bool consumeData = true) {
             if (this->rawPayload.size() < sizeof(T)) {
@@ -155,7 +169,6 @@ namespace Cerios { namespace Server {
         
         void writeVarIntToBuffer(std::uint32_t input);
         void writeVarLongToBuffer(std::uint64_t input);
-        void writeBufferLengthToFront();
         
         template <typename T>
         void writePODToBuffer(T &podData) {
@@ -175,7 +188,7 @@ namespace Cerios { namespace Server {
             return std::dynamic_pointer_cast<T>(it == registry().end() ? nullptr : (it->second.first)(side));
         }
         static packet_registry &registry();
-        Packet(std::size_t length, std::shared_ptr<std::vector<std::uint8_t>> buffer, ClientState state, bool consumeData = true);
+        Packet(std::size_t length, std::vector<std::uint8_t> &buffer, ClientState state, bool consumeData = true);
     };
 }}
 #pragma GCC visibility pop

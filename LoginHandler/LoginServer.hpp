@@ -52,9 +52,9 @@ namespace Cerios { namespace Server {
         /**
          * Initial login suceeded, connect to actual game logic servers.
          */
-        void handoffClient(Cerios::Server::AbstractClient *client);
+        void handoffClient(Cerios::Server::Client *client);
 
-        void clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient);
+        void clientDisconnected(Cerios::Server::Client *disconnectedClient);
         std::weak_ptr<asio::io_service> getIOService();
         ~Login();
     private:

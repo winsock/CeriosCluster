@@ -33,16 +33,17 @@ extern "C" {
 #include <asio/ssl.hpp>
 #include <asio/read.hpp>
 
-#include <AbstractClient.hpp>
+#include <Packet.hpp>
 
 namespace Cerios { namespace Server {
+    class Client;
     class ClientOwner : public std::enable_shared_from_this<ClientOwner> {
     public:
         virtual std::weak_ptr<asio::io_service> getIOService() = 0;
         
-        virtual void clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient) = 0;
-        virtual bool onPacketReceived(Side side, Cerios::Server::AbstractClient *client, std::shared_ptr<Packet> packet) { return true; }
-        virtual void handoffClient(Cerios::Server::AbstractClient *client) {}
+        virtual void clientDisconnected(Cerios::Server::Client *disconnectedClient) = 0;
+        virtual bool onPacketReceived(Side side, Cerios::Server::Client *client, std::shared_ptr<Packet> packet) { return true; }
+        virtual void handoffClient(Cerios::Server::Client *client) {}
         
         /**
          * Accessors for the login node's encryption stuff.

@@ -7,12 +7,11 @@
 //
 
 #include "ServerStatusPacket.hpp"
-#include "AbstractClient.hpp"
 
 #include <iostream>
 
 Cerios::Server::ServerStatusPacket::ServerStatusPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
-    this->rawPayload.clear();
+    this->resetBuffer();
 }
 
 Cerios::Server::ServerStatusPacket::ServerStatusPacket() : Packet(0x00) {

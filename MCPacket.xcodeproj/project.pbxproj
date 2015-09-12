@@ -17,7 +17,7 @@
 		4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C5373561B94C48E003EF834 /* EncryptionPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */; };
 		4C5373571B94C48E003EF834 /* EncryptionPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		4C7FBCCC1B989E3D00413118 /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C7FBCCB1B989E3D00413118 /* libz.1.dylib */; };
+		4CA6D3081BA3875B00974DF6 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA6D3071BA3875B00974DF6 /* libz.a */; };
 		4CBFEBC61B9608F1000C258C /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC41B9608F1000C258C /* libcrypto.a */; };
 		4CBFEBC71B9608F1000C258C /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC51B9608F1000C258C /* libssl.a */; };
 		4CC8B8501B9388A3009594E4 /* Packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8B8481B9388A3009594E4 /* Packet.cpp */; };
@@ -28,7 +28,6 @@
 		4CC8B8551B9388A3009594E4 /* ServerStatusPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4CC8B84D1B9388A3009594E4 /* ServerStatusPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4CC8B8561B9388A3009594E4 /* PingPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8B84E1B9388A3009594E4 /* PingPacket.cpp */; };
 		4CC8B8571B9388A3009594E4 /* PingPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4CC8B84F1B9388A3009594E4 /* PingPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		4CC8B85B1B9388B4009594E4 /* AbstractClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4CC8B8591B9388B4009594E4 /* AbstractClient.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,7 +41,7 @@
 		4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginStartPacket.hpp; sourceTree = "<group>"; };
 		4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EncryptionPacket.cpp; sourceTree = "<group>"; };
 		4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EncryptionPacket.hpp; sourceTree = "<group>"; };
-		4C7FBCCB1B989E3D00413118 /* libz.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.dylib; path = /usr/lib/libz.1.dylib; sourceTree = "<absolute>"; };
+		4CA6D3071BA3875B00974DF6 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../../../../usr/local/Cellar/zlib/1.2.8/lib/libz.a; sourceTree = "<group>"; };
 		4CBFEBC41B9608F1000C258C /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = build/Debug/crypto/libcrypto.a; sourceTree = "<group>"; };
 		4CBFEBC51B9608F1000C258C /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = build/Debug/ssl/libssl.a; sourceTree = "<group>"; };
 		4CC8B82A1B938834009594E4 /* libMCPacket.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMCPacket.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -54,7 +53,6 @@
 		4CC8B84D1B9388A3009594E4 /* ServerStatusPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ServerStatusPacket.hpp; sourceTree = "<group>"; };
 		4CC8B84E1B9388A3009594E4 /* PingPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PingPacket.cpp; sourceTree = "<group>"; };
 		4CC8B84F1B9388A3009594E4 /* PingPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PingPacket.hpp; sourceTree = "<group>"; };
-		4CC8B8591B9388B4009594E4 /* AbstractClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AbstractClient.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C7FBCCC1B989E3D00413118 /* libz.1.dylib in Frameworks */,
+				4CA6D3081BA3875B00974DF6 /* libz.a in Frameworks */,
 				4CBFEBC61B9608F1000C258C /* libcrypto.a in Frameworks */,
 				4CBFEBC71B9608F1000C258C /* libssl.a in Frameworks */,
 			);
@@ -74,7 +72,7 @@
 		4C53735C1B95146C003EF834 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				4C7FBCCB1B989E3D00413118 /* libz.1.dylib */,
+				4CA6D3071BA3875B00974DF6 /* libz.a */,
 				4CBFEBC41B9608F1000C258C /* libcrypto.a */,
 				4CBFEBC51B9608F1000C258C /* libssl.a */,
 			);
@@ -101,7 +99,6 @@
 		4CC8B82C1B938834009594E4 /* MCPacket */ = {
 			isa = PBXGroup;
 			children = (
-				4CC8B8591B9388B4009594E4 /* AbstractClient.hpp */,
 				4CC8B8481B9388A3009594E4 /* Packet.cpp */,
 				4CC8B8491B9388A3009594E4 /* Packet.hpp */,
 				4CC8B84A1B9388A3009594E4 /* HandshakePacket.cpp */,
@@ -134,7 +131,6 @@
 				4CC8B8531B9388A3009594E4 /* HandshakePacket.hpp in Headers */,
 				4C5373571B94C48E003EF834 /* EncryptionPacket.hpp in Headers */,
 				4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */,
-				4CC8B85B1B9388B4009594E4 /* AbstractClient.hpp in Headers */,
 				4CC8B8551B9388A3009594E4 /* ServerStatusPacket.hpp in Headers */,
 				4C07E8F21B978DBA00479AF1 /* SetCompressionPacket.hpp in Headers */,
 				4CC8B8571B9388A3009594E4 /* PingPacket.hpp in Headers */,
@@ -308,6 +304,7 @@
 					"$(inherited)",
 					"$(TARGET_BUILD_DIR)/crypto",
 					"$(TARGET_BUILD_DIR)/ssl",
+					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -328,6 +325,7 @@
 					"$(inherited)",
 					"$(TARGET_BUILD_DIR)/crypto",
 					"$(TARGET_BUILD_DIR)/ssl",
+					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

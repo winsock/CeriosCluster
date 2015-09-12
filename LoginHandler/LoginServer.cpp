@@ -34,8 +34,8 @@ void Cerios::Server::Login::listen() {
 }
 
 void Cerios::Server::Login::asyncClientAccept() {
-    std::shared_ptr<asio::ip::tcp::socket> tmpSocket = std::shared_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(clientAcceptor.get_executor().context()));
-    clientAcceptor.async_accept(*tmpSocket, std::bind(&Cerios::Server::Login::handleClient, this, tmpSocket, std::placeholders::_1));
+    std::shared_ptr<asio::ip::tcp::socket> clientSocket(new asio::ip::tcp::socket(clientAcceptor.get_executor().context()));
+    clientAcceptor.async_accept(*clientSocket.get(), std::bind(&Cerios::Server::Login::handleClient, this, clientSocket, std::placeholders::_1));
 }
 
 void Cerios::Server::Login::init() {
@@ -80,13 +80,13 @@ std::string Cerios::Server::Login::getPublicKeyString() {
     return this->publicKeyString;
 }
 
-void Cerios::Server::Login::clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient) {
+void Cerios::Server::Login::clientDisconnected(Cerios::Server::Client *disconnectedClient) {
     std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     pendingClients.erase(disconnectedClient->getSocket()->native_handle());
 }
 
-void Cerios::Server::Login::handoffClient(Cerios::Server::AbstractClient *abstractClient) {
-    auto client = std::move(this->pendingClients[abstractClient->getSocket()->native_handle()]);
+void Cerios::Server::Login::handoffClient(Cerios::Server::Client *handoffClient) {
+    auto client = std::move(this->pendingClients[handoffClient->getSocket()->native_handle()]);
     if (client == nullptr) {
         return;
     }

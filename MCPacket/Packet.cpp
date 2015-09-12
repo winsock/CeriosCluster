@@ -37,6 +37,80 @@ Cerios::Server::Packet::packet_registry &Cerios::Server::Packet::registry() {
     return impl;
 }
 
+void Cerios::Server::Packet::compressIfLargerThan(std::size_t lengthBytes) {
+    if (this->rawPayload.size() > lengthBytes) {
+        this->compressPacket();
+    }
+}
+
+void Cerios::Server::Packet::compressPacket() {
+    if (this->compressed) {
+        return; // We already compressed this packet
+    }
+    
+    std::size_t inflatedSize = this->rawPayload.size();
+    std::vector<std::uint8_t> compressedBuffer(inflatedSize);
+    z_stream zStream;
+    
+    zStream.zalloc = Z_NULL;
+    zStream.zfree = Z_NULL;
+    zStream.opaque = Z_NULL;
+    
+    if (deflateInit(&zStream, Z_DEFAULT_COMPRESSION) != Z_OK) {
+        return;
+    }
+    
+    std::int32_t returnCode;
+    zStream.avail_in = static_cast<std::uint32_t>(this->rawPayload.size());
+    zStream.next_in = reinterpret_cast<std::uint8_t *>(this->rawPayload.data());
+    
+    std::size_t offset = 0;
+    std::size_t compressedSize = 0;
+    zStream.avail_out = 0;
+    
+    do {
+        if (zStream.avail_in > 0 && zStream.avail_out <= 0) {
+            // We have more data and we ran out of buffer!
+            zStream.avail_out = static_cast<std::uint32_t>(inflatedSize);
+            zStream.next_out = reinterpret_cast<std::uint8_t *>(compressedBuffer.data() + offset);
+        }
+        
+        std::size_t originalOutputSize = zStream.avail_out;
+        
+        returnCode = deflate(&zStream, Z_FINISH);
+        
+        compressedSize += originalOutputSize - zStream.avail_out;
+        
+        if (zStream.avail_in > 0 && zStream.avail_out <=0) {
+            // We have more data and we ran out of buffer!
+            // Update the offset in preperation for expanding the vector
+            offset += inflatedSize;
+        }
+    } while (returnCode != Z_STREAM_ERROR && zStream.avail_in > 0 && returnCode != Z_STREAM_END);
+    
+    // resize down to the actual used size
+    compressedBuffer.resize(compressedSize);
+    deflateEnd(&zStream);
+    // Write inflated size
+    Cerios::Server::Packet::writeVarIntToFront(compressedBuffer, static_cast<std::int32_t>(inflatedSize));
+    // Make the payload the compressed data + length
+    this->rawPayload = compressedBuffer;
+    this->compressed = true;
+}
+
+void Cerios::Server::Packet::framePacket() {
+    Cerios::Server::Packet::writeBufferLengthToFront(this->rawPayload);
+}
+
+Cerios::Server::Packet::packet_data_store &Cerios::Server::Packet::getData() {
+    return this->rawPayload;
+}
+
+void Cerios::Server::Packet::resetBuffer() {
+    this->compressed = false;
+    this->rawPayload.clear();
+}
+
 void Cerios::Server::Packet::writeVarIntToBuffer(std::uint32_t input) {
     while ((input & -128) != 0) {
         this->rawPayload.push_back(static_cast<std::uint8_t>((input & 127) | 128));
@@ -67,66 +141,6 @@ void Cerios::Server::Packet::serializeToBuffer(Cerios::Server::Side sideSending,
     std::copy(this->rawPayload.begin(), this->rawPayload.end(), std::back_inserter(buffer));
 }
 
-void Cerios::Server::Packet::sendTo(Cerios::Server::AbstractClient *client, std::int32_t compressionThreshold) {
-    this->serializePacket(client->getSide());
-    if (compressionThreshold >= 0 && this->rawPayload.size() > compressionThreshold) {
-        std::size_t inflatedSize = this->rawPayload.size();
-        std::vector<std::uint8_t> compressedBuffer(inflatedSize);
-        z_stream zStream;
-        
-        zStream.zalloc = Z_NULL;
-        zStream.zfree = Z_NULL;
-        zStream.opaque = Z_NULL;
-        
-        if (deflateInit(&zStream, Z_DEFAULT_COMPRESSION) != Z_OK) {
-            return;
-        }
-        
-        std::int32_t returnCode;
-        zStream.avail_in = static_cast<std::uint32_t>(this->rawPayload.size());
-        zStream.next_in = reinterpret_cast<std::uint8_t *>(this->rawPayload.data());
-        
-        std::size_t offset = 0;
-        std::size_t compressedSize = 0;
-        zStream.avail_out = 0;
-        
-        do {
-            if (zStream.avail_in > 0 && zStream.avail_out <= 0) {
-                // We have more data and we ran out of buffer!
-                zStream.avail_out = static_cast<std::uint32_t>(inflatedSize);
-                zStream.next_out = reinterpret_cast<std::uint8_t *>(compressedBuffer.data() + offset);
-            }
-            
-            std::size_t originalOutputSize = zStream.avail_out;
-            
-            returnCode = deflate(&zStream, Z_FINISH);
-            
-            compressedSize += originalOutputSize - zStream.avail_out;
-            
-            if (zStream.avail_in > 0 && zStream.avail_out <=0) {
-                // We have more data and we ran out of buffer!
-                // Update the offset in preperation for expanding the vector
-                offset += inflatedSize;
-            }
-        } while (returnCode != Z_STREAM_ERROR && zStream.avail_in > 0 && returnCode != Z_STREAM_END);
-        
-        // resize down to the actual used size
-        compressedBuffer.resize(compressedSize);
-        deflateEnd(&zStream);
-        // Write inflated size
-        Cerios::Server::Packet::writeVarIntToFront(compressedBuffer, static_cast<std::int32_t>(inflatedSize));
-        // Make the payload the compressed data + length
-        this->rawPayload = compressedBuffer;
-        // Fall through for writing the full packet length and sending
-    }
-    Cerios::Server::Packet::writeBufferLengthToFront(this->rawPayload);
-    client->sendData(this->rawPayload);
-}
-
-void Cerios::Server::Packet::writeBufferLengthToFront() {
-    Cerios::Server::Packet::writeBufferLengthToFront(this->rawPayload);
-}
-
 const void Cerios::Server::Packet::writeBufferLengthToFront(std::vector<std::uint8_t> &buffer) {
     if (getVarIntSize(buffer.size()) > Cerios::Server::Packet::MAX_LENGTH_BYTES) {
         throw std::runtime_error("Packet size too large to prepend! Packet size: " + std::to_string(getVarIntSize(buffer.size())));
@@ -144,21 +158,21 @@ const void Cerios::Server::Packet::writeVarIntToFront(std::vector<std::uint8_t> 
     buffer.insert(buffer.begin(), bytes.begin(), bytes.end());
 }
 
-const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::uint8_t> *buffer, bool consume) {
+const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::uint8_t> &buffer, bool consume) {
     (*intOut) = 0;
     int numByte = 0;
     int8_t byte;
     
-    if (buffer->size() <= 0) {
+    if (buffer.size() <= 0) {
         return 0;
     }
     
     do {
-        if (numByte >= buffer->size()) {
+        if (numByte >= buffer.size()) {
             return 0;
         }
         
-        byte = (*buffer)[numByte];
+        byte = buffer[numByte];
         (*intOut) |= (byte & 127) << numByte++ * 7;
         
         if (numByte > 5) {
@@ -166,16 +180,17 @@ const std::size_t Cerios::Server::Packet::readVarIntFromBuffer(std::int32_t *int
         }
     } while ((byte & 128) == 128);
     if (consume) {
-        buffer->erase(buffer->begin(), buffer->begin() + numByte);
+        buffer.erase(buffer.begin(), buffer.begin() + numByte);
     }
     
-    return numByte;}
+    return numByte;
+}
 
-Cerios::Server::Packet::Packet(std::size_t length, std::shared_ptr<std::vector<std::uint8_t>> buffer,Cerios::Server::ClientState state, bool consumeData) {
-    std::size_t idSize = Cerios::Server::Packet::readVarIntFromBuffer(&this->packetId, buffer.get());
-    std::copy(buffer->begin() + idSize, buffer->begin() + length, std::back_inserter(this->rawPayload));
+Cerios::Server::Packet::Packet(std::size_t length, std::vector<std::uint8_t> &buffer, Cerios::Server::ClientState state, bool consumeData) {
+    std::size_t idSize = Cerios::Server::Packet::readVarIntFromBuffer(&this->packetId, buffer);
+    std::copy(buffer.begin() + idSize, buffer.begin() + length, std::back_inserter(this->rawPayload));
     if (consumeData) {
         // Length includes the packet id.
-        buffer->erase(buffer->begin(), buffer->begin() + length);
+        buffer.erase(buffer.begin(), buffer.begin() + length);
     }
 }

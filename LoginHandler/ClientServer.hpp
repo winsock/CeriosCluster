@@ -24,7 +24,7 @@ namespace Cerios { namespace Server {
     class ClientServer : public ClientOwner {
     private:
         std::shared_ptr<asio::ip::udp::socket> sendSocket, receiveSocket;
-        std::unordered_map<std::uint32_t, std::unique_ptr<Cerios::Server::Client>> clients;
+        std::unordered_map<std::string, std::unique_ptr<Cerios::Server::Client>> clients;
         std::shared_ptr<Cerios::Server::Login> owner;
     public:
         ClientServer(std::uint16_t messageReceive, bool ipv6, std::shared_ptr<Cerios::Server::Login> owner);
@@ -43,9 +43,10 @@ namespace Cerios { namespace Server {
         void onWriteComplete(const asio::error_code& error, std::size_t bytes_transferred);
         void onWriteCompleteCallback(const asio::error_code& error, std::size_t bytes_transferred, std::shared_ptr<std::function<void(void)>> callback);
         void handleMessage(asio::ip::udp::endpoint &endpoint, std::shared_ptr<Cerios::InternalComms::Packet> packet);
+        void sendPacket(std::shared_ptr<Cerios::InternalComms::Packet> message);
 
-        void clientDisconnected(Cerios::Server::AbstractClient *disconnectedClient);
-        bool onPacketReceived(Cerios::Server::AbstractClient *client, std::shared_ptr<Cerios::Server::Packet> packet);
+        void clientDisconnected(Cerios::Server::Client *disconnectedClient);
+        bool onPacketReceived(Cerios::Server::Client *client, std::shared_ptr<Cerios::Server::Packet> packet);
         
         std::weak_ptr<asio::io_service> getIOService();
         

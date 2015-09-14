@@ -38,4 +38,5 @@ void Cerios::Server::JoinGamePacket::serializePacket(Cerios::Server::Side sideSe
     this->writePODToBuffer(this->maxPlayersOnPlayerList);
     Cerios::Server::Packet::writeVarIntToBuffer(static_cast<std::int32_t>(this->levelType.size()));
     std::copy(this->levelType.data(), this->levelType.data() + this->levelType.size(), std::back_inserter(this->rawPayload));
+    this->writePODToBuffer(this->reducedDebugInfo);
 }

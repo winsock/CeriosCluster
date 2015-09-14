@@ -53,7 +53,12 @@ void Cerios::Server::Packet::compressPacket() {
         return; // We already compressed this packet
     }
     
-    std::size_t inflatedSize = this->rawPayload.size();
+    Cerios::Server::Packet::compressData(this->rawPayload);
+    this->compressed = true;
+}
+
+void Cerios::Server::Packet::compressData(std::vector<std::uint8_t> &data) {
+    std::size_t inflatedSize = data.size();
     std::vector<std::uint8_t> compressedBuffer(inflatedSize);
     z_stream zStream;
     
@@ -66,8 +71,8 @@ void Cerios::Server::Packet::compressPacket() {
     }
     
     std::int32_t returnCode;
-    zStream.avail_in = static_cast<std::uint32_t>(this->rawPayload.size());
-    zStream.next_in = reinterpret_cast<std::uint8_t *>(this->rawPayload.data());
+    zStream.avail_in = static_cast<std::uint32_t>(data.size());
+    zStream.next_in = data.data();
     
     std::size_t offset = 0;
     std::size_t compressedSize = 0;
@@ -77,7 +82,7 @@ void Cerios::Server::Packet::compressPacket() {
         if (zStream.avail_in > 0 && zStream.avail_out <= 0) {
             // We have more data and we ran out of buffer!
             zStream.avail_out = static_cast<std::uint32_t>(inflatedSize);
-            zStream.next_out = reinterpret_cast<std::uint8_t *>(compressedBuffer.data() + offset);
+            zStream.next_out = compressedBuffer.data() + offset;
         }
         
         std::size_t originalOutputSize = zStream.avail_out;
@@ -98,9 +103,8 @@ void Cerios::Server::Packet::compressPacket() {
     deflateEnd(&zStream);
     // Write inflated size
     Cerios::Server::Packet::writeVarIntToFront(compressedBuffer, static_cast<std::int32_t>(inflatedSize));
-    // Make the payload the compressed data + length
-    this->rawPayload = compressedBuffer;
-    this->compressed = true;
+    // Set the data buffer the compressed data + length
+    data = compressedBuffer;
 }
 
 void Cerios::Server::Packet::framePacket() {

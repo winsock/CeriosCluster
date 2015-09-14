@@ -17,6 +17,8 @@
 		4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C5373561B94C48E003EF834 /* EncryptionPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */; };
 		4C5373571B94C48E003EF834 /* EncryptionPacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		4C69EC341BA64A9500EAD450 /* KeepAlivePacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C69EC321BA64A9500EAD450 /* KeepAlivePacket.cpp */; };
+		4C69EC351BA64A9500EAD450 /* KeepAlivePacket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4C69EC331BA64A9500EAD450 /* KeepAlivePacket.hpp */; };
 		4CA6D3081BA3875B00974DF6 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA6D3071BA3875B00974DF6 /* libz.a */; };
 		4CBFEBC61B9608F1000C258C /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC41B9608F1000C258C /* libcrypto.a */; };
 		4CBFEBC71B9608F1000C258C /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CBFEBC51B9608F1000C258C /* libssl.a */; };
@@ -41,6 +43,8 @@
 		4C5373511B94C2D6003EF834 /* LoginStartPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginStartPacket.hpp; sourceTree = "<group>"; };
 		4C5373541B94C48E003EF834 /* EncryptionPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EncryptionPacket.cpp; sourceTree = "<group>"; };
 		4C5373551B94C48E003EF834 /* EncryptionPacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EncryptionPacket.hpp; sourceTree = "<group>"; };
+		4C69EC321BA64A9500EAD450 /* KeepAlivePacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeepAlivePacket.cpp; sourceTree = "<group>"; };
+		4C69EC331BA64A9500EAD450 /* KeepAlivePacket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KeepAlivePacket.hpp; sourceTree = "<group>"; };
 		4CA6D3071BA3875B00974DF6 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../../../../usr/local/Cellar/zlib/1.2.8/lib/libz.a; sourceTree = "<group>"; };
 		4CBFEBC41B9608F1000C258C /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = build/Debug/crypto/libcrypto.a; sourceTree = "<group>"; };
 		4CBFEBC51B9608F1000C258C /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = build/Debug/ssl/libssl.a; sourceTree = "<group>"; };
@@ -117,6 +121,8 @@
 				4C07E8F01B978DBA00479AF1 /* SetCompressionPacket.hpp */,
 				4C07E8F31B978F8A00479AF1 /* JoinGamePacket.cpp */,
 				4C07E8F41B978F8A00479AF1 /* JoinGamePacket.hpp */,
+				4C69EC321BA64A9500EAD450 /* KeepAlivePacket.cpp */,
+				4C69EC331BA64A9500EAD450 /* KeepAlivePacket.hpp */,
 			);
 			path = MCPacket;
 			sourceTree = "<group>";
@@ -131,6 +137,7 @@
 				4CC8B8531B9388A3009594E4 /* HandshakePacket.hpp in Headers */,
 				4C5373571B94C48E003EF834 /* EncryptionPacket.hpp in Headers */,
 				4C5373531B94C2D6003EF834 /* LoginStartPacket.hpp in Headers */,
+				4C69EC351BA64A9500EAD450 /* KeepAlivePacket.hpp in Headers */,
 				4CC8B8551B9388A3009594E4 /* ServerStatusPacket.hpp in Headers */,
 				4C07E8F21B978DBA00479AF1 /* SetCompressionPacket.hpp in Headers */,
 				4CC8B8571B9388A3009594E4 /* PingPacket.hpp in Headers */,
@@ -204,6 +211,7 @@
 				4CC8B8521B9388A3009594E4 /* HandshakePacket.cpp in Sources */,
 				4C07E8F51B978F8A00479AF1 /* JoinGamePacket.cpp in Sources */,
 				4C5373521B94C2D6003EF834 /* LoginStartPacket.cpp in Sources */,
+				4C69EC341BA64A9500EAD450 /* KeepAlivePacket.cpp in Sources */,
 				4C07E8F11B978DBA00479AF1 /* SetCompressionPacket.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

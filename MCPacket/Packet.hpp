@@ -150,6 +150,7 @@ namespace Cerios { namespace Server {
         static const std::size_t readVarIntFromBuffer(std::int32_t *intOut, std::vector<std::uint8_t> &buffer, bool consume = false);
         static const void writeVarIntToFront(std::vector<std::uint8_t> &buffer, std::int32_t input);
         static const void writeBufferLengthToFront(std::vector<std::uint8_t> &buffer);
+        static void compressData(std::vector<std::uint8_t> &data);
     protected:
         Packet(std::shared_ptr<Cerios::Server::Packet> packetToCopy) : packetId(packetToCopy->packetId), rawPayload(packetToCopy->rawPayload) { }
         Packet(std::int32_t packetId) : packetId(packetId) {}

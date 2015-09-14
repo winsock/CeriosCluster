@@ -19,6 +19,8 @@
 #include <iostream>
 #include <zlib.h>
 
+#include "Bitfield.hpp"
+
 #pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
     enum class Side {
@@ -32,6 +34,36 @@ namespace Cerios { namespace Server {
         LOGIN = 2,
         PLAY = 3
     };
+    typedef union Position {
+        uint64_t rawPosition;
+        BitField<0, 26> x;
+        BitField<26, 12> y;
+        BitField<38, 26> z;
+        
+        Position(std::int32_t x, std::int16_t y, std::int32_t z) {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+        }
+        
+        Position() {
+            x = 0;
+            y = 64;
+            z = 0;
+        }
+        
+        std::int32_t getX() {
+            return x;
+        }
+        
+        std::int16_t getY() {
+            return y;
+        }
+        
+        std::int32_t getZ() {
+            return z;
+        }
+    } Position;
     
     struct PairHash {
     public:

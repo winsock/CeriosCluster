@@ -20,6 +20,9 @@
 #include "SetCompressionPacket.hpp"
 #include "JoinGamePacket.hpp"
 #include "KeepAlivePacket.hpp"
+#include "SpawnPositionPacket.hpp"
+#include "PlayerPositionAndLookPacket.hpp"
+#include "PlayerAbilitiesPacket.hpp"
 
 namespace {
     Cerios::Server::Packet::Registrar<Cerios::Server::HandshakePacket> handshake(Cerios::Server::ClientState::HANDSHAKE, 0x00);
@@ -34,6 +37,9 @@ namespace {
     
     Cerios::Server::Packet::Registrar<Cerios::Server::KeepAlivePacket> keepAlivePlay(Cerios::Server::ClientState::PLAY, 0x00);
     Cerios::Server::Packet::Registrar<Cerios::Server::JoinGamePacket> joinGame(Cerios::Server::ClientState::PLAY, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::SpawnPositionPacket> spawnPosition(Cerios::Server::ClientState::PLAY, 0x05);
+    Cerios::Server::Packet::Registrar<Cerios::Server::PlayerPositionAndLookPacket> playerLookPos(Cerios::Server::ClientState::PLAY, 0x08);
+    Cerios::Server::Packet::Registrar<Cerios::Server::PlayerAbilitiesPacket> playerAbilities(Cerios::Server::ClientState::PLAY, 0x39);
     Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionPlay(Cerios::Server::ClientState::PLAY, 0x46);
 }
 

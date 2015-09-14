@@ -15,7 +15,7 @@ Cerios::Server::KeepAlivePacket::KeepAlivePacket(std::shared_ptr<Cerios::Server:
     this->resetBuffer();
 }
 
-Cerios::Server::KeepAlivePacket::KeepAlivePacket() : Packet(0x01) {
+Cerios::Server::KeepAlivePacket::KeepAlivePacket() : Packet(0x00) {
     static std::function<std::int32_t(void)> randomEngine = std::bind(std::uniform_int_distribution<>(0, INT32_MAX), std::mt19937(std::random_device()()));
     this->keepAliveId = randomEngine();
 }

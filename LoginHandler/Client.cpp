@@ -145,6 +145,7 @@ void Cerios::Server::Client::disconnect() {
     }
     alive = false;
     try {
+        this->keepaliveTimer.cancel();
         this->socket->cancel();
         this->socket->shutdown(asio::socket_base::shutdown_both);
         this->socket->close();
@@ -528,6 +529,8 @@ void Cerios::Server::Client::keepAlive(const asio::error_code &error) {
             return;
         }
         this->sendPacket(keepAlive);
+        // Reset the timer
+        this->keepaliveTimer.expires_from_now(std::chrono::seconds(4));
         this->keepaliveTimer.async_wait(std::bind(&Cerios::Server::Client::keepAlive, this, std::placeholders::_1));
     }
 }

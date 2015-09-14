@@ -36,6 +36,7 @@ namespace Cerios { namespace InternalComms {
 
         static std::shared_ptr<Packet> newPacket(MessageID messageType);
         static std::shared_ptr<Packet> newPacket(MessageID messageType, std::vector<std::uint8_t> &payload);
+        static std::shared_ptr<Packet> newPacket(MessageID messageType, std::string playerId);
         static std::shared_ptr<Packet> newPacket(MessageID messageType, std::string playerId, std::vector<std::uint8_t> &payload);
 
         static std::shared_ptr<Packet> fromData(std::vector<std::uint8_t> &rawData, bool consume = false);

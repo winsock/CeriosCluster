@@ -12,8 +12,6 @@
 #include <iostream>
 #include <vector>
 
-#include <JoinGamePacket.hpp>
-
 #include "GameState.hpp"
 
 Cerios::Server::ClientServer::ClientServer(std::uint16_t receivePort, bool ipv6) : service(new asio::io_service()),
@@ -82,11 +80,6 @@ void Cerios::Server::ClientServer::sendPacket(std::shared_ptr<Cerios::InternalCo
 void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpointFrom, std::shared_ptr<Cerios::InternalComms::Packet> packet) {
     switch (packet->getMessageID()) {
         case Cerios::InternalComms::MessageID::ACCEPT_CLIENT: {
-            std::cout<<"Received Packet for client: "<<packet->getPlayerID()<<std::endl;
-            auto joinGamePacket = Packet::newPacket<Cerios::Server::JoinGamePacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x01);
-            joinGamePacket->serializePacket(Cerios::Server::Side::SERVER);
-            std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::MC_PACKET, packet->getPlayerID(), joinGamePacket->getData());
-            this->sendPacket(message, endpointFrom);
         } break;
         case Cerios::InternalComms::MessageID::MC_PACKET:
             break;

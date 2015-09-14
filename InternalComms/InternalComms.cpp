@@ -20,6 +20,11 @@ std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::ne
     return Cerios::InternalComms::Packet::newPacket(messageType, "", payload);
 }
 
+std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID messageType, std::string playerId) {
+    std::vector<std::uint8_t> empty;
+    return Cerios::InternalComms::Packet::newPacket(messageType, playerId, empty);
+}
+
 std::shared_ptr<Cerios::InternalComms::Packet> Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID messageType, std::string playerId, std::vector<std::uint8_t> &payload) {
     MessagePacketHeader header;
     header.id = static_cast<std::int32_t>(messageType);

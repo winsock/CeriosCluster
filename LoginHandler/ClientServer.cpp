@@ -10,6 +10,10 @@
 
 #include <iostream>
 #include <Packet.hpp>
+#include <JoinGamePacket.hpp>
+#include <SpawnPositionPacket.hpp>
+#include <PlayerPositionAndLookPacket.hpp>
+#include <PlayerAbilitiesPacket.hpp>
 
 #include "Client.hpp"
 #include "LoginServer.hpp"
@@ -112,12 +116,22 @@ void Cerios::Server::ClientServer::sendShutdownSignal() {
 }
 
 bool Cerios::Server::ClientServer::addClient(std::unique_ptr<Cerios::Server::Client> client) {
-    std::vector<std::uint8_t> payload;
-    std::copy_n(client->getClientId().begin(), client->getClientId().length(), std::back_inserter(payload));
-    std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::ACCEPT_CLIENT, client->getClientId(), payload);
-    this->clients[client->getClientId()] = std::move(client);
+//    std::vector<std::uint8_t> payload;
+//    std::copy_n(client->getClientId().begin(), client->getClientId().length(), std::back_inserter(payload));
+//    std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::ACCEPT_CLIENT, client->getClientId(), payload);
 
-    this->sendPacket(message);
+//    this->sendPacket(message);
+    
+    auto joinGamePacket = Packet::newPacket<Cerios::Server::JoinGamePacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x01);
+    client->sendPacket(joinGamePacket);
+    auto spawnPosition = Packet::newPacket<Cerios::Server::SpawnPositionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x05);
+    client->sendPacket(spawnPosition);
+    auto posAndLook = Packet::newPacket<Cerios::Server::PlayerPositionAndLookPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x08);
+    client->sendPacket(posAndLook);
+    auto setAbilities = Packet::newPacket<Cerios::Server::PlayerAbilitiesPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x39);
+    client->sendPacket(setAbilities);
+    
+    this->clients[client->getClientId()] = std::move(client);
     return true;
 }
 

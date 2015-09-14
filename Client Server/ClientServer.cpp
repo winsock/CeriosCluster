@@ -84,9 +84,8 @@ void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpoi
         case Cerios::InternalComms::MessageID::ACCEPT_CLIENT: {
             std::cout<<"Received Packet for client: "<<packet->getPlayerID()<<std::endl;
             auto joinGamePacket = Packet::newPacket<Cerios::Server::JoinGamePacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x01);
-            std::vector<std::uint8_t> payload;
-            joinGamePacket->serializeToBuffer(Cerios::Server::Side::SERVER, payload);
-            std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::MC_PACKET, packet->getPlayerID(), payload);
+            joinGamePacket->serializePacket(Cerios::Server::Side::SERVER);
+            std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::MC_PACKET, packet->getPlayerID(), joinGamePacket->getData());
             this->sendPacket(message, endpointFrom);
         } break;
         case Cerios::InternalComms::MessageID::MC_PACKET:

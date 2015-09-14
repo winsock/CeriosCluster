@@ -58,10 +58,17 @@ void Cerios::Server::ClientServer::onDataReceived(const asio::error_code &error)
 }
 
 void Cerios::Server::ClientServer::handleMessage(asio::ip::udp::endpoint &endpoint, std::shared_ptr<Cerios::InternalComms::Packet> packet) {
+    if (this->clients[packet->getPlayerID()] == nullptr) {
+        return;
+    }
+    
     switch (packet->getMessageID()) {
         case Cerios::InternalComms::MessageID::MC_PACKET: {
             if (this->clients[packet->getPlayerID()] != nullptr) {
                 std::shared_ptr<std::vector<std::uint8_t>> payload = packet->getPayload().lock();
+                if (payload->size() >= this->clients[packet->getPlayerID()]->getCompressionThreshold()) {
+                    Cerios::Server::Packet::compressData(*payload);
+                }
                 Cerios::Server::Packet::writeBufferLengthToFront(*payload);
                 this->clients[packet->getPlayerID()]->sendData(*payload);
             }
@@ -136,8 +143,10 @@ bool Cerios::Server::ClientServer::onPacketReceived(Cerios::Server::Client *clie
 }
 
 void Cerios::Server::ClientServer::clientDisconnected(Cerios::Server::Client *disconnectedClient) {
-    std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
     this->clients.erase(disconnectedClient->getClientId());
+    try {
+        std::cout<<"Client "<<disconnectedClient->getSocket()->remote_endpoint()<<" Disconnected!"<<std::endl;
+    } catch (...) {}
 }
 
 std::shared_ptr<EVP_PKEY> Cerios::Server::ClientServer::getKeyPair() {

@@ -16,6 +16,7 @@
 #include <array>
 #include <string>
 #include <random>
+#include <chrono>
 
 #include <rapidjson/document.h>
 
@@ -30,8 +31,8 @@ namespace Cerios { namespace Server {
         std::vector<std::uint8_t> buffer;
         ClientState state = ClientState::HANDSHAKE;
         
-        // 256 is the same value that Mojang sets as it default compression threshold size.
-        const std::int32_t defaultCompressionThreshold = 256;
+        // 256 is the same value that Mojang sets as their default compression threshold size.
+        const std::size_t defaultCompressionThreshold = 256;
         // Start with no compression
         std::int32_t compressionThreshold = -1;
 
@@ -45,6 +46,9 @@ namespace Cerios { namespace Server {
         const std::string SessionServer;
         std::string requestedUsername, userid;
         rapidjson::Document playerInfo;
+        
+        asio::steady_timer keepaliveTimer;
+        std::chrono::time_point<std::chrono::steady_clock> lastSeen;
     public:
         Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner);
         void sendData(std::vector<std::uint8_t> &data);
@@ -60,6 +64,7 @@ namespace Cerios { namespace Server {
         void readHTTPHeader(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred);
         Side getSide();
         ClientState getState() { return state; }
+        std::size_t getCompressionThreshold() { return compressionThreshold; }
         void setState(ClientState state) { this->state = state; }
         asio::ip::tcp::socket *getSocket() { return socket.get(); }
         std::string getClientId();
@@ -69,6 +74,8 @@ namespace Cerios { namespace Server {
         int decrypt(unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *plaintext);
         void sendPacket(std::shared_ptr<Cerios::Server::Packet> packet);
         void startAsyncRead();
+        void keepAlive(const asio::error_code &error);
+        void onPlayerLogin();
     };
 }}
 

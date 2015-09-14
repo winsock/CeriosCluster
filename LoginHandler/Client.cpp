@@ -84,7 +84,7 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
     
     std::int32_t messageLength;
     std::size_t varintSize = 0;
-    while ((varintSize = Cerios::Server::Packet::readVarIntFromBuffer(&messageLength, this->buffer))) {
+    if ((varintSize = Cerios::Server::Packet::readVarIntFromBuffer(&messageLength, this->buffer)) > 0) {
         if (this->buffer.size() >= messageLength + varintSize) {
             // Remove the message length from the buffer
             this->buffer.erase(this->buffer.begin(), this->buffer.begin() + varintSize);
@@ -98,8 +98,6 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
                     return;
                 }
             }
-        } else {
-            break;
         }
     }
     
@@ -134,8 +132,8 @@ Cerios::Server::Side Cerios::Server::Client::getSide() {
 }
 
 void Cerios::Server::Client::disconnect() {
-    this->socket->cancel();
     try {
+        this->socket->cancel();
         this->socket->shutdown(asio::socket_base::shutdown_both);
         this->socket->close();
     } catch (...) {}
@@ -159,11 +157,6 @@ std::string Cerios::Server::Client::getClientId() {
 }
 
 void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packet) {
-    // This is the server, I hope we don't receive messages from ourselves....
-    if (side != Side::CLIENT) {
-        return;
-    }
-    
     auto pingPacket = std::dynamic_pointer_cast<Cerios::Server::PingPacket>(packet);
     if (pingPacket != nullptr) {
         // Send it right back
@@ -297,7 +290,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             EVP_CIPHER_CTX_set_padding(&this->encryptCipherContext, false);
             EVP_DecryptInit_ex(&this->decryptCipherContext, EVP_aes_128_cfb_8(), NULL, encryptionResponse->clearSharedSecret.data(), encryptionResponse->clearSharedSecret.data());
             EVP_CIPHER_CTX_set_padding(&this->decryptCipherContext, false);
-
+            
             SHA_CTX *shaContext = new SHA_CTX;
             if (SHA1_Init(shaContext) <= 0) {
                 return;
@@ -317,7 +310,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             std::array<std::uint8_t, SHA_DIGEST_LENGTH> shaDigest;
             SHA1_Final(shaDigest.data(), shaContext);
             delete shaContext;
-
+            
             bool negitiveHash = false;
             if ((shaDigest[0] & 0x80) == 0x80) {
                 // Negitive hash, make it twos complement
@@ -344,7 +337,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             }
             
             this->authWithMojang(hashString);
-
+            
             return;
         }
     }

@@ -41,7 +41,7 @@ void Cerios::Server::Login::asyncClientAccept() {
 void Cerios::Server::Login::init() {
     RSA *rsa = RSA_new();
     BIGNUM *bne = BN_new();
-    BN_set_word(bne, 17);
+    BN_set_word(bne, RSA_F4);
     RSA_generate_key_ex(rsa, 1024, bne, nullptr);
     BN_free(bne);
     EVP_PKEY_assign_RSA(this->keyPair.get(), rsa);

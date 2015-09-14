@@ -19,17 +19,22 @@
 #include "LoginSuccessPacket.hpp"
 #include "SetCompressionPacket.hpp"
 #include "JoinGamePacket.hpp"
+#include "KeepAlivePacket.hpp"
 
 namespace {
     Cerios::Server::Packet::Registrar<Cerios::Server::HandshakePacket> handshake(Cerios::Server::ClientState::HANDSHAKE, 0x00);
+    
     Cerios::Server::Packet::Registrar<Cerios::Server::ServerStatusPacket> status(Cerios::Server::ClientState::STATUS, 0x00);
     Cerios::Server::Packet::Registrar<Cerios::Server::PingPacket> ping(Cerios::Server::ClientState::STATUS, 0x01);
+    
     Cerios::Server::Packet::Registrar<Cerios::Server::LoginStartPacket> loginStart(Cerios::Server::ClientState::LOGIN, 0x00);
     Cerios::Server::Packet::Registrar<Cerios::Server::EncryptionPacket> encryption(Cerios::Server::ClientState::LOGIN, 0x01);
     Cerios::Server::Packet::Registrar<Cerios::Server::LoginSuccessPacket> loginSuccess(Cerios::Server::ClientState::LOGIN, 0x02);
     Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionLogin(Cerios::Server::ClientState::LOGIN, 0x03);
-    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionPlay(Cerios::Server::ClientState::PLAY, 0x46);
+    
+    Cerios::Server::Packet::Registrar<Cerios::Server::KeepAlivePacket> keepAlivePlay(Cerios::Server::ClientState::PLAY, 0x00);
     Cerios::Server::Packet::Registrar<Cerios::Server::JoinGamePacket> joinGame(Cerios::Server::ClientState::PLAY, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionPlay(Cerios::Server::ClientState::PLAY, 0x46);
 }
 
 Cerios::Server::Packet::packet_registry &Cerios::Server::Packet::registry() {

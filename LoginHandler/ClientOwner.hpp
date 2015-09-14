@@ -42,7 +42,7 @@ namespace Cerios { namespace Server {
         virtual std::weak_ptr<asio::io_service> getIOService() = 0;
         
         virtual void clientDisconnected(Cerios::Server::Client *disconnectedClient) = 0;
-        virtual bool onPacketReceived(Side side, Cerios::Server::Client *client, std::shared_ptr<Packet> packet) { return true; }
+        virtual bool onPacketReceived(Side side, Cerios::Server::Client *client, std::shared_ptr<Packet> packet) { return false; }
         virtual void handoffClient(Cerios::Server::Client *client) {}
         
         /**

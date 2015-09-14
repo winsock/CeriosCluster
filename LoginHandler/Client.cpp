@@ -178,8 +178,9 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
     if (owner == nullptr) {
         return;
     }
+    
     // Test if this client is already authed and should just be forwarding packets.
-    if (!owner->onPacketReceived(side, this, packet)) {
+    if (owner->onPacketReceived(side, this, packet)) {
         return;
     }
     

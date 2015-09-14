@@ -487,8 +487,6 @@ int Cerios::Server::Client::encrypt(unsigned char *plaintext, std::size_t plaint
     int len;
     int ciphertext_len;
     
-    EVP_CipherInit_ex(&this->encryptCipherContext, NULL, NULL, NULL, NULL, -1);
-    
     /* Provide the message to be encrypted, and obtain the encrypted output.
      * EVP_EncryptUpdate can be called multiple times if necessary
      */
@@ -497,22 +495,12 @@ int Cerios::Server::Client::encrypt(unsigned char *plaintext, std::size_t plaint
     }
     ciphertext_len = len;
     
-    /* Finalise the encryption. Further ciphertext bytes may be written at
-     * this stage.
-     */
-    if(1 != EVP_EncryptFinal_ex(&this->encryptCipherContext, ciphertext + len, &len)) {
-        return -1;
-    }
-    ciphertext_len += len;
-    
     return ciphertext_len;
 }
 
 int Cerios::Server::Client::decrypt(unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *plaintext) {
     int len;
     int plaintext_len;
-    
-    EVP_CipherInit_ex(&this->decryptCipherContext, NULL, NULL, NULL, NULL, -1);
     
     /* Provide the message to be decrypted, and obtain the plaintext output.
      * EVP_DecryptUpdate can be called multiple times if necessary
@@ -521,14 +509,6 @@ int Cerios::Server::Client::decrypt(unsigned char *ciphertext, std::size_t ciphe
         return -1;
     }
     plaintext_len = len;
-    
-    /* Finalise the decryption. Further plaintext bytes may be written at
-     * this stage.
-     */
-    if(1 != EVP_DecryptFinal_ex(&this->decryptCipherContext, plaintext + len, &len)) {
-        return -1;
-    }
-    plaintext_len += len;
     
     return plaintext_len;
 }

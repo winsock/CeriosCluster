@@ -63,6 +63,10 @@ void Cerios::Server::Client::setOwner(std::weak_ptr<Cerios::Server::ClientOwner>
 }
 
 void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) {
+    if (!alive) {
+        return;
+    }
+
     if (error) {
         std::cerr<<"Error during client onLengthReceived: "<<error.message()<<std::endl;
         this->disconnect();
@@ -110,6 +114,10 @@ void Cerios::Server::Client::startAsyncRead() {
 }
 
 void Cerios::Server::Client::sendData(std::vector<std::uint8_t> &data) {
+    if (!alive) {
+        return;
+    }
+    
     if (encrypted) {
         std::vector<std::uint8_t> encryptedData(data.size() + EVP_MAX_BLOCK_LENGTH); // Plaintext Length in + Cipher blocksize - 1 is the max worse case encrypted data size
         std::size_t actualLength = this->encrypt(data.data(), data.size(), encryptedData.data());
@@ -132,6 +140,10 @@ Cerios::Server::Side Cerios::Server::Client::getSide() {
 }
 
 void Cerios::Server::Client::disconnect() {
+    if (!alive) {
+        return;
+    }
+    alive = false;
     try {
         this->socket->cancel();
         this->socket->shutdown(asio::socket_base::shutdown_both);
@@ -171,12 +183,12 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
     
     if (std::dynamic_pointer_cast<Cerios::Server::KeepAlivePacket>(packet) != nullptr) {
         lastSeen = std::chrono::steady_clock::now();
-        this->sendPacket(Cerios::Server::Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x00));
         return;
     }
     
     auto owner = this->owner.lock();
     if (owner == nullptr) {
+        this->disconnect();
         return;
     }
     
@@ -413,7 +425,7 @@ void Cerios::Server::Client::sendHTTPRequestDone(std::shared_ptr<asio::ssl::stre
 }
 
 void Cerios::Server::Client::readHTTPHeader(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket> > sslSock, std::shared_ptr<asio::streambuf> data, const asio::error_code &error, std::size_t bytes_transferred) {
-    if (error) {
+    if (error || !alive) {
         return;
     }
     
@@ -497,7 +509,11 @@ void Cerios::Server::Client::authWithMojang(std::string serverIdHexDigest) {
 }
 
 void Cerios::Server::Client::keepAlive(const asio::error_code &error) {
+    if (!alive) {
+        return;
+    }
     if (error) {
+        this->disconnect();
         return;
     }
     
@@ -505,6 +521,13 @@ void Cerios::Server::Client::keepAlive(const asio::error_code &error) {
         // Timeout
         this->socket->cancel();
     } else {
+        auto keepAlive = Cerios::Server::Packet::newPacket<KeepAlivePacket>(Cerios::Server::Side::SERVER, this->getState(), 0x00);
+        if (keepAlive == nullptr) {
+            // Not in play game state
+            this->socket->cancel();
+            return;
+        }
+        this->sendPacket(keepAlive);
         this->keepaliveTimer.async_wait(std::bind(&Cerios::Server::Client::keepAlive, this, std::placeholders::_1));
     }
 }

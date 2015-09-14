@@ -49,9 +49,12 @@ namespace Cerios { namespace Server {
         
         asio::steady_timer keepaliveTimer;
         std::chrono::time_point<std::chrono::steady_clock> lastSeen;
+        
+        bool alive = true;
     public:
         Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner);
         void sendData(std::vector<std::uint8_t> &data);
+        void sendPacket(std::shared_ptr<Cerios::Server::Packet> packet);
         void onLengthReceive(std::shared_ptr<asio::streambuf>, const asio::error_code &error, std::size_t bytes_transferred);
         void onWriteComplete(const asio::error_code& error, std::size_t bytes_transferred);
         void onHasJoinedPostComplete(std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sslSock, std::shared_ptr<asio::streambuf> data, const asio::error_code& error, std::size_t bytes_transferred);
@@ -72,7 +75,6 @@ namespace Cerios { namespace Server {
     private:
         int encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext);
         int decrypt(unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *plaintext);
-        void sendPacket(std::shared_ptr<Cerios::Server::Packet> packet);
         void startAsyncRead();
         void keepAlive(const asio::error_code &error);
         void onPlayerLogin();

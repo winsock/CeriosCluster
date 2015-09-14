@@ -13,9 +13,12 @@
 #include <map>
 #include <vector>
 #include <thread>
+#include <atomic>
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
+#include <mutex>
+#include <asio/thread.hpp>
 
 #include "ClientOwner.hpp"
 
@@ -28,13 +31,17 @@ namespace Cerios { namespace Server {
     class Login : public ClientOwner {
     private:
         std::shared_ptr<asio::io_service> service;
+        std::vector<std::unique_ptr<asio::thread>> workerThreads;
         asio::ip::tcp::acceptor clientAcceptor;
         asio::ip::tcp::acceptor clientServerAcceptor;
         std::shared_ptr<ClientServer> clientServerHanler;
+        std::mutex clientMapMutex;
         std::unordered_map<std::uint32_t, std::unique_ptr<Cerios::Server::Client>> pendingClients;
         std::shared_ptr<EVP_PKEY> keyPair;
         std::shared_ptr<X509> certificate;
         std::string publicKeyString;
+
+        std::atomic_bool running;
     public:
         Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6);
         void init();

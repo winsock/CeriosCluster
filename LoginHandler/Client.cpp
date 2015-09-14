@@ -52,7 +52,8 @@ std::string hexStr(unsigned char *data, int len) {
     return s;
 }
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner) : socket(std::move(clientSocket)), owner(owner), SessionServer("/session/minecraft/hasJoined"), keepaliveTimer(*owner.lock()->getIOService().lock(), std::chrono::seconds(4)), lastSeen(std::chrono::steady_clock::now()), userid("00000000-0000-0000-0000-000000000000") {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner) : socket(std::move(clientSocket)),owner(owner), SessionServer("/session/minecraft/hasJoined"), keepaliveTimer(*owner.lock()->getIOService().lock(), std::chrono::seconds(4)),
+    lastSeen(std::chrono::steady_clock::now()), userid("00000000-0000-0000-0000-000000000000"), writeLock(*owner.lock()->getIOService().lock()) {
     EVP_CIPHER_CTX_init(&this->encryptCipherContext);
     EVP_CIPHER_CTX_init(&this->decryptCipherContext);
     this->startAsyncRead();
@@ -121,9 +122,9 @@ void Cerios::Server::Client::sendData(std::vector<std::uint8_t> &data) {
     if (encrypted) {
         std::vector<std::uint8_t> encryptedData(data.size() + EVP_MAX_BLOCK_LENGTH); // Plaintext Length in + Cipher blocksize - 1 is the max worse case encrypted data size
         std::size_t actualLength = this->encrypt(data.data(), data.size(), encryptedData.data());
-        asio::async_write(*this->socket, asio::buffer(encryptedData, actualLength), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+        asio::async_write(*this->socket, asio::buffer(encryptedData, actualLength), asio::bind_executor(this->writeLock, std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2)));
     } else {
-        asio::async_write(*this->socket, asio::buffer(data), std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
+        asio::async_write(*this->socket, asio::buffer(data), asio::bind_executor(this->writeLock, std::bind(&Cerios::Server::Client::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2)));
     }
 }
 

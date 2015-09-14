@@ -15,23 +15,49 @@
 #include <vector>
 #include <cstdlib>
 #include <chrono>
+#include <algorithm>
 
 #include "Client.hpp"
 #include "ClientServer.hpp"
 
-Cerios::Server::Login::Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6) : service(new asio::io_service()),
-clientAcceptor(std::ref(*service.get()), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)),
-clientServerAcceptor(std::ref(*service.get()), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), nodeCommsPort)),
+Cerios::Server::Login::Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6) : service(new asio::io_service()), running(true),
+clientAcceptor(*service.get(), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)),
+clientServerAcceptor(*service.get(), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), nodeCommsPort)),
 keyPair(EVP_PKEY_new(), [=](EVP_PKEY* keyPair) { EVP_PKEY_free(keyPair); }),
 certificate(X509_new(), [=](X509* cert) { X509_free(cert); }) {
     
 }
 
-void Cerios::Server::Login::listen() {
-        this->service->run();
-
-    std::cout<<"wtf";
+bool string_compare_pred(unsigned char a, unsigned char b) {
+    return std::tolower(a) == std::tolower(b);
 }
+
+bool string_compare(std::string const& a, std::string const& b) {
+    return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), string_compare_pred);
+}
+
+void Cerios::Server::Login::listen() {
+    for (int i = 0; i < std::thread::hardware_concurrency(); i++) {
+        this->workerThreads.push_back(std::unique_ptr<asio::thread>(new asio::thread(std::bind([this](std::shared_ptr<asio::io_service> io, std::uint32_t threadNumber) -> void {
+            while (this->running.load()) {
+                try {
+                    io->run();
+                } catch (std::exception e) {
+                    std::cerr<<"Worker Thread "<<threadNumber<<": Uncaught exception: "<<e.what()<<", continuing."<<std::endl;
+                }
+            }
+        }, this->service, i))));
+    }
+    
+    std::string line;
+    while (this->running.load()) {
+        std::getline(std::cin, line);
+        if (string_compare(line, "stop")) {
+            return;
+        }
+    }
+}
+
 
 void Cerios::Server::Login::asyncClientAccept() {
     std::shared_ptr<asio::ip::tcp::socket> clientSocket(new asio::ip::tcp::socket(clientAcceptor.get_executor().context()));
@@ -63,7 +89,11 @@ void Cerios::Server::Login::init() {
 void Cerios::Server::Login::handleClient(std::shared_ptr<asio::ip::tcp::socket> newClient, const asio::error_code &error) {
     if (!error) {
         std::unique_ptr<Cerios::Server::Client> client(new Cerios::Server::Client(newClient, this->shared_from_this()));
-        pendingClients[newClient->native_handle()] = std::move(client);
+        {
+            std::lock_guard<std::mutex> lock(this->clientMapMutex);
+            pendingClients[newClient->native_handle()] = std::move(client);
+            // Lock released when it goes out of scope
+        }
     }
     this->asyncClientAccept();
 }
@@ -86,6 +116,8 @@ void Cerios::Server::Login::clientDisconnected(Cerios::Server::Client *disconnec
 }
 
 void Cerios::Server::Login::handoffClient(Cerios::Server::Client *handoffClient) {
+    std::lock_guard<std::mutex> lock(this->clientMapMutex);
+
     auto client = std::move(this->pendingClients[handoffClient->getSocket()->native_handle()]);
     if (client == nullptr) {
         return;
@@ -94,6 +126,8 @@ void Cerios::Server::Login::handoffClient(Cerios::Server::Client *handoffClient)
     this->pendingClients.erase(client->getSocket()->native_handle());
     client->setOwner(this->clientServerHanler);
     this->clientServerHanler->addClient(std::move(client));
+    
+    // Lock released when it goes out of scope
 }
 
 std::weak_ptr<asio::io_service> Cerios::Server::Login::getIOService() {

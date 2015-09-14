@@ -50,6 +50,8 @@ namespace Cerios { namespace Server {
         asio::steady_timer keepaliveTimer;
         std::chrono::time_point<std::chrono::steady_clock> lastSeen;
         
+        asio::io_service::strand writeLock;
+        
         bool alive = true;
     public:
         Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner);

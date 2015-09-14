@@ -148,11 +148,8 @@ bool Cerios::Server::ClientServer::onPacketReceived(Cerios::Server::Client *clie
     std::vector<std::uint8_t> payload;
     packet->serializeToBuffer(Cerios::Server::Side::CLIENT, payload);
     std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::MC_PACKET, client->getClientId(), payload);
+    this->sendPacket(message);
     
-    std::vector<std::uint8_t> messageData;
-    message->serializeData(messageData);
-    
-    this->sendSocket->async_send_to(asio::buffer(messageData), asio::ip::udp::endpoint(asio::ip::address_v4::broadcast(), 1337), std::bind(&Cerios::Server::ClientServer::onWriteComplete, this, std::placeholders::_1, std::placeholders::_2));
     return true;
 }
 

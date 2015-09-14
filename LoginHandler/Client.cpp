@@ -220,19 +220,22 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         if (loginRequest != nullptr) {
             this->requestedUsername = loginRequest->playerName;
             
-            // TODO locahost/::1 check to disable encryption
-            auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1);
-
-            response->publickKey = owner->getPublicKeyString();
-            
-            // Generate the verify token
-            std::generate_n(this->verifyToken.begin(), this->verifyToken.size(), randomEngine);
-            response->clearVerifyToken = this->verifyToken;
-            
-            this->sendPacket(response);
+            if (this->getSocket()->remote_endpoint().address().is_loopback()) {
+                this->onPlayerLogin();
+            } else {
+                auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1);
+                
+                response->publickKey = owner->getPublicKeyString();
+                
+                // Generate the verify token
+                std::generate_n(this->verifyToken.begin(), this->verifyToken.size(), randomEngine);
+                response->clearVerifyToken = this->verifyToken;
+                
+                this->sendPacket(response);
+            }
             return;
         }
-
+        
         // Check if the login request happened first
         if (this->requestedUsername.empty()) {
             return;

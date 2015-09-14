@@ -13,6 +13,7 @@
 #include <random>
 #include <sstream>
 #include <regex>
+#include <chrono>
 
 #include <Packet.hpp>
 #include <PingPacket.hpp>
@@ -22,6 +23,7 @@
 #include <EncryptionPacket.hpp>
 #include <LoginSuccessPacket.hpp>
 #include <SetCompressionPacket.hpp>
+#include <KeepAlivePacket.hpp>
 
 #include <openssl/crypto.h>
 #include <openssl/ssl.h>
@@ -50,7 +52,7 @@ std::string hexStr(unsigned char *data, int len) {
     return s;
 }
 
-Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner) : socket(std::move(clientSocket)), owner(owner), SessionServer("/session/minecraft/hasJoined") {
+Cerios::Server::Client::Client(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::weak_ptr<Cerios::Server::ClientOwner> owner) : socket(std::move(clientSocket)), owner(owner), SessionServer("/session/minecraft/hasJoined"), keepaliveTimer(*owner.lock()->getIOService().lock(), std::chrono::seconds(4)), lastSeen(std::chrono::steady_clock::now()), userid("00000000-0000-0000-0000-000000000000") {
     EVP_CIPHER_CTX_init(&this->encryptCipherContext);
     EVP_CIPHER_CTX_init(&this->decryptCipherContext);
     this->startAsyncRead();
@@ -171,6 +173,12 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             // Cancel will cause all other waiting operations to error out, thus disconnecting the client after server ping as per protocol spec.
             this->socket->cancel();
         }
+        return;
+    }
+    
+    if (std::dynamic_pointer_cast<Cerios::Server::KeepAlivePacket>(packet) != nullptr) {
+        lastSeen = std::chrono::steady_clock::now();
+        this->sendPacket(Cerios::Server::Packet::newPacket(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x00));
         return;
     }
     
@@ -371,12 +379,20 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     this->buffer.clear();
     std::cout<<"Player: "<<this->requestedUsername<<", id: "<<this->userid<<" enabled encryption successfully!"<<std::endl;
     
+    this->onPlayerLogin();
+}
+
+void Cerios::Server::Client::onPlayerLogin() {
     // Send Login Success Packet
     auto loginSuccessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
     loginSuccessPacket->uuid = this->userid;
     loginSuccessPacket->username = this->requestedUsername;
     this->sendPacket(loginSuccessPacket);
+    
     this->setState(Cerios::Server::ClientState::PLAY);
+    // Start the keepalive check
+    this->lastSeen = std::chrono::steady_clock::now();
+    this->keepaliveTimer.async_wait(std::bind(&Cerios::Server::Client::keepAlive, this, std::placeholders::_1));
     
     // Handoff client to client server relay
     auto owner = this->owner.lock();
@@ -480,11 +496,24 @@ void Cerios::Server::Client::authWithMojang(std::string serverIdHexDigest) {
     if (ioService == nullptr) {
         return;
     }
-
+    
     std::shared_ptr<asio::ssl::stream<asio::ip::tcp::socket>> sock(new asio::ssl::stream<asio::ip::tcp::socket>(*ioService, ctx));
     asio::ip::tcp::resolver resolver(*ioService);
     asio::ip::tcp::resolver::query query("sessionserver.mojang.com", "https");
     asio::async_connect(sock->lowest_layer(), resolver.resolve(query), std::bind(&Cerios::Server::Client::connectedToMojang, this, sock, std::move(httpHeader.str()), std::placeholders::_1));
+}
+
+void Cerios::Server::Client::keepAlive(const asio::error_code &error) {
+    if (error) {
+        return;
+    }
+    
+    if ((std::chrono::steady_clock::now() - this->lastSeen) > std::chrono::seconds(10)) {
+        // Timeout
+        this->socket->cancel();
+    } else {
+        this->keepaliveTimer.async_wait(std::bind(&Cerios::Server::Client::keepAlive, this, std::placeholders::_1));
+    }
 }
 
 int Cerios::Server::Client::encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext) {

@@ -52,7 +52,7 @@
 		4C80FC3A1B9DDA2600048972 /* libInternalComms.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libInternalComms.a; path = build/Debug/libInternalComms.a; sourceTree = "<group>"; };
 		4CB0C5671B90FC0600B65AE7 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
 		4CB0C5681B90FC0600B65AE7 /* Client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Client.hpp; sourceTree = "<group>"; };
-		4CBC83FF1B8E2270009CFAFF /* LoginHandler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LoginHandler; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CBC83FF1B8E2270009CFAFF /* Client Gateway */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Client Gateway"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CBC84021B8E2270009CFAFF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4CBC84091B8E229B009CFAFF /* LoginServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoginServer.cpp; sourceTree = "<group>"; };
 		4CBC840A1B8E229B009CFAFF /* LoginServer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoginServer.hpp; sourceTree = "<group>"; };
@@ -95,7 +95,7 @@
 		4CBC83F61B8E2270009CFAFF = {
 			isa = PBXGroup;
 			children = (
-				4CBC84011B8E2270009CFAFF /* LoginHandler */,
+				4CBC84011B8E2270009CFAFF /* Client Gateway */,
 				4CBC84001B8E2270009CFAFF /* Products */,
 				4C10B49A1B8F8FF800C497B1 /* Libraries */,
 			);
@@ -104,12 +104,12 @@
 		4CBC84001B8E2270009CFAFF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4CBC83FF1B8E2270009CFAFF /* LoginHandler */,
+				4CBC83FF1B8E2270009CFAFF /* Client Gateway */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4CBC84011B8E2270009CFAFF /* LoginHandler */ = {
+		4CBC84011B8E2270009CFAFF /* Client Gateway */ = {
 			isa = PBXGroup;
 			children = (
 				4CBC84021B8E2270009CFAFF /* main.cpp */,
@@ -122,15 +122,15 @@
 				4CC8B8611B93C79B009594E4 /* RandomSelect.hpp */,
 				4C53734F1B94AC19003EF834 /* ClientOwner.hpp */,
 			);
-			path = LoginHandler;
+			path = "Client Gateway";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4CBC83FE1B8E2270009CFAFF /* LoginHandler */ = {
+		4CBC83FE1B8E2270009CFAFF /* Client Gateway */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4CBC84061B8E2270009CFAFF /* Build configuration list for PBXNativeTarget "LoginHandler" */;
+			buildConfigurationList = 4CBC84061B8E2270009CFAFF /* Build configuration list for PBXNativeTarget "Client Gateway" */;
 			buildPhases = (
 				4CBC83FB1B8E2270009CFAFF /* Sources */,
 				4CBC83FC1B8E2270009CFAFF /* Frameworks */,
@@ -141,9 +141,9 @@
 			);
 			dependencies = (
 			);
-			name = LoginHandler;
+			name = "Client Gateway";
 			productName = LoginHandler;
-			productReference = 4CBC83FF1B8E2270009CFAFF /* LoginHandler */;
+			productReference = 4CBC83FF1B8E2270009CFAFF /* Client Gateway */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -160,7 +160,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4CBC83FA1B8E2270009CFAFF /* Build configuration list for PBXProject "LoginHandler" */;
+			buildConfigurationList = 4CBC83FA1B8E2270009CFAFF /* Build configuration list for PBXProject "Client Gateway" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -172,7 +172,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4CBC83FE1B8E2270009CFAFF /* LoginHandler */,
+				4CBC83FE1B8E2270009CFAFF /* Client Gateway */,
 			);
 		};
 /* End PBXProject section */
@@ -289,7 +289,7 @@
 					"$(TARGET_BUILD_DIR)/ssl",
 					"$(PROJECT_DIR)/build/Debug",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Client Gateway";
 			};
 			name = Debug;
 		};
@@ -310,14 +310,14 @@
 					"$(TARGET_BUILD_DIR)/ssl",
 					"$(PROJECT_DIR)/build/Debug",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Client Gateway";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4CBC83FA1B8E2270009CFAFF /* Build configuration list for PBXProject "LoginHandler" */ = {
+		4CBC83FA1B8E2270009CFAFF /* Build configuration list for PBXProject "Client Gateway" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4CBC84041B8E2270009CFAFF /* Debug */,
@@ -326,7 +326,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4CBC84061B8E2270009CFAFF /* Build configuration list for PBXNativeTarget "LoginHandler" */ = {
+		4CBC84061B8E2270009CFAFF /* Build configuration list for PBXNativeTarget "Client Gateway" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4CBC84071B8E2270009CFAFF /* Debug */,

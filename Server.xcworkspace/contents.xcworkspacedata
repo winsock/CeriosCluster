@@ -14,6 +14,6 @@
       location = "group:Client Server.xcodeproj">
    </FileRef>
    <FileRef
-      location = "container:LoginHandler.xcodeproj">
+      location = "group:Client Gateway.xcodeproj">
    </FileRef>
 </Workspace>

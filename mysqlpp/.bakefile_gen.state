@@ -1,0 +1,134 @@
+K.}q((U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUxcode2t(cdependencies
+DepsRecord
+qo}q(Uoutputsq]q(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.xcodeproj/project.pbxprojUreplacetqaUdepsq]q((cdependencies
+FileDep
+q	oq
+}qUfilenameqU*/usr/local/share/bakefile/rules/common.bklsb(h	oq}qhU+/usr/local/share/bakefile/rules/version.bklsb(h	oq}qhU(/usr/local/share/bakefile/rules/dirs.bklsb(h	oq}qhU3/usr/local/share/bakefile/rules/format_features.bklsb(h	oq}qhU*/usr/local/share/bakefile/rules/xcode2.bklsb(h	oq}qhU6/usr/local/share/bakefile/rules/makefile_defs_unix.bklsb(h	oq}qhU5/usr/local/share/bakefile/rules/modules/datafiles.bklsb(h	oq}qhU,/usr/local/share/bakefile/presets/simple.bklsb(h	oq}qhU*/usr/local/share/bakefile/output/xcode2.pysbeub(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmsvs2008prjt(ho}q(h]q((UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_excommon.vcprojUreplaceqtq (UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_uds.vcprojhtq!(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery3.vcprojhtq"(UN/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_sqlstream.vcprojhtq#(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_string.vcprojhtq$(UQ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_insertpolicy.vcprojhtq%(UM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_inttypes.vcprojhtq&(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_resetdb.vcprojhtq'(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_ssqls2.vcprojhtq((UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_deadlock.vcprojhtq)(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_wnp.vcprojhtq*(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_cgi_jpeg.vcprojhtq+(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_cpool.vcprojhtq,(UI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_load_jpeg.vcprojhtq-(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls4.vcprojhtq.(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls6.vcprojhtq/(UT/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_null_comparison.vcprojhtq0(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls1.vcprojhtq1(UL/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_qstream.vcprojhtq2(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_mysqlpp.vcprojhtq3(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_simple2.vcprojhtq4(UO/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_query_copy.vcprojhtq5(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls3.vcprojhtq6(UE/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_cpool.vcprojhtq7(UI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqlsxlat.vcprojhtq8(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_store_if.vcprojhtq9(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_dbinfo.vcprojhtq:(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery1.vcprojhtq;(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls2.vcprojhtq<(UM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_datetime.vcprojhtq=(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_tcp.vcprojhtq>(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls2parse.vcprojhtq?(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_qssqls.vcprojhtq@(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_transaction.vcprojhtqA(U</usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++.slnhtqB(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_fieldinf.vcprojhtqC(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_multiquery.vcprojhtqD(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_for_each.vcprojhtqE(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_simple3.vcprojhtqF(UP/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_array_index.vcprojhtqG(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_manip.vcprojhtqH(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery2.vcprojhtqI(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery4.vcprojhtqJ(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_simple1.vcprojhtqK(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls5.vcprojhtqLeh]qM((h	oqN}qOhU*/usr/local/share/bakefile/rules/common.bklsb(h	oqP}qQhU+/usr/local/share/bakefile/rules/version.bklsb(h	oqR}qShU(/usr/local/share/bakefile/rules/dirs.bklsb(h	oqT}qUhU3/usr/local/share/bakefile/rules/format_features.bklsb(h	oqV}qWhU//usr/local/share/bakefile/rules/msvs2008prj.bklsb(h	oqX}qYhU//usr/local/share/bakefile/rules/msvs2005prj.bklsb(h	oqZ}q[hU//usr/local/share/bakefile/rules/msvs200xprj.bklsb(h	oq\}q]hU:/usr/local/share/bakefile/rules/msvc_prj_vcproj_common.bklsb(h	oq^}q_hU3/usr/local/share/bakefile/rules/msvc_prj_common.bklsb(h	oq`}qahU)/usr/local/share/bakefile/rules/win32.bklsb(h	oqb}qchU5/usr/local/share/bakefile/rules/modules/datafiles.bklsb(h	oqd}qehU,/usr/local/share/bakefile/presets/simple.bklsb(h	oqf}qghU//usr/local/share/bakefile/output/msvs200xprj.pysbeub(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmsvs2003prjt(ho}qh(h]qi((UP/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_array_index.vcprojUreplaceqjtqk(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_uds.vcprojhjtql(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_simple1.vcprojhjtqm(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_dbinfo.vcprojhjtqn(UM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_datetime.vcprojhjtqo(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_cpool.vcprojhjtqp(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_manip.vcprojhjtqq(UE/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_cpool.vcprojhjtqr(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_simple2.vcprojhjtqs(U</usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++.slnhjtqt(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_tcp.vcprojhjtqu(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_multiquery.vcprojhjtqv(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery1.vcprojhjtqw(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_deadlock.vcprojhjtqx(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery3.vcprojhjtqy(UN/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_sqlstream.vcprojhjtqz(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_ssqls2.vcprojhjtq{(UI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_load_jpeg.vcprojhjtq|(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_wnp.vcprojhjtq}(UO/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_query_copy.vcprojhjtq~(UI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_ssqlsxlat.vcprojhjtq(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_simple3.vcprojhjtq€(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_fieldinf.vcprojhjtq(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_mysqlpp.vcprojhjtq‚(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery4.vcprojhjtqƒ(UL/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_qstream.vcprojhjtq„(UM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_inttypes.vcprojhjtq…(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_resetdb.vcprojhjtq†(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery2.vcprojhjtq‡(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_ssqls2parse.vcprojhjtqˆ(UQ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_insertpolicy.vcprojhjtq‰(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_excommon.vcprojhjtqŠeh]q‹((h	oqŒ}qhU*/usr/local/share/bakefile/rules/common.bklsb(h	oqŽ}qhU+/usr/local/share/bakefile/rules/version.bklsb(h	oq}q‘hU(/usr/local/share/bakefile/rules/dirs.bklsb(h	oq’}q“hU3/usr/local/share/bakefile/rules/format_features.bklsb(h	oq”}q•hU//usr/local/share/bakefile/rules/msvs2003prj.bklsb(h	oq–}q—hU//usr/local/share/bakefile/rules/msvs200xprj.bklsb(h	oq˜}q™hU:/usr/local/share/bakefile/rules/msvc_prj_vcproj_common.bklsb(h	oqš}q›hU3/usr/local/share/bakefile/rules/msvc_prj_common.bklsb(h	oqœ}qhU)/usr/local/share/bakefile/rules/win32.bklsb(h	oqž}qŸhU5/usr/local/share/bakefile/rules/modules/datafiles.bklsb(h	oq }q¡hU,/usr/local/share/bakefile/presets/simple.bklsb(h	oq¢}q£hU//usr/local/share/bakefile/output/msvs200xprj.pysbeub(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmingwt(ho}q¤(h]q¥(U8/usr/local/src/mysqlpp/head/mysql++-3.2.2/Makefile.mingwUreplacetq¦ah]q§((h	oq¨}q©hU*/usr/local/share/bakefile/rules/common.bklsb(h	oqª}q«hU+/usr/local/share/bakefile/rules/version.bklsb(h	oq¬}q­hU(/usr/local/share/bakefile/rules/dirs.bklsb(h	oq®}q¯hU3/usr/local/share/bakefile/rules/format_features.bklsb(h	oq°}q±hU)/usr/local/share/bakefile/rules/mingw.bklsb(h	oq²}q³hU,/usr/local/share/bakefile/rules/makefile.bklsb(h	oq´}qµhU7/usr/local/share/bakefile/rules/makefile_defs_mingw.bklsb(h	oq¶}q·hU)/usr/local/share/bakefile/rules/win32.bklsb(h	oq¸}q¹hU5/usr/local/share/bakefile/rules/makefile_defs_gnu.bklsb(h	oqº}q»hU2/usr/local/share/bakefile/rules/makefile_mingw.bklsb(h	oq¼}q½hU5/usr/local/share/bakefile/rules/modules/datafiles.bklsb(h	oq¾}q¿hU,/usr/local/share/bakefile/presets/simple.bklsb(h	oqÀ}qÁhU-/usr/local/share/bakefile/output/gnumake.empysbeub(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmsvs2005prjt(ho}qÂ(h]qÃ((UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_excommon.vcprojUreplaceqÄtqÅ(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_transaction.vcprojhÄtqÆ(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_uds.vcprojhÄtqÇ(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_qssqls.vcprojhÄtqÈ(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls3.vcprojhÄtqÉ(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_simple2.vcprojhÄtqÊ(UQ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_insertpolicy.vcprojhÄtqË(UL/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_qstream.vcprojhÄtqÌ(UM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_datetime.vcprojhÄtqÍ(UN/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_sqlstream.vcprojhÄtqÎ(U</usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++.slnhÄtqÏ(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_manip.vcprojhÄtqÐ(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls2parse.vcprojhÄtqÑ(UI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_load_jpeg.vcprojhÄtqÒ(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_cgi_jpeg.vcprojhÄtqÓ(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls1.vcprojhÄtqÔ(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery2.vcprojhÄtqÕ(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_cpool.vcprojhÄtqÖ(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_resetdb.vcprojhÄtq×(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls2.vcprojhÄtqØ(UJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_multiquery.vcprojhÄtqÙ(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery1.vcprojhÄtqÚ(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls6.vcprojhÄtqÛ(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_for_each.vcprojhÄtqÜ(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery3.vcprojhÄtqÝ(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_store_if.vcprojhÄtqÞ(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_simple3.vcprojhÄtqß(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_deadlock.vcprojhÄtqà(UE/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_cpool.vcprojhÄtqá(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery4.vcprojhÄtqâ(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls5.vcprojhÄtqã(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_simple1.vcprojhÄtqä(UG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_mysqlpp.vcprojhÄtqå(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_fieldinf.vcprojhÄtqæ(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_ssqls2.vcprojhÄtqç(UP/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_array_index.vcprojhÄtqè(UT/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_null_comparison.vcprojhÄtqé(UM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_inttypes.vcprojhÄtqê(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_wnp.vcprojhÄtqë(UH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_tcp.vcprojhÄtqì(UI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqlsxlat.vcprojhÄtqí(UO/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_query_copy.vcprojhÄtqî(UK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_string.vcprojhÄtqï(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls4.vcprojhÄtqð(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_dbinfo.vcprojhÄtqñeh]qò((h	oqó}qôhU*/usr/local/share/bakefile/rules/common.bklsb(h	oqõ}qöhU+/usr/local/share/bakefile/rules/version.bklsb(h	oq÷}qøhU(/usr/local/share/bakefile/rules/dirs.bklsb(h	oqù}qúhU3/usr/local/share/bakefile/rules/format_features.bklsb(h	oqû}qühU//usr/local/share/bakefile/rules/msvs2005prj.bklsb(h	oqý}qþhU//usr/local/share/bakefile/rules/msvs200xprj.bklsb(h	oqÿ}r   hU:/usr/local/share/bakefile/rules/msvc_prj_vcproj_common.bklsb(h	or  }r  hU3/usr/local/share/bakefile/rules/msvc_prj_common.bklsb(h	or  }r  hU)/usr/local/share/bakefile/rules/win32.bklsb(h	or  }r  hU5/usr/local/share/bakefile/rules/modules/datafiles.bklsb(h	or  }r  hU,/usr/local/share/bakefile/presets/simple.bklsb(h	or	  }r
+  hU//usr/local/share/bakefile/output/msvs200xprj.pysbeub(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUautoconft(ho}r  (h]r  ((U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/Makefile.inUreplacetr  (U9/usr/local/src/mysqlpp/head/mysql++-3.2.2/autoconf_inc.m4UmergeBlocksWithFilelisttr  eh]r  ((h	or  }r  hU*/usr/local/share/bakefile/rules/common.bklsb(h	or  }r  hU+/usr/local/share/bakefile/rules/version.bklsb(h	or  }r  hU(/usr/local/share/bakefile/rules/dirs.bklsb(h	or  }r  hU3/usr/local/share/bakefile/rules/format_features.bklsb(h	or  }r  hU,/usr/local/share/bakefile/rules/autoconf.bklsb(h	or  }r  hU3/usr/local/share/bakefile/rules/makefile_macres.bklsb(h	or  }r  hU,/usr/local/share/bakefile/rules/unixlike.bklsb(h	or  }r  hU,/usr/local/share/bakefile/rules/makefile.bklsb(h	or   }r!  hU6/usr/local/share/bakefile/rules/makefile_defs_unix.bklsb(h	or"  }r#  hU2/usr/local/share/bakefile/rules/makefile_mingw.bklsb(h	or$  }r%  hU0/usr/local/share/bakefile/rules/makefile_os2.bklsb(h	or&  }r'  hU5/usr/local/share/bakefile/rules/modules/datafiles.bklsb(h	or(  }r)  hU,/usr/local/share/bakefile/presets/simple.bklsb(h	or*  }r+  hU./usr/local/share/bakefile/output/autoconf.empysb(h	or,  }r-  hU5/usr/local/share/bakefile/output/autoconf-macros.empysbeubu.}q(UF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls5.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_tcp.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_dbinfo.vcprojJv
+UUT/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_null_comparison.vcprojJv
+UUT/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_null_comparison.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery1.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_qssqls.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_multiquery.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_ssqls2parse.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_resetdb.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_string.vcprojJv
+UUN/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_sqlstream.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery3.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_mysqlpp.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_excommon.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_cgi_jpeg.vcprojJv
+UUI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqlsxlat.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_fieldinf.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery1.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_store_if.vcprojJv
+UUO/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_query_copy.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_mysqlpp.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls6.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_uds.vcprojJv
+UUI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_load_jpeg.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_simple2.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_deadlock.vcprojJv
+UUM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_datetime.vcprojJv
+UUM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_datetime.vcprojJv
+UUM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_inttypes.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_simple2.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_excommon.vcprojJv
+UUE/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_cpool.vcprojJv
+UUN/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_sqlstream.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_manip.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_simple1.vcprojJv
+UUM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_inttypes.vcprojJv
+UUI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqlsxlat.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_ssqls2.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls2parse.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls6.vcprojJv
+UUL/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_qstream.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_wnp.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_fieldinf.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_dbinfo.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls2.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_dbinfo.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls3.vcprojJv
+UUL/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_qstream.vcprojJv
+UUQ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_insertpolicy.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_transaction.vcprojJv
+UU8/usr/local/src/mysqlpp/head/mysql++-3.2.2/Makefile.mingwJv
+UUP/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_array_index.vcprojJv
+UUM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_inttypes.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.xcodeproj/project.pbxprojJu
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_resetdb.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_ssqls2.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_simple3.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_simple3.vcprojJv
+UU9/usr/local/src/mysqlpp/head/mysql++-3.2.2/autoconf_inc.m4Jv
+UUM/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_datetime.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery3.vcprojJv
+UUI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_ssqlsxlat.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery4.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery3.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_mysqlpp.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery1.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_deadlock.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_simple2.vcprojJv
+UUI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_load_jpeg.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_manip.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls1.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_simple1.vcprojJv
+UUQ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_insertpolicy.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls2.vcprojJv
+UUN/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_sqlstream.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_manip.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_for_each.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls4.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery4.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_multiquery.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_transaction.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_fieldinf.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_cpool.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_wnp.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_ssqls3.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_string.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_cgi_jpeg.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery2.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_qssqls.vcprojJv
+UUP/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_array_index.vcprojJv
+UU</usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++.slnJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_excommon.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_store_if.vcprojJv
+UUO/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_query_copy.vcprojJv
+UUL/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_qstream.vcprojJv
+UUO/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_query_copy.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_tquery4.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_tquery2.vcprojJv
+UU5/usr/local/src/mysqlpp/head/mysql++-3.2.2/Makefile.inJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_multiquery.vcprojJv
+UUE/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_cpool.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_for_each.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_cpool.vcprojJv
+UUJ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_cpool.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_ssqls2.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_tquery2.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_tcp.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_simple1.vcprojJv
+UUP/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_test_array_index.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_wnp.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++_simple3.vcprojJv
+UUI/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_load_jpeg.vcprojJv
+UUG/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_resetdb.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls4.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_deadlock.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_uds.vcprojJv
+UUE/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_cpool.vcprojJv
+UU</usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2003/mysql++.slnJv
+UU</usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++.slnJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_tcp.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls5.vcprojJv
+UUF/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls1.vcprojJv
+UUH/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2005/mysql++_test_uds.vcprojJv
+UUQ/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_test_insertpolicy.vcprojJv
+UUK/usr/local/src/mysqlpp/head/mysql++-3.2.2/vc2008/mysql++_ssqls2parse.vcprojJv
+Uu.}q((U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUxcode2qt]qU-DBUILDDOCS=noqa(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmsvs2008prjqt]q(hU-ovc2008/mysql++.slnqU-DMSVS_PLATFORMS=win64qe(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmsvs2003prjq	t]q
+(hU-ovc2003/mysql++.slnqe(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmingwqt]q(hU-o./Makefile.mingwqe(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUmsvs2005prjqt]q(hU-ovc2005/mysql++.slnqe(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUautoconfqt]qhau.}q(U5/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.bklUxcode2t]qU;/usr/local/src/mysqlpp/head/mysql++-3.2.2/mysql++.xcodeprojqas.

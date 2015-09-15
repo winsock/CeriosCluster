@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C7FBCCE1B98BBED00413118 /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C7FBCCD1B98BBED00413118 /* libz.1.dylib */; };
 		4C80FC3B1B9DDA2600048972 /* libInternalComms.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C80FC3A1B9DDA2600048972 /* libInternalComms.a */; };
 		4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CB0C5671B90FC0600B65AE7 /* Client.cpp */; };
 		4CBC84031B8E2270009CFAFF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84021B8E2270009CFAFF /* main.cpp */; };
@@ -48,7 +47,6 @@
 
 /* Begin PBXFileReference section */
 		4C53734F1B94AC19003EF834 /* ClientOwner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ClientOwner.hpp; sourceTree = "<group>"; };
-		4C7FBCCD1B98BBED00413118 /* libz.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.dylib; path = /usr/lib/libz.1.dylib; sourceTree = "<absolute>"; };
 		4C80FC3A1B9DDA2600048972 /* libInternalComms.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libInternalComms.a; path = build/Debug/libInternalComms.a; sourceTree = "<group>"; };
 		4CB0C5671B90FC0600B65AE7 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
 		4CB0C5681B90FC0600B65AE7 /* Client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Client.hpp; sourceTree = "<group>"; };
@@ -72,7 +70,6 @@
 				4CC8B85D1B938E2F009594E4 /* libMCPacket.a in Frameworks */,
 				4CBFEBC21B9608DA000C258C /* libcrypto.a in Frameworks */,
 				4C80FC3B1B9DDA2600048972 /* libInternalComms.a in Frameworks */,
-				4C7FBCCE1B98BBED00413118 /* libz.1.dylib in Frameworks */,
 				4CBFEBC31B9608DA000C258C /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,7 +81,6 @@
 			isa = PBXGroup;
 			children = (
 				4C80FC3A1B9DDA2600048972 /* libInternalComms.a */,
-				4C7FBCCD1B98BBED00413118 /* libz.1.dylib */,
 				4CBFEBC01B9608DA000C258C /* libcrypto.a */,
 				4CBFEBC11B9608DA000C258C /* libssl.a */,
 				4CC8B85C1B938E2F009594E4 /* libMCPacket.a */,

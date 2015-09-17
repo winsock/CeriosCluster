@@ -8,8 +8,6 @@
 
 #include "ServerStatusPacket.hpp"
 
-#include <iostream>
-
 Cerios::Server::ServerStatusPacket::ServerStatusPacket(std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress) {
     this->resetBuffer();
 }

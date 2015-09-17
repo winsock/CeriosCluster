@@ -23,24 +23,27 @@
 #include "SpawnPositionPacket.hpp"
 #include "PlayerPositionAndLookPacket.hpp"
 #include "PlayerAbilitiesPacket.hpp"
+#include "ChatMessagePacket.hpp"
 
 namespace {
-    Cerios::Server::Packet::Registrar<Cerios::Server::HandshakePacket> handshake(Cerios::Server::ClientState::HANDSHAKE, 0x00);
+    Cerios::Server::Packet::Registrar<Cerios::Server::HandshakePacket> handshake(Cerios::Server::Side::SERVER_BOUND, Cerios::Server::ClientState::HANDSHAKE, 0x00);
     
-    Cerios::Server::Packet::Registrar<Cerios::Server::ServerStatusPacket> status(Cerios::Server::ClientState::STATUS, 0x00);
-    Cerios::Server::Packet::Registrar<Cerios::Server::PingPacket> ping(Cerios::Server::ClientState::STATUS, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::ServerStatusPacket> status(Cerios::Server::Side::BI_DIRECTIONAL, Cerios::Server::ClientState::STATUS, 0x00);
+    Cerios::Server::Packet::Registrar<Cerios::Server::PingPacket> ping(Cerios::Server::Side::BI_DIRECTIONAL, Cerios::Server::ClientState::STATUS, 0x01);
     
-    Cerios::Server::Packet::Registrar<Cerios::Server::LoginStartPacket> loginStart(Cerios::Server::ClientState::LOGIN, 0x00);
-    Cerios::Server::Packet::Registrar<Cerios::Server::EncryptionPacket> encryption(Cerios::Server::ClientState::LOGIN, 0x01);
-    Cerios::Server::Packet::Registrar<Cerios::Server::LoginSuccessPacket> loginSuccess(Cerios::Server::ClientState::LOGIN, 0x02);
-    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionLogin(Cerios::Server::ClientState::LOGIN, 0x03);
+    Cerios::Server::Packet::Registrar<Cerios::Server::LoginStartPacket> loginStart(Cerios::Server::Side::SERVER_BOUND, Cerios::Server::ClientState::LOGIN, 0x00);
+    Cerios::Server::Packet::Registrar<Cerios::Server::EncryptionPacket> encryption(Cerios::Server::Side::BI_DIRECTIONAL, Cerios::Server::ClientState::LOGIN, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::LoginSuccessPacket> loginSuccess(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::LOGIN, 0x02);
+    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionLogin(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::LOGIN, 0x03);
     
-    Cerios::Server::Packet::Registrar<Cerios::Server::KeepAlivePacket> keepAlivePlay(Cerios::Server::ClientState::PLAY, 0x00);
-    Cerios::Server::Packet::Registrar<Cerios::Server::JoinGamePacket> joinGame(Cerios::Server::ClientState::PLAY, 0x01);
-    Cerios::Server::Packet::Registrar<Cerios::Server::SpawnPositionPacket> spawnPosition(Cerios::Server::ClientState::PLAY, 0x05);
-    Cerios::Server::Packet::Registrar<Cerios::Server::PlayerPositionAndLookPacket> playerLookPos(Cerios::Server::ClientState::PLAY, 0x08);
-    Cerios::Server::Packet::Registrar<Cerios::Server::PlayerAbilitiesPacket> playerAbilities(Cerios::Server::ClientState::PLAY, 0x39);
-    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionPlay(Cerios::Server::ClientState::PLAY, 0x46);
+    Cerios::Server::Packet::Registrar<Cerios::Server::KeepAlivePacket> keepAlivePlay(Cerios::Server::Side::BI_DIRECTIONAL, Cerios::Server::ClientState::PLAY, 0x00);
+    Cerios::Server::Packet::Registrar<Cerios::Server::JoinGamePacket> joinGame(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::ChatMessagePacket> chatMessageClient(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x02);
+    Cerios::Server::Packet::Registrar<Cerios::Server::ChatMessagePacket> chatMessageServer(Cerios::Server::Side::SERVER_BOUND, Cerios::Server::ClientState::PLAY, 0x01);
+    Cerios::Server::Packet::Registrar<Cerios::Server::SpawnPositionPacket> spawnPosition(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x05);
+    Cerios::Server::Packet::Registrar<Cerios::Server::PlayerPositionAndLookPacket> playerLookPos(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x08);
+    Cerios::Server::Packet::Registrar<Cerios::Server::PlayerAbilitiesPacket> playerAbilities(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x39);
+    Cerios::Server::Packet::Registrar<Cerios::Server::SetCompressionPacket> setCompressionPlay(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x46);
 }
 
 Cerios::Server::Packet::packet_registry &Cerios::Server::Packet::registry() {

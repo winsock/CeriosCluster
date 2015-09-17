@@ -24,9 +24,9 @@
 #pragma GCC visibility push(default)
 namespace Cerios { namespace Server {
     enum class Side {
-        CLIENT = 0,
-        SERVER = 1,
-        BOTH = 2
+        CLIENT_BOUND = 0,
+        SERVER_BOUND = 1,
+        BI_DIRECTIONAL = 2
     };
     enum class ClientState {
         HANDSHAKE = 0,
@@ -65,10 +65,10 @@ namespace Cerios { namespace Server {
         }
     } Position;
     
-    struct PairHash {
+    struct TupleHash {
     public:
-        std::size_t operator()(const std::pair<ClientState, std::int32_t> &x) const {
-            return std::hash<std::string>()(std::to_string(static_cast<std::uint8_t>(x.first)) + std::to_string(x.second));
+        std::size_t operator()(const std::tuple<Side, ClientState, std::int32_t> &x) const {
+            return std::hash<std::string>()(std::to_string(static_cast<std::uint8_t>(std::get<0>(x))) + std::to_string(static_cast<std::uint8_t>(std::get<1>(x))) + std::to_string(std::get<2>(x)));
         }
     };
     
@@ -76,8 +76,8 @@ namespace Cerios { namespace Server {
     public:
         using parsePacketFunction = std::shared_ptr<Packet>(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress);
         using newPacketFunction = std::shared_ptr<Packet>(Cerios::Server::Side side);
-        using packetRegistryKeyType = std::pair<ClientState, std::int32_t>;
-        using packet_registry = std::unordered_map<packetRegistryKeyType, std::pair<newPacketFunction *, parsePacketFunction *>, PairHash>;
+        using packetRegistryKeyType = std::tuple<Side, ClientState, std::int32_t>;
+        using packet_registry = std::unordered_map<packetRegistryKeyType, std::pair<newPacketFunction *, parsePacketFunction *>, TupleHash>;
         using packet_data_store = std::vector<std::uint8_t>;
         
         static const std::uint32_t MAX_LENGTH_BYTES = 3; // Magic constant for max size in Minecraft
@@ -98,6 +98,7 @@ namespace Cerios { namespace Server {
         void compressIfLargerThan(std::size_t lengthBytes);
         void resetBuffer();
         void framePacket();
+        std::int32_t getID() { return this->packetId; }
         packet_data_store &getData();
         
         template <typename T = Packet>
@@ -168,14 +169,14 @@ namespace Cerios { namespace Server {
             return Packet::instantiateNew<T>(side, state, packetId);
         }
         
-        static void registrate(ClientState const &state, std::int32_t const &packetId, newPacketFunction *np, parsePacketFunction *pp) {
-            registry()[packetRegistryKeyType(state, packetId)] = std::pair<newPacketFunction *, parsePacketFunction *>(np, pp);
+        static void registrate(Side const &side, ClientState const &state, std::int32_t const &packetId, newPacketFunction *np, parsePacketFunction *pp) {
+            registry()[packetRegistryKeyType(side, state, packetId)] = std::pair<newPacketFunction *, parsePacketFunction *>(np, pp);
         }
         
         template <typename D>
         struct Registrar {
-            explicit Registrar(ClientState const &state, std::int32_t const &packetId) {
-                Packet::registrate(state, packetId, &D::newPacket, &D::parsePacket);
+            explicit Registrar(Side const &side, ClientState const &state, std::int32_t const &packetId) {
+                Packet::registrate(side, state, packetId, &D::newPacket, &D::parsePacket);
             }
         };
         
@@ -211,13 +212,21 @@ namespace Cerios { namespace Server {
     private:
         template <typename T = Packet>
         static std::shared_ptr<T> instantiateFromData(Cerios::Server::Side side, ClientState const &state, std::shared_ptr<Cerios::Server::Packet> packetInProgress) {
-            auto it = registry().find(packetRegistryKeyType(state, packetInProgress->packetId));
+            auto it = registry().find(packetRegistryKeyType(side, state, packetInProgress->packetId));
+            if (it == registry().end()) {
+                // If not found try finding it under the both key
+                it = registry().find(packetRegistryKeyType(Side::BI_DIRECTIONAL, state, packetInProgress->packetId));
+            }
             return std::dynamic_pointer_cast<T>(it == registry().end() ? nullptr : (it->second.second)(side, packetInProgress));
         }
         
         template <typename T = Packet>
         static std::shared_ptr<T> instantiateNew(Cerios::Server::Side side, ClientState const &state, std::int32_t packetId) {
-            auto it = registry().find(packetRegistryKeyType(state, packetId));
+            auto it = registry().find(packetRegistryKeyType(side, state, packetId));
+            if (it == registry().end()) {
+                // If not found try finding it under the both key
+                it = registry().find(packetRegistryKeyType(Side::BI_DIRECTIONAL, state, packetId));
+            }
             return std::dynamic_pointer_cast<T>(it == registry().end() ? nullptr : (it->second.first)(side));
         }
         static packet_registry &registry();

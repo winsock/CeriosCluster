@@ -9,11 +9,16 @@
 #include "ClientServer.hpp"
 
 #include <iostream>
+#include <rapidjson/writer.h>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+
 #include <Packet.hpp>
 #include <JoinGamePacket.hpp>
 #include <SpawnPositionPacket.hpp>
 #include <PlayerPositionAndLookPacket.hpp>
 #include <PlayerAbilitiesPacket.hpp>
+#include <ChatMessagePacket.hpp>
 
 #include "Client.hpp"
 #include "LoginServer.hpp"
@@ -135,13 +140,14 @@ bool Cerios::Server::ClientServer::addClient(std::unique_ptr<Cerios::Server::Cli
         // TODO get overworld spawn and set it in the db for the player
     }
     
-    auto joinGamePacket = Packet::newPacket<Cerios::Server::JoinGamePacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x01);
+    // Send packets
+    auto joinGamePacket = Packet::newPacket<Cerios::Server::JoinGamePacket>(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x01);
     client->sendPacket(joinGamePacket);
-    auto spawnPosition = Packet::newPacket<Cerios::Server::SpawnPositionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x05);
+    auto spawnPosition = Packet::newPacket<Cerios::Server::SpawnPositionPacket>(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x05);
     client->sendPacket(spawnPosition);
-    auto posAndLook = Packet::newPacket<Cerios::Server::PlayerPositionAndLookPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x08);
+    auto posAndLook = Packet::newPacket<Cerios::Server::PlayerPositionAndLookPacket>(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x08);
     client->sendPacket(posAndLook);
-    auto setAbilities = Packet::newPacket<Cerios::Server::PlayerAbilitiesPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x39);
+    auto setAbilities = Packet::newPacket<Cerios::Server::PlayerAbilitiesPacket>(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::PLAY, 0x39);
     client->sendPacket(setAbilities);
     
     this->clients[client->getClientId()] = std::move(client);
@@ -158,10 +164,48 @@ std::weak_ptr<asio::io_service> Cerios::Server::ClientServer::getIOService() {
  * Most likely only viable on Linux. Might be possible on OS X with porting a BSD driver into a kext.
 **/
 bool Cerios::Server::ClientServer::onPacketReceived(Cerios::Server::Client *client, std::shared_ptr<Cerios::Server::Packet> packet) {
-    std::vector<std::uint8_t> payload;
-    packet->serializeToBuffer(Cerios::Server::Side::CLIENT, payload);
-    std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::MC_PACKET, client->getClientId(), payload);
-    this->sendPacket(message);
+    {
+        auto chatPacket = std::dynamic_pointer_cast<Cerios::Server::ChatMessagePacket>(packet);
+        if (chatPacket != nullptr) {
+            rapidjson::Document chatJson;
+            chatJson.Parse(chatPacket->jsonChatData.c_str());
+            if (chatJson.HasParseError()) {
+                // Client will disconnect with invalid JSON data
+                return true;
+            }
+            
+            if (chatJson["text"].GetStringLength() <= 0) {
+                return true;
+            }
+            
+            std::string stringValue(chatJson["text"].GetString(), chatJson["text"].GetStringLength());
+            if (stringValue.length() > MC_CHAT_MAX_TEXT_LENGTH) {
+                // Default MC Server Implementation to limit message length to 100
+                return true;
+            }
+            
+            if (stringValue[0] == '/') {
+                // We have a command to parse
+            } else {
+                // It is just a message. Prepend the player name and send to all clients connected
+                stringValue.insert(stringValue.front(), "<" + client->getClientUsername() + "> ");
+                chatJson["text"].SetString(stringValue.c_str(), static_cast<std::uint32_t>(stringValue.length()), chatJson.GetAllocator());
+                
+                rapidjson::StringBuffer outputBuffer;
+                rapidjson::Writer<rapidjson::StringBuffer> writer(outputBuffer);
+                chatJson.Accept(writer);
+                chatPacket->jsonChatData = std::string(outputBuffer.GetString(), outputBuffer.GetSize());
+                
+                chatPacket->chatPosition = Cerios::Server::ChatMessagePacket::ChatType::NORMAL;
+                
+                // Broadcast the message
+                // TODO broadcast to other Client Gateways
+                for (auto &client : this->clients) {
+                    client.second->sendPacket(chatPacket);
+                }
+            }
+        }
+    }
     
     return true;
 }

@@ -10,7 +10,7 @@
 #include <openssl/ssl.h>
 
 Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packetInProgress) : Packet(packetInProgress), serverId("") {
-    if (side == Side::SERVER) { // If packet is from the server going to the client, not priority to finish client side receipt processing.
+    if (side == Side::CLIENT_BOUND) { // If packet is from the server going to the client, not priority to finish client side receipt processing.
         // Not complete
         std::int32_t stringLength;
         Cerios::Server::Packet::readVarIntFromBuffer(&stringLength, this->rawPayload, true);
@@ -37,7 +37,7 @@ Cerios::Server::EncryptionPacket::EncryptionPacket(Cerios::Server::Side side) : 
 
 void Cerios::Server::EncryptionPacket::serializePacket(Cerios::Server::Side sideSending) {
     Packet::serializePacket(sideSending);
-    if (sideSending == Cerios::Server::Side::SERVER) {
+    if (sideSending == Cerios::Server::Side::CLIENT_BOUND) {
         this->writeVarIntToBuffer(static_cast<std::int32_t>(this->serverId.size()));
         if (this->serverId.size() > 0) {
             std::copy(this->serverId.data(), this->serverId.data() + this->serverId.size(), std::back_inserter(this->rawPayload));

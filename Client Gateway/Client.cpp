@@ -94,10 +94,10 @@ void Cerios::Server::Client::onLengthReceive(std::shared_ptr<asio::streambuf> da
         if (this->buffer.size() >= messageLength + varintSize) {
             // Remove the message length from the buffer
             this->buffer.erase(this->buffer.begin(), this->buffer.begin() + varintSize);
-            auto parsedPacket = Cerios::Server::Packet::parsePacket(Cerios::Server::Side::CLIENT, messageLength, this->buffer, this->state, this->compressionThreshold >= 0);
+            auto parsedPacket = Cerios::Server::Packet::parsePacket(Cerios::Server::Side::SERVER_BOUND, messageLength, this->buffer, this->state, this->compressionThreshold >= 0);
             if (parsedPacket != nullptr) {
                 try {
-                    this->receivedMessage(Cerios::Server::Side::CLIENT, parsedPacket);
+                    this->receivedMessage(Cerios::Server::Side::SERVER_BOUND, parsedPacket);
                 } catch(std::exception &e) {
                     std::cerr<<"Exception during packet handling: "<<e.what()<<std::endl;
                     this->disconnect();
@@ -138,7 +138,7 @@ void Cerios::Server::Client::onWriteComplete(const asio::error_code &error, std:
 }
 
 Cerios::Server::Side Cerios::Server::Client::getSide() {
-    return Cerios::Server::Side::SERVER;
+    return Cerios::Server::Side::SERVER_BOUND;
 }
 
 void Cerios::Server::Client::disconnect() {
@@ -205,6 +205,8 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
         return;
     }
     
+    std::cout<<packet->getID()<<std::endl;
+    
     auto owner = this->owner.lock();
     if (owner == nullptr) {
         this->disconnect();
@@ -263,7 +265,7 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
                 this->formatUUID();
                 this->onPlayerLogin();
             } else {
-                auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1);
+                auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::LOGIN, 0x01);
                 
                 response->publickKey = owner->getPublicKeyString();
                 
@@ -408,7 +410,7 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
 
 void Cerios::Server::Client::onPlayerLogin() {
     // Send Login Success Packet
-    auto loginSuccessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x02);
+    auto loginSuccessPacket = Packet::newPacket<Cerios::Server::LoginSuccessPacket>(Cerios::Server::Side::CLIENT_BOUND, Cerios::Server::ClientState::LOGIN, 0x02);
     loginSuccessPacket->uuid = this->userid;
     loginSuccessPacket->username = this->requestedUsername;
     this->sendPacket(loginSuccessPacket);
@@ -540,7 +542,7 @@ void Cerios::Server::Client::keepAlive(const asio::error_code &error) {
         // Timeout
         this->socket->cancel();
     } else {
-        auto keepAlive = Cerios::Server::Packet::newPacket<KeepAlivePacket>(Cerios::Server::Side::SERVER, this->getState(), 0x00);
+        auto keepAlive = Cerios::Server::Packet::newPacket<KeepAlivePacket>(Cerios::Server::Side::CLIENT_BOUND, this->getState(), 0x00);
         if (keepAlive == nullptr) {
             // Not in play game state
             this->socket->cancel();

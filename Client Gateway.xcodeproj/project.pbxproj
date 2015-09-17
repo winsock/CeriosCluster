@@ -46,6 +46,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4C483D871BAA47F900E812AD /* hexstring.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hexstring.hpp; sourceTree = "<group>"; };
 		4C53734F1B94AC19003EF834 /* ClientOwner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ClientOwner.hpp; sourceTree = "<group>"; };
 		4C80FC3A1B9DDA2600048972 /* libInternalComms.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libInternalComms.a; path = build/Debug/libInternalComms.a; sourceTree = "<group>"; };
 		4CB0C5671B90FC0600B65AE7 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
@@ -117,6 +118,7 @@
 				4CB0C5681B90FC0600B65AE7 /* Client.hpp */,
 				4CC8B8611B93C79B009594E4 /* RandomSelect.hpp */,
 				4C53734F1B94AC19003EF834 /* ClientOwner.hpp */,
+				4C483D871BAA47F900E812AD /* hexstring.hpp */,
 			);
 			path = "Client Gateway";
 			sourceTree = "<group>";

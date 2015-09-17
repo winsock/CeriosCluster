@@ -32,6 +32,7 @@
 #include <rapidjson/rapidjson.h>
 
 #include "LoginServer.hpp"
+#include "hexstring.hpp"
 #include "ClientOwner.hpp"
 
 /**
@@ -170,6 +171,22 @@ std::string Cerios::Server::Client::getClientId() {
     return this->userid;
 }
 
+std::string Cerios::Server::Client::getClientUsername() {
+    return this->requestedUsername;
+}
+
+void Cerios::Server::Client::formatUUID() {
+    if (this->userid.empty()) {
+        return;
+    }
+    
+    static std::regex uuidSplit("([[:xdigit:]]{8})([[:xdigit:]]{4})([[:xdigit:]]{4})([[:xdigit:]]{4})([[:xdigit:]]{12})");
+    std::smatch uuidParts;
+    if (std::regex_match(this->userid, uuidParts, uuidSplit)) {
+        this->userid = uuidParts[1].str() + "-" + uuidParts[2].str() + "-" + uuidParts[3].str() + "-" + uuidParts[4].str() + "-" + uuidParts[5].str();
+    }
+}
+
 void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::shared_ptr<Cerios::Server::Packet> packet) {
     auto pingPacket = std::dynamic_pointer_cast<Cerios::Server::PingPacket>(packet);
     if (pingPacket != nullptr) {
@@ -237,6 +254,13 @@ void Cerios::Server::Client::receivedMessage(Cerios::Server::Side side, std::sha
             this->requestedUsername = loginRequest->playerName;
             
             if (this->getSocket()->remote_endpoint().address().is_loopback()) {
+                std::vector<std::uint8_t> hashData(SHA256_DIGEST_LENGTH);
+                SHA256(reinterpret_cast<const std::uint8_t *>(this->requestedUsername.data()), this->requestedUsername.length(), hashData.data());
+                this->userid = make_hex_string(hashData.begin(), hashData.end()).substr(0, 32);
+                if (userid.length() != 32) {
+                    throw new std::runtime_error("WTF Exception, a exception that should never happen has fired.");
+                }
+                this->formatUUID();
                 this->onPlayerLogin();
             } else {
                 auto response = Packet::newPacket<Cerios::Server::EncryptionPacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::LOGIN, 0x1);
@@ -369,15 +393,8 @@ void Cerios::Server::Client::onHasJoinedPostComplete(std::shared_ptr<asio::ssl::
     std::string jsonResponseString(reinterpret_cast<const std::uint8_t *>(data->data().data()), reinterpret_cast<const std::uint8_t *>(data->data().data()) + length);
     
     this->playerInfo.Parse(jsonResponseString.c_str());
-    std::string uuidString = std::string(this->playerInfo["id"].GetString(), this->playerInfo["id"].GetStringLength());
-    
-    static std::regex uuidSplit("([[:xdigit:]]{8})([[:xdigit:]]{4})([[:xdigit:]]{4})([[:xdigit:]]{4})([[:xdigit:]]{12})");
-    std::smatch uuidParts;
-    if (std::regex_match(uuidString, uuidParts, uuidSplit)) {
-        uuidString = uuidParts[1].str() + "-" + uuidParts[2].str() + "-" + uuidParts[3].str() + "-" + uuidParts[4].str() + "-" + uuidParts[5].str();
-    }
-    
-    this->userid = uuidString;
+    this->userid = std::string(this->playerInfo["id"].GetString(), this->playerInfo["id"].GetStringLength());
+    this->formatUUID();
     this->requestedUsername = std::string(this->playerInfo["name"].GetString(), this->playerInfo["name"].GetStringLength());
     
     // Set that the connection is encrypted. This is expected before sending the login success packet.

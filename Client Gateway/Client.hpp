@@ -73,8 +73,10 @@ namespace Cerios { namespace Server {
         void setState(ClientState state) { this->state = state; }
         asio::ip::tcp::socket *getSocket() { return socket.get(); }
         std::string getClientId();
+        std::string getClientUsername();
         void disconnect();
     private:
+        inline void formatUUID();
         int encrypt(unsigned char *plaintext, std::size_t plaintext_len, unsigned char *ciphertext);
         int decrypt(unsigned char *ciphertext, std::size_t ciphertext_len, unsigned char *plaintext);
         void startAsyncRead();

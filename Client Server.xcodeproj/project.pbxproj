@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4C1344001B8E6F8200CCD7F4 /* ClientServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C1343FE1B8E6F8200CCD7F4 /* ClientServer.cpp */; };
+		4C483D801BA9F2C500E812AD /* libmysqlpp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C483D7F1BA9F2C500E812AD /* libmysqlpp.dylib */; };
 		4C4D0AC81B9A3ADA003905F1 /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C4D0AC61B9A3ADA003905F1 /* GameState.cpp */; };
 		4C6FF3BD1B9A3EA4008196C7 /* EntityBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3BB1B9A3EA4008196C7 /* EntityBase.cpp */; };
 		4C6FF3C01B9A3EE6008196C7 /* EntityLiving.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C6FF3BE1B9A3EE6008196C7 /* EntityLiving.cpp */; };
@@ -32,6 +33,7 @@
 /* Begin PBXFileReference section */
 		4C1343FE1B8E6F8200CCD7F4 /* ClientServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientServer.cpp; sourceTree = "<group>"; };
 		4C1343FF1B8E6F8200CCD7F4 /* ClientServer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ClientServer.hpp; sourceTree = "<group>"; };
+		4C483D7F1BA9F2C500E812AD /* libmysqlpp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlpp.dylib; path = "../../Library/Developer/Xcode/DerivedData/Server-cjavytfpycauwihcvzhbghexjvsf/Build/Products/Debug/libmysqlpp.dylib"; sourceTree = "<group>"; };
 		4C4D0AC61B9A3ADA003905F1 /* GameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
 		4C4D0AC71B9A3ADA003905F1 /* GameState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameState.hpp; sourceTree = "<group>"; };
 		4C6FF3B91B9A3C5A008196C7 /* Bitfield.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Bitfield.hpp; sourceTree = "<group>"; };
@@ -54,6 +56,7 @@
 			files = (
 				4CA6D3061BA3828D00974DF6 /* libMCPacket.a in Frameworks */,
 				4C80FC381B9DD9F900048972 /* libInternalComms.a in Frameworks */,
+				4C483D801BA9F2C500E812AD /* libmysqlpp.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +79,7 @@
 		4C80FC391B9DDA0100048972 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4C483D7F1BA9F2C500E812AD /* libmysqlpp.dylib */,
 				4CA6D3051BA3828D00974DF6 /* libMCPacket.a */,
 				4C80FC371B9DD9F900048972 /* libInternalComms.a */,
 			);

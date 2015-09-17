@@ -18,7 +18,9 @@
 #include <memory>
 #include <unordered_map>
 #include <mutex>
+
 #include <asio/thread.hpp>
+#include <mysql++.h>
 
 #include "ClientOwner.hpp"
 
@@ -41,6 +43,7 @@ namespace Cerios { namespace Server {
         std::shared_ptr<X509> certificate;
         std::string publicKeyString;
 
+        std::shared_ptr<mysqlpp::Connection> mysqldb;
         std::atomic_bool running;
     public:
         Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6);
@@ -63,6 +66,8 @@ namespace Cerios { namespace Server {
 
         void clientDisconnected(Cerios::Server::Client *disconnectedClient);
         std::weak_ptr<asio::io_service> getIOService();
+        // Shared because mysqlpp is thread safe
+        std::shared_ptr<mysqlpp::Connection> getMySQLConnection();
         ~Login();
     private:
         void tryGetClientServer();

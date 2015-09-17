@@ -21,7 +21,7 @@
 #include "ClientServer.hpp"
 
 Cerios::Server::Login::Login(unsigned short mcPort, unsigned short nodeCommsPort, bool ipv6) : service(new asio::io_service()), running(true),
-clientAcceptor(*service.get(), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)),
+clientAcceptor(*service.get(), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), mcPort)), mysqldb(new mysqlpp::Connection(false)),
 clientServerAcceptor(*service.get(), asio::ip::tcp::endpoint(ipv6 ? asio::ip::tcp::v6() : asio::ip::tcp::v4(), nodeCommsPort)),
 keyPair(EVP_PKEY_new(), [=](EVP_PKEY* keyPair) { EVP_PKEY_free(keyPair); }),
 certificate(X509_new(), [=](X509* cert) { X509_free(cert); }) {
@@ -65,6 +65,7 @@ void Cerios::Server::Login::asyncClientAccept() {
 }
 
 void Cerios::Server::Login::init() {
+    // RSA
     RSA *rsa = RSA_new();
     BIGNUM *bne = BN_new();
     BN_set_word(bne, RSA_F4);
@@ -82,6 +83,12 @@ void Cerios::Server::Login::init() {
     this->publicKeyString = std::string(reinterpret_cast<std::string::value_type*>(tempBuffer), neededLength);
     free(tempBuffer);
 
+    // MySQL, TODO: Spit out the constants to a config file or command line arg
+    if (!mysqldb->connect("cerios_cluster_game_state", "localhost", "root", NULL, 3306)) {
+        std::cerr<<"Error connecting to MySQL database!"<<std::endl;
+        return;
+    }
+    
     this->clientServerHanler = std::shared_ptr<Cerios::Server::ClientServer>(new Cerios::Server::ClientServer(1338, false, std::dynamic_pointer_cast<Cerios::Server::Login>(this->shared_from_this())));
     this->asyncClientAccept();
 }
@@ -132,6 +139,10 @@ void Cerios::Server::Login::handoffClient(Cerios::Server::Client *handoffClient)
 
 std::weak_ptr<asio::io_service> Cerios::Server::Login::getIOService() {
     return std::weak_ptr<asio::io_service>(this->service);
+}
+
+std::shared_ptr<mysqlpp::Connection> Cerios::Server::Login::getMySQLConnection() {
+    return this->mysqldb;
 }
 
 Cerios::Server::Login::~Login() {

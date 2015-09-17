@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C483D821BA9F34500E812AD /* libmysqlpp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C483D811BA9F34500E812AD /* libmysqlpp.dylib */; };
 		4C80FC3B1B9DDA2600048972 /* libInternalComms.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C80FC3A1B9DDA2600048972 /* libInternalComms.a */; };
 		4CB0C5691B90FC0600B65AE7 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CB0C5671B90FC0600B65AE7 /* Client.cpp */; };
 		4CBC84031B8E2270009CFAFF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBC84021B8E2270009CFAFF /* main.cpp */; };
@@ -46,6 +47,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4C483D811BA9F34500E812AD /* libmysqlpp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlpp.dylib; path = "../../Library/Developer/Xcode/DerivedData/Server-cjavytfpycauwihcvzhbghexjvsf/Build/Products/Debug/libmysqlpp.dylib"; sourceTree = "<group>"; };
 		4C483D871BAA47F900E812AD /* hexstring.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hexstring.hpp; sourceTree = "<group>"; };
 		4C53734F1B94AC19003EF834 /* ClientOwner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ClientOwner.hpp; sourceTree = "<group>"; };
 		4C80FC3A1B9DDA2600048972 /* libInternalComms.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libInternalComms.a; path = build/Debug/libInternalComms.a; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C483D821BA9F34500E812AD /* libmysqlpp.dylib in Frameworks */,
 				4CC8B85D1B938E2F009594E4 /* libMCPacket.a in Frameworks */,
 				4CBFEBC21B9608DA000C258C /* libcrypto.a in Frameworks */,
 				4C80FC3B1B9DDA2600048972 /* libInternalComms.a in Frameworks */,
@@ -81,6 +84,7 @@
 		4C10B49A1B8F8FF800C497B1 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4C483D811BA9F34500E812AD /* libmysqlpp.dylib */,
 				4C80FC3A1B9DDA2600048972 /* libInternalComms.a */,
 				4CBFEBC01B9608DA000C258C /* libcrypto.a */,
 				4CBFEBC11B9608DA000C258C /* libssl.a */,
@@ -280,6 +284,8 @@
 					"$(PROJECT_DIR)/MCPacket",
 					"$(PROJECT_DIR)/RapidJSON/include",
 					"$(PROJECT_DIR)/InternalComms",
+					"$(PROJECT_DIR)/mysqlpp/lib",
+					/usr/local/include/mysql,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -301,6 +307,8 @@
 					"$(PROJECT_DIR)/MCPacket",
 					"$(PROJECT_DIR)/RapidJSON/include",
 					"$(PROJECT_DIR)/InternalComms",
+					"$(PROJECT_DIR)/mysqlpp/lib",
+					/usr/local/include/mysql,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

@@ -121,6 +121,19 @@ bool Cerios::Server::ClientServer::addClient(std::unique_ptr<Cerios::Server::Cli
 //    std::shared_ptr<Cerios::InternalComms::Packet> message = Cerios::InternalComms::Packet::newPacket(Cerios::InternalComms::MessageID::ACCEPT_CLIENT, client->getClientId(), payload);
 
 //    this->sendPacket(message);
+    std::cout<<client->getClientUsername()<<"("<<client->getClientId()<<") connected!"<<std::endl;
+    
+    auto mysqldb = this->owner->getMySQLConnection();
+    mysqlpp::Query query = mysqldb->query("SELECT * FROM `players` WHERE `uuid`='" + client->getClientId() + "';");
+    mysqlpp::StoreQueryResult res = query.store();
+    if (res && res.size() > 0) {
+        // Previous player
+        // TODO get last location/game state info and world id, etc and send it to the client to sync.
+    } else {
+        // New user add to db
+        mysqldb->query().exec("INSERT INTO `players` (uuid) VALUES ('" + client->getClientId() + "');");
+        // TODO get overworld spawn and set it in the db for the player
+    }
     
     auto joinGamePacket = Packet::newPacket<Cerios::Server::JoinGamePacket>(Cerios::Server::Side::SERVER, Cerios::Server::ClientState::PLAY, 0x01);
     client->sendPacket(joinGamePacket);
